@@ -13,12 +13,16 @@ www.rexchoppers.com
 
 ## Documentation
 
-### Building
-
-* Run `bundle exec jekyll build` All assets will be built under the `_site` directory
+### Commands
+```sh
+docker run --rm -it \
+  -v $(pwd):/srv/jekyll \
+  -p 4000:4000 \
+  jekyll/jekyll:4.2.2 \
+  jekyll serve --watch --force_polling --host 0.0.0.0
+```
 
 ### Brain Dump
-- Updating Platform Branch - ElasticBeanstalk (Script or something?)
 - Versioned queues
 - RabbitMQ Integration
 - excimer for Sentry on Elasticbeanstalk
