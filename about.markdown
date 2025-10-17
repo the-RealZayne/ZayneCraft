@@ -12,43 +12,12 @@ I started off programming in 2012 when I was 13. I've been programming since the
 I'm currently a Technical Lead
 
 
-## Technical Skills
-
-- Front End
-	- Angular
-	- Ionic
-	- Flutter
-
-- Back End
-	- PHP
-	- JS + TS
-	- Python
-	- Java
-	- GO
-	- C#
-	- LUA
-
-- Databases
-	- Postgres
-	- MySQL
-	- MongoDB
-	- Redis
-
-- Cloud Providers
-	- GCP
-	- AWS
-	- Digital Ocean
-
-- DevOps
-	- Github Actions
-	- Gitlab
-	- Kubernetes
-	- Docker
-
-- MQs
-	- NATS MQ
-	- RabbitMQ
-	- AWS SQS
+## Tech
+- BE: PHP, NodeJS, Python, Java, GO, C#
+- FE: React, Angular, Ionic, Flutter
+- DB: Postgres, MySQL, MongoDB, Redis, DynamoDB
+- Cloud: AWS, GCP, Digital Ocean
+- Infra/CI/CD: Github/Gitlab, K8s, Docker, RabbitMQ, SQS
 
 
 ## Certifications
@@ -85,7 +54,6 @@ I'm currently a Technical Lead
 
 **Hosted on:** AWS
 
-  
 
 **Built with:** Jekyll
 
