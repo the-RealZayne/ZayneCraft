@@ -140,18 +140,20 @@ let isOnGround = true;
 const playerHeight = 2;
 
 // Scene objects
-let ground: THREE.Mesh;
+let ground: THREE.Group;
 let ambientLight: THREE.AmbientLight;
 let directionalLight: THREE.DirectionalLight;
-const portals: THREE.Mesh[] = [];
-const portalLabels: THREE.Sprite[] = [];
+const portals: THREE.Group[] = [];
+const portalLabels: THREE.Group[] = [];
 const decorations: THREE.Object3D[] = [];
+let terminal: THREE.Group | null = null;
 
 // UI Elements
 const instructions = document.getElementById('instructions')!;
 const planetName = document.getElementById('planet-name')!;
 const sectionName = document.getElementById('section-name')!;
 const planetDescription = document.getElementById('planet-description')!;
+const hologramPanel = document.getElementById('hologram-panel')!;
 
 // Click to start
 instructions.addEventListener('click', () => {
@@ -223,59 +225,262 @@ document.addEventListener('keyup', (event) => {
   }
 });
 
-// Create starfield
-function createStarfield(): THREE.Points {
-  const geometry = new THREE.BufferGeometry();
-  const count = 5000;
-  const positions = new Float32Array(count * 3);
+// Create enhanced starfield with varying sizes and colors
+function createStarfield(): THREE.Group {
+  const group = new THREE.Group();
 
-  for (let i = 0; i < count * 3; i += 3) {
-    const radius = 3000 + Math.random() * 2000;
+  // Main stars - small and numerous
+  const smallStarsGeo = new THREE.BufferGeometry();
+  const smallCount = 8000;
+  const smallPositions = new Float32Array(smallCount * 3);
+  const smallColors = new Float32Array(smallCount * 3);
+
+  for (let i = 0; i < smallCount; i++) {
+    const radius = 2000 + Math.random() * 3000;
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
 
-    positions[i] = radius * Math.sin(phi) * Math.cos(theta);
-    positions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    positions[i + 2] = radius * Math.cos(phi);
+    smallPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+    smallPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+    smallPositions[i * 3 + 2] = radius * Math.cos(phi);
+
+    // Vary star colors slightly (white, blue-white, yellow-white)
+    const colorChoice = Math.random();
+    if (colorChoice < 0.7) {
+      smallColors[i * 3] = 1;
+      smallColors[i * 3 + 1] = 1;
+      smallColors[i * 3 + 2] = 1;
+    } else if (colorChoice < 0.85) {
+      smallColors[i * 3] = 0.8;
+      smallColors[i * 3 + 1] = 0.9;
+      smallColors[i * 3 + 2] = 1;
+    } else {
+      smallColors[i * 3] = 1;
+      smallColors[i * 3 + 1] = 0.95;
+      smallColors[i * 3 + 2] = 0.8;
+    }
   }
 
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  smallStarsGeo.setAttribute('position', new THREE.BufferAttribute(smallPositions, 3));
+  smallStarsGeo.setAttribute('color', new THREE.BufferAttribute(smallColors, 3));
 
-  const material = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 2,
+  const smallStarsMat = new THREE.PointsMaterial({
+    size: 1.5,
     sizeAttenuation: true,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8,
   });
 
-  return new THREE.Points(geometry, material);
+  group.add(new THREE.Points(smallStarsGeo, smallStarsMat));
+
+  // Bright stars - larger and fewer
+  const brightStarsGeo = new THREE.BufferGeometry();
+  const brightCount = 500;
+  const brightPositions = new Float32Array(brightCount * 3);
+
+  for (let i = 0; i < brightCount; i++) {
+    const radius = 2500 + Math.random() * 2000;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+
+    brightPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+    brightPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+    brightPositions[i * 3 + 2] = radius * Math.cos(phi);
+  }
+
+  brightStarsGeo.setAttribute('position', new THREE.BufferAttribute(brightPositions, 3));
+
+  const brightStarsMat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 4,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0.9,
+  });
+
+  group.add(new THREE.Points(brightStarsGeo, brightStarsMat));
+
+  return group;
+}
+
+// Create nebula clouds
+function createNebulas(): THREE.Group {
+  const group = new THREE.Group();
+
+  const nebulaColors = [
+    0x4444aa, // Blue
+    0x6622aa, // Purple
+    0x22aa66, // Teal
+    0xaa4466, // Pink
+  ];
+
+  for (let n = 0; n < 6; n++) {
+    const nebulaGeo = new THREE.BufferGeometry();
+    const count = 300;
+    const positions = new Float32Array(count * 3);
+
+    // Random position on sky sphere
+    const centerTheta = Math.random() * Math.PI * 2;
+    const centerPhi = Math.random() * Math.PI * 0.6 + 0.2; // Mostly above horizon
+    const radius = 2200;
+
+    const cx = radius * Math.sin(centerPhi) * Math.cos(centerTheta);
+    const cy = radius * Math.cos(centerPhi);
+    const cz = radius * Math.sin(centerPhi) * Math.sin(centerTheta);
+
+    for (let i = 0; i < count; i++) {
+      const spread = 400 + Math.random() * 300;
+      positions[i * 3] = cx + (Math.random() - 0.5) * spread;
+      positions[i * 3 + 1] = cy + (Math.random() - 0.5) * spread;
+      positions[i * 3 + 2] = cz + (Math.random() - 0.5) * spread;
+    }
+
+    nebulaGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const nebulaMat = new THREE.PointsMaterial({
+      color: nebulaColors[n % nebulaColors.length],
+      size: 15 + Math.random() * 20,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.15,
+      blending: THREE.AdditiveBlending,
+    });
+
+    group.add(new THREE.Points(nebulaGeo, nebulaMat));
+  }
+
+  return group;
 }
 
 const starfield = createStarfield();
 scene.add(starfield);
 
-// Create ground
-function createGround(color: number): THREE.Mesh {
-  const geometry = new THREE.PlaneGeometry(500, 500, 50, 50);
+const nebulas = createNebulas();
+scene.add(nebulas);
 
-  // Add some terrain variation
+// Create ambient skybox with gradient
+function createSkybox(): THREE.Mesh {
+  const skyGeometry = new THREE.SphereGeometry(2500, 32, 32);
+
+  const skyMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      topColor: { value: new THREE.Color(0x0a0a20) },
+      bottomColor: { value: new THREE.Color(0x000000) },
+      horizonColor: { value: new THREE.Color(0x1a1a3a) },
+      offset: { value: 20 },
+      exponent: { value: 0.6 },
+    },
+    vertexShader: `
+      varying vec3 vWorldPosition;
+      void main() {
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPosition.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 topColor;
+      uniform vec3 bottomColor;
+      uniform vec3 horizonColor;
+      uniform float offset;
+      uniform float exponent;
+      varying vec3 vWorldPosition;
+      void main() {
+        float h = normalize(vWorldPosition + offset).y;
+        float t = max(pow(max(h, 0.0), exponent), 0.0);
+        vec3 sky = mix(horizonColor, topColor, t);
+        float b = max(pow(max(-h, 0.0), exponent * 0.5), 0.0);
+        sky = mix(sky, bottomColor, b);
+        gl_FragColor = vec4(sky, 1.0);
+      }
+    `,
+    side: THREE.BackSide,
+  });
+
+  return new THREE.Mesh(skyGeometry, skyMaterial);
+}
+
+let skybox = createSkybox();
+scene.add(skybox);
+
+// Update skybox colors based on planet
+function updateSkybox(config: PlanetConfig): void {
+  const material = skybox.material as THREE.ShaderMaterial;
+
+  // Create variations of the sky color
+  const baseColor = new THREE.Color(config.skyColor);
+  const topColor = baseColor.clone().multiplyScalar(0.5);
+  const horizonColor = baseColor.clone().lerp(new THREE.Color(config.lightColor), 0.15);
+
+  material.uniforms.topColor.value = topColor;
+  material.uniforms.horizonColor.value = horizonColor;
+  material.uniforms.bottomColor.value = new THREE.Color(0x000000);
+}
+
+// Simplex-like noise function for terrain
+function noise(x: number, y: number): number {
+  const n = Math.sin(x * 0.1) * Math.cos(y * 0.1) +
+            Math.sin(x * 0.05 + 1.3) * Math.cos(y * 0.07 + 0.7) * 0.5 +
+            Math.sin(x * 0.02 + 2.1) * Math.cos(y * 0.03 + 1.2) * 0.25;
+  return n;
+}
+
+// Create ground with more detailed terrain
+function createGround(color: number): THREE.Group {
+  const group = new THREE.Group();
+
+  // Main terrain
+  const geometry = new THREE.PlaneGeometry(600, 600, 120, 120);
+
   const positions = geometry.attributes.position;
+  const colors = new Float32Array(positions.count * 3);
+
+  const baseColor = new THREE.Color(color);
+  const darkColor = baseColor.clone().multiplyScalar(0.6);
+  const lightColor = baseColor.clone().multiplyScalar(1.3);
+
   for (let i = 0; i < positions.count; i++) {
     const x = positions.getX(i);
     const y = positions.getY(i);
     const distance = Math.sqrt(x * x + y * y);
 
-    // Keep center flat for walking, add hills at edges
-    if (distance > 50) {
-      const height = Math.sin(x * 0.05) * Math.cos(y * 0.05) * 3 + Math.random() * 0.5;
-      positions.setZ(i, height);
+    // Multi-layered terrain height
+    let height = 0;
+
+    // Keep center relatively flat for gameplay
+    if (distance > 40) {
+      const falloff = Math.min((distance - 40) / 60, 1);
+
+      // Large rolling hills
+      height += noise(x, y) * 8 * falloff;
+
+      // Medium bumps
+      height += noise(x * 2, y * 2) * 3 * falloff;
+
+      // Small detail
+      height += noise(x * 5, y * 5) * 0.8 * falloff;
+
+      // Random micro-detail
+      height += (Math.random() - 0.5) * 0.3 * falloff;
     }
+
+    positions.setZ(i, height);
+
+    // Vertex colors based on height
+    const heightRatio = (height + 5) / 15;
+    const vertexColor = darkColor.clone().lerp(lightColor, Math.max(0, Math.min(1, heightRatio)));
+    colors[i * 3] = vertexColor.r;
+    colors[i * 3 + 1] = vertexColor.g;
+    colors[i * 3 + 2] = vertexColor.b;
   }
 
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   geometry.computeVertexNormals();
 
   const material = new THREE.MeshStandardMaterial({
-    color,
-    roughness: 0.9,
+    vertexColors: true,
+    roughness: 0.85,
     metalness: 0.1,
     flatShading: true,
   });
@@ -283,52 +488,141 @@ function createGround(color: number): THREE.Mesh {
   const mesh = new THREE.Mesh(geometry, material);
   mesh.rotation.x = -Math.PI / 2;
   mesh.receiveShadow = true;
+  group.add(mesh);
 
-  return mesh;
+  // Add scattered rocks/details on terrain
+  for (let i = 0; i < 60; i++) {
+    const rockGeo = new THREE.DodecahedronGeometry(0.3 + Math.random() * 0.8, 0);
+    const rockMat = new THREE.MeshStandardMaterial({
+      color: baseColor.clone().multiplyScalar(0.7 + Math.random() * 0.3),
+      roughness: 0.9,
+      flatShading: true,
+    });
+    const rock = new THREE.Mesh(rockGeo, rockMat);
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 50 + Math.random() * 200;
+    rock.position.set(
+      Math.cos(angle) * dist,
+      0.2 + Math.random() * 0.3,
+      Math.sin(angle) * dist
+    );
+    rock.rotation.set(Math.random(), Math.random(), Math.random());
+    rock.castShadow = true;
+    group.add(rock);
+  }
+
+  return group;
 }
 
-// Create portal
-function createPortal(targetPlanet: string, angle: number, distance: number): THREE.Mesh {
+// Create portal - Particle Vortex
+function createPortal(targetPlanet: string, angle: number, distance: number): THREE.Group {
   const config = planets[targetPlanet];
+  const portal = new THREE.Group();
 
-  // Portal ring
-  const ringGeometry = new THREE.TorusGeometry(3, 0.3, 16, 32);
-  const ringMaterial = new THREE.MeshStandardMaterial({
-    color: config.skyColor,
-    emissive: config.lightColor,
-    emissiveIntensity: 0.5,
-    metalness: 0.8,
-    roughness: 0.2,
-  });
-  const portal = new THREE.Mesh(ringGeometry, ringMaterial);
+  const particleCount = 800;
+  const vortexHeight = 15;
+  const vortexRadius = 6;
 
-  // Portal surface (the "wormhole" effect)
-  const surfaceGeometry = new THREE.CircleGeometry(2.7, 32);
-  const surfaceMaterial = new THREE.MeshBasicMaterial({
-    color: config.skyColor,
+  // Create particle geometry
+  const positions = new Float32Array(particleCount * 3);
+  const angles = new Float32Array(particleCount);
+  const radii = new Float32Array(particleCount);
+  const speeds = new Float32Array(particleCount);
+  const heights = new Float32Array(particleCount);
+
+  for (let i = 0; i < particleCount; i++) {
+    angles[i] = Math.random() * Math.PI * 2;
+    radii[i] = 0.3 + Math.random() * vortexRadius;
+    speeds[i] = 0.5 + Math.random() * 1.5;
+    heights[i] = Math.random() * vortexHeight;
+
+    const x = Math.cos(angles[i]) * radii[i];
+    const y = heights[i];
+    const z = Math.sin(angles[i]) * radii[i];
+
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+  }
+
+  const particleGeometry = new THREE.BufferGeometry();
+  particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const particleMaterial = new THREE.PointsMaterial({
+    color: config.lightColor,
+    size: 0.35,
     transparent: true,
-    opacity: 0.7,
-    side: THREE.DoubleSide,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending,
   });
-  const surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
-  portal.add(surface);
 
-  // Inner glow
-  const glowGeometry = new THREE.CircleGeometry(2.5, 32);
+  const particles = new THREE.Points(particleGeometry, particleMaterial);
+  portal.add(particles);
+
+  // Store animation data
+  portal.userData.angles = angles;
+  portal.userData.radii = radii;
+  portal.userData.speeds = speeds;
+  portal.userData.heights = heights;
+  portal.userData.vortexHeight = vortexHeight;
+  portal.userData.vortexRadius = vortexRadius;
+
+  // Central core glow
+  const coreGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+  const coreMaterial = new THREE.MeshBasicMaterial({
+    color: config.lightColor,
+    transparent: true,
+    opacity: 0.95,
+  });
+  const core = new THREE.Mesh(coreGeometry, coreMaterial);
+  core.position.y = vortexHeight / 2;
+  portal.add(core);
+
+  // Outer core glow
+  const glowGeometry = new THREE.SphereGeometry(2.5, 16, 16);
   const glowMaterial = new THREE.MeshBasicMaterial({
     color: config.lightColor,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.35,
   });
   const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-  glow.position.z = 0.1;
+  glow.position.y = vortexHeight / 2;
   portal.add(glow);
+
+  // Extra outer glow for more presence
+  const outerGlowGeometry = new THREE.SphereGeometry(4, 16, 16);
+  const outerGlowMaterial = new THREE.MeshBasicMaterial({
+    color: config.lightColor,
+    transparent: true,
+    opacity: 0.15,
+  });
+  const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
+  outerGlow.position.y = vortexHeight / 2;
+  portal.add(outerGlow);
+
+  // Point light - more powerful
+  const portalLight = new THREE.PointLight(config.lightColor, 5, 50);
+  portalLight.position.y = vortexHeight / 2;
+  portal.add(portalLight);
+
+  // Ground ring glow
+  const ringGeometry = new THREE.RingGeometry(vortexRadius * 0.8, vortexRadius * 1.2, 32);
+  const ringMaterial = new THREE.MeshBasicMaterial({
+    color: config.lightColor,
+    transparent: true,
+    opacity: 0.3,
+    side: THREE.DoubleSide,
+  });
+  const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.05;
+  portal.add(ring);
 
   // Position portal
   const x = Math.cos(angle) * distance;
   const z = Math.sin(angle) * distance;
-  portal.position.set(x, 3.5, z);
-  portal.lookAt(0, 3.5, 0);
+  portal.position.set(x, 0, z);
 
   // Store target planet in userData
   portal.userData.targetPlanet = targetPlanet;
@@ -337,32 +631,65 @@ function createPortal(targetPlanet: string, angle: number, distance: number): TH
 }
 
 // Create portal label
-function createPortalLabel(text: string, subtext: string): THREE.Sprite {
+function createPortalLabel(text: string, subtext: string, color: number): THREE.Group {
+  const group = new THREE.Group();
+
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d')!;
   canvas.width = 512;
-  canvas.height = 256;
+  canvas.height = 200;
 
-  context.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  // Convert color to CSS
+  const r = (color >> 16) & 255;
+  const g = (color >> 8) & 255;
+  const b = color & 255;
+
+  // Gradient background
+  const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.1)`);
+  gradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.3)`);
+  gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0.1)`);
+
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Glowing border lines
+  context.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.8)`;
+  context.lineWidth = 3;
   context.beginPath();
-  context.roundRect(20, 20, canvas.width - 40, canvas.height - 40, 20);
-  context.fill();
+  context.moveTo(50, 20);
+  context.lineTo(canvas.width - 50, 20);
+  context.stroke();
+  context.beginPath();
+  context.moveTo(50, canvas.height - 20);
+  context.lineTo(canvas.width - 50, canvas.height - 20);
+  context.stroke();
 
-  context.font = 'bold 42px Arial';
+  // Planet name
+  context.font = 'bold 52px Arial';
   context.fillStyle = '#ffffff';
   context.textAlign = 'center';
-  context.fillText(text, canvas.width / 2, 100);
+  context.shadowColor = `rgb(${r}, ${g}, ${b})`;
+  context.shadowBlur = 20;
+  context.fillText(text, canvas.width / 2, 85);
 
-  context.font = '28px Arial';
-  context.fillStyle = '#aaddff';
-  context.fillText(subtext, canvas.width / 2, 150);
+  // Section name
+  context.font = '300 28px Arial';
+  context.fillStyle = `rgb(${Math.min(r + 50, 255)}, ${Math.min(g + 50, 255)}, ${Math.min(b + 50, 255)})`;
+  context.shadowBlur = 10;
+  context.fillText(subtext.toUpperCase(), canvas.width / 2, 140);
 
   const texture = new THREE.CanvasTexture(canvas);
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: false,
+  });
   const sprite = new THREE.Sprite(material);
-  sprite.scale.set(12, 6, 1);
+  sprite.scale.set(10, 4, 1);
+  group.add(sprite);
 
-  return sprite;
+  return group;
 }
 
 // Create decorations based on planet type
@@ -444,15 +771,118 @@ function createDecorations(planetId: string): THREE.Object3D[] {
   return objects;
 }
 
+// Create hologram terminal for home planet
+function createTerminal(): THREE.Group {
+  const terminalGroup = new THREE.Group();
+
+  // Base pedestal
+  const baseGeo = new THREE.CylinderGeometry(0.8, 1, 0.3, 16);
+  const baseMat = new THREE.MeshStandardMaterial({
+    color: 0x333344,
+    metalness: 0.8,
+    roughness: 0.3,
+  });
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.y = 0.15;
+  terminalGroup.add(base);
+
+  // Main pillar
+  const pillarGeo = new THREE.CylinderGeometry(0.3, 0.5, 1.2, 16);
+  const pillarMat = new THREE.MeshStandardMaterial({
+    color: 0x444455,
+    metalness: 0.9,
+    roughness: 0.2,
+  });
+  const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+  pillar.position.y = 0.9;
+  terminalGroup.add(pillar);
+
+  // Top platform
+  const topGeo = new THREE.CylinderGeometry(0.6, 0.4, 0.2, 16);
+  const topMat = new THREE.MeshStandardMaterial({
+    color: 0x555566,
+    metalness: 0.9,
+    roughness: 0.2,
+  });
+  const top = new THREE.Mesh(topGeo, topMat);
+  top.position.y = 1.6;
+  terminalGroup.add(top);
+
+  // Hologram emitter ring
+  const emitterGeo = new THREE.TorusGeometry(0.5, 0.05, 8, 32);
+  const emitterMat = new THREE.MeshBasicMaterial({
+    color: 0x00ffff,
+    transparent: true,
+    opacity: 0.8,
+  });
+  const emitter = new THREE.Mesh(emitterGeo, emitterMat);
+  emitter.rotation.x = Math.PI / 2;
+  emitter.position.y = 1.75;
+  terminalGroup.add(emitter);
+
+  // Hologram beam particles
+  const beamParticleCount = 50;
+  const beamPositions = new Float32Array(beamParticleCount * 3);
+  for (let i = 0; i < beamParticleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.random() * 0.4;
+    beamPositions[i * 3] = Math.cos(angle) * radius;
+    beamPositions[i * 3 + 1] = 1.8 + Math.random() * 2;
+    beamPositions[i * 3 + 2] = Math.sin(angle) * radius;
+  }
+  const beamGeo = new THREE.BufferGeometry();
+  beamGeo.setAttribute('position', new THREE.BufferAttribute(beamPositions, 3));
+  const beamMat = new THREE.PointsMaterial({
+    color: 0x00ffff,
+    size: 0.08,
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending,
+  });
+  const beam = new THREE.Points(beamGeo, beamMat);
+  terminalGroup.add(beam);
+
+  // Point light for glow
+  const light = new THREE.PointLight(0x00ffff, 1, 10);
+  light.position.y = 2.5;
+  terminalGroup.add(light);
+
+  // Interaction prompt sprite
+  const promptCanvas = document.createElement('canvas');
+  const ctx = promptCanvas.getContext('2d')!;
+  promptCanvas.width = 256;
+  promptCanvas.height = 64;
+  ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('[ Approach to interact ]', 128, 40);
+  const promptTexture = new THREE.CanvasTexture(promptCanvas);
+  const promptMat = new THREE.SpriteMaterial({ map: promptTexture, transparent: true });
+  const prompt = new THREE.Sprite(promptMat);
+  prompt.scale.set(4, 1, 1);
+  prompt.position.y = 4;
+  terminalGroup.add(prompt);
+
+  // Position in front of spawn, offset so portals are behind player
+  terminalGroup.position.set(0, 0, -8);
+
+  return terminalGroup;
+}
+
 // Clear current planet
 function clearPlanet(): void {
   if (ground) scene.remove(ground);
+  if (terminal) {
+    scene.remove(terminal);
+    terminal = null;
+  }
   portals.forEach((p) => scene.remove(p));
   portalLabels.forEach((l) => scene.remove(l));
   decorations.forEach((d) => scene.remove(d));
   portals.length = 0;
   portalLabels.length = 0;
   decorations.length = 0;
+  hologramPanel.classList.remove('visible');
 }
 
 // Load planet
@@ -468,8 +898,9 @@ function loadPlanet(planetId: string): void {
   planetDescription.textContent = config.description;
 
   // Update sky/fog
-  scene.background = new THREE.Color(config.skyColor);
+  scene.background = null; // Skybox handles background
   scene.fog = new THREE.FogExp2(config.skyColor, config.fogDensity);
+  updateSkybox(config);
 
   // Update lighting
   if (ambientLight) scene.remove(ambientLight);
@@ -507,9 +938,9 @@ function loadPlanet(planetId: string): void {
 
     // Add label above portal
     const targetConfig = planets[targetPlanet];
-    const label = createPortalLabel(targetConfig.name, targetConfig.section);
+    const label = createPortalLabel(targetConfig.name, targetConfig.section, targetConfig.lightColor);
     label.position.copy(portal.position);
-    label.position.y += 6;
+    label.position.y = 18;
     scene.add(label);
     portalLabels.push(label);
   });
@@ -520,6 +951,12 @@ function loadPlanet(planetId: string): void {
     scene.add(d);
     decorations.push(d);
   });
+
+  // Add hologram terminal on home planet
+  if (planetId === 'home') {
+    terminal = createTerminal();
+    scene.add(terminal);
+  }
 
   // Reset player position
   camera.position.set(0, playerHeight, 0);
@@ -537,7 +974,7 @@ function checkPortalCollision(): void {
   for (const portal of portals) {
     const distance = playerPosition.distanceTo(portal.position);
 
-    if (distance < 4) {
+    if (distance < 7) {
       const targetPlanet = portal.userData.targetPlanet;
       loadPlanet(targetPlanet);
       break;
@@ -562,13 +999,76 @@ function animate(): void {
   const delta = clock.getDelta();
   const time = clock.getElapsedTime();
 
-  // Animate portals
+  // Animate portals - particle vortex
   portals.forEach((portal, index) => {
-    portal.rotation.z = time * 0.5 + index;
-    // Pulse the inner glow
-    const glow = portal.children[1] as THREE.Mesh;
-    if (glow && glow.material instanceof THREE.MeshBasicMaterial) {
-      glow.material.opacity = 0.3 + Math.sin(time * 3 + index) * 0.15;
+    const particles = portal.children[0] as THREE.Points;
+    const positions = particles.geometry.attributes.position.array as Float32Array;
+    const angles = portal.userData.angles as Float32Array;
+    const radii = portal.userData.radii as Float32Array;
+    const speeds = portal.userData.speeds as Float32Array;
+    const heights = portal.userData.heights as Float32Array;
+    const vortexHeight = portal.userData.vortexHeight as number;
+
+    const particleCount = angles.length;
+
+    for (let i = 0; i < particleCount; i++) {
+      // Rotate around center
+      angles[i] += speeds[i] * delta * 2;
+
+      // Move upward and spiral inward
+      heights[i] += delta * (0.5 + speeds[i] * 0.5);
+
+      // As particles rise, they spiral inward
+      const heightRatio = heights[i] / vortexHeight;
+      const currentRadius = radii[i] * (1 - heightRatio * 0.8);
+
+      // Reset when reaching top
+      if (heights[i] > vortexHeight) {
+        heights[i] = 0;
+        angles[i] = Math.random() * Math.PI * 2;
+      }
+
+      const x = Math.cos(angles[i]) * currentRadius;
+      const y = heights[i];
+      const z = Math.sin(angles[i]) * currentRadius;
+
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+    }
+
+    particles.geometry.attributes.position.needsUpdate = true;
+
+    // Pulse the core and glows
+    const pulse = Math.sin(time * 3 + index) * 0.5 + 0.5;
+    const core = portal.children[1] as THREE.Mesh;
+    const glow = portal.children[2] as THREE.Mesh;
+    const outerGlow = portal.children[3] as THREE.Mesh;
+    const light = portal.children[4] as THREE.PointLight;
+
+    if (core?.material instanceof THREE.MeshBasicMaterial) {
+      core.material.opacity = 0.8 + pulse * 0.2;
+    }
+    if (glow?.material instanceof THREE.MeshBasicMaterial) {
+      glow.material.opacity = 0.25 + pulse * 0.2;
+    }
+    if (outerGlow?.material instanceof THREE.MeshBasicMaterial) {
+      outerGlow.material.opacity = 0.1 + pulse * 0.1;
+    }
+
+    const glowScale = 1 + pulse * 0.25;
+    glow.scale.set(glowScale, glowScale, glowScale);
+    const outerScale = 1 + pulse * 0.15;
+    outerGlow.scale.set(outerScale, outerScale, outerScale);
+
+    if (light) {
+      light.intensity = 3 + pulse * 3;
+    }
+
+    // Rotate ground ring
+    const ring = portal.children[5] as THREE.Mesh;
+    if (ring) {
+      ring.rotation.z = time * 0.5;
     }
   });
 
@@ -578,6 +1078,42 @@ function animate(): void {
       dec.position.y = 3 + Math.sin(time + i) * 0.5;
       dec.rotation.y += delta * 0.5;
     });
+  }
+
+  // Animate terminal on home planet
+  if (terminal) {
+    // Animate emitter ring rotation
+    const emitter = terminal.children[3] as THREE.Mesh;
+    if (emitter) {
+      emitter.rotation.z = time * 2;
+    }
+
+    // Animate beam particles
+    const beam = terminal.children[4] as THREE.Points;
+    if (beam) {
+      const positions = beam.geometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < positions.length / 3; i++) {
+        positions[i * 3 + 1] += delta * 2;
+        if (positions[i * 3 + 1] > 4) {
+          positions[i * 3 + 1] = 1.8;
+        }
+      }
+      beam.geometry.attributes.position.needsUpdate = true;
+    }
+
+    // Pulse the light
+    const light = terminal.children[5] as THREE.PointLight;
+    if (light) {
+      light.intensity = 1 + Math.sin(time * 3) * 0.5;
+    }
+
+    // Check proximity for hologram panel
+    const distanceToTerminal = camera.position.distanceTo(terminal.position);
+    if (distanceToTerminal < 5) {
+      hologramPanel.classList.add('visible');
+    } else {
+      hologramPanel.classList.remove('visible');
+    }
   }
 
   // Handle movement

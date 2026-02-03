@@ -155,3 +155,122 @@ body {
   top: 50%;
   transform: translateY(-50%);
 }
+
+/* Hologram Panel */
+#hologram-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#hologram-panel.visible {
+  opacity: 1;
+}
+
+.hologram-content {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 255, 0.1) 0%,
+    rgba(0, 150, 200, 0.15) 100%
+  );
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 0 30px rgba(0, 255, 255, 0.2),
+    inset 0 0 30px rgba(0, 255, 255, 0.05);
+  animation: hologramFlicker 4s infinite;
+}
+
+@keyframes hologramFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.9; }
+  97% { opacity: 1; }
+}
+
+.hologram-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.hologram-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 150, 200, 0.5));
+  border: 2px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.hologram-title h2 {
+  font-size: 1.5rem;
+  color: #00ffff;
+  margin-bottom: 5px;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.hologram-title p {
+  font-size: 0.9rem;
+  color: rgba(0, 255, 255, 0.7);
+  letter-spacing: 1px;
+}
+
+.hologram-body {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.hologram-body p {
+  margin-bottom: 15px;
+}
+
+.hologram-body ul {
+  list-style: none;
+  margin-top: 10px;
+}
+
+.hologram-body li {
+  padding: 8px 0;
+  padding-left: 20px;
+  position: relative;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.hologram-body li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: #00ffff;
+}
+
+.hologram-body li strong {
+  color: #00ffff;
+}
+
+.hologram-footer {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 255, 255, 0.3);
+  text-align: center;
+}
+
+.hologram-footer p {
+  font-size: 0.8rem;
+  color: rgba(0, 255, 255, 0.6);
+  letter-spacing: 1px;
+}
