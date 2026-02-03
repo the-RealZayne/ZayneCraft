@@ -1,3 +1,5 @@
+import musicAsset from '../assets/music.mp3?url';
+
 export class MusicSystem {
   private audio: HTMLAudioElement;
   private started = false;
@@ -5,7 +7,7 @@ export class MusicSystem {
   private muteButton: HTMLButtonElement;
 
   constructor() {
-    this.audio = new Audio('/music.mp3');
+    this.audio = new Audio(musicAsset);
     this.audio.loop = true;
     this.audio.volume = 0.3;
 
