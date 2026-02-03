@@ -4,116 +4,152 @@ import { planets } from '../config/planets';
 export class Portal {
   public static create(targetPlanet: string, angle: number, distance: number): THREE.Group {
     const config = planets[targetPlanet];
-    const portal = new THREE.Group();
+    const tent = new THREE.Group();
 
-    const particleCount = 800;
-    const vortexHeight = 15;
-    const vortexRadius = 6;
+    const width = 6;
+    const depth = 5;
+    const height = 4;
 
-    // Create particle geometry
-    const positions = new Float32Array(particleCount * 3);
-    const angles = new Float32Array(particleCount);
-    const radii = new Float32Array(particleCount);
-    const speeds = new Float32Array(particleCount);
-    const heights = new Float32Array(particleCount);
+    const canvasColor = 0xd4c4a8;
+    const canvasMat = new THREE.MeshStandardMaterial({
+      color: canvasColor,
+      side: THREE.DoubleSide,
+      roughness: 0.85,
+    });
 
-    for (let i = 0; i < particleCount; i++) {
-      angles[i] = Math.random() * Math.PI * 2;
-      radii[i] = 0.3 + Math.random() * vortexRadius;
-      speeds[i] = 0.5 + Math.random() * 1.5;
-      heights[i] = Math.random() * vortexHeight;
+    // Calculate roof panel dimensions
+    const roofWidth = Math.sqrt((width / 2) * (width / 2) + height * height);
 
-      const x = Math.cos(angles[i]) * radii[i];
-      const y = heights[i];
-      const z = Math.sin(angles[i]) * radii[i];
+    // Left roof panel
+    const leftRoofGeo = new THREE.PlaneGeometry(roofWidth, depth);
+    const leftRoof = new THREE.Mesh(leftRoofGeo, canvasMat);
+    const roofAngle = Math.atan2(height, width / 2);
+    leftRoof.rotation.set(0, 0, roofAngle - Math.PI / 2);
+    leftRoof.rotation.order = 'YXZ';
+    leftRoof.rotateY(Math.PI / 2);
+    leftRoof.position.set(-width / 4, height / 2, 0);
+    leftRoof.castShadow = true;
+    leftRoof.receiveShadow = true;
+    tent.add(leftRoof);
 
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
-    }
+    // Right roof panel
+    const rightRoof = new THREE.Mesh(leftRoofGeo, canvasMat);
+    rightRoof.rotation.set(0, 0, -(roofAngle - Math.PI / 2));
+    rightRoof.rotation.order = 'YXZ';
+    rightRoof.rotateY(Math.PI / 2);
+    rightRoof.position.set(width / 4, height / 2, 0);
+    rightRoof.castShadow = true;
+    rightRoof.receiveShadow = true;
+    tent.add(rightRoof);
 
-    const particleGeometry = new THREE.BufferGeometry();
-    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    // Back triangle - using custom geometry
+    const backGeo = new THREE.BufferGeometry();
+    const backVertices = new Float32Array([
+      -width / 2, 0, -depth / 2,
+      width / 2, 0, -depth / 2,
+      0, height, -depth / 2,
+    ]);
+    backGeo.setAttribute('position', new THREE.BufferAttribute(backVertices, 3));
+    backGeo.computeVertexNormals();
+    const back = new THREE.Mesh(backGeo, canvasMat);
+    back.castShadow = true;
+    tent.add(back);
 
-    const particleMaterial = new THREE.PointsMaterial({
-      color: config.lightColor,
-      size: 0.35,
+    // Floor inside tent
+    const floorGeo = new THREE.PlaneGeometry(width - 0.5, depth - 0.5);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x6b5a4a,
+      roughness: 1,
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = 0.02;
+    tent.add(floor);
+
+    // Magical elements
+    const glowColor = config.lightColor;
+
+    // Inner glow
+    const glowGeo = new THREE.SphereGeometry(0.7, 16, 16);
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: glowColor,
       transparent: true,
       opacity: 0.8,
+    });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.set(0, 1, 0);
+    tent.add(glow);
+
+    // Outer glow
+    const outerGlowGeo = new THREE.SphereGeometry(1.3, 16, 16);
+    const outerGlowMat = new THREE.MeshBasicMaterial({
+      color: glowColor,
+      transparent: true,
+      opacity: 0.3,
+    });
+    const outerGlow = new THREE.Mesh(outerGlowGeo, outerGlowMat);
+    outerGlow.position.set(0, 1, 0);
+    tent.add(outerGlow);
+
+    // Light
+    const tentLight = new THREE.PointLight(glowColor, 3, 20);
+    tentLight.position.set(0, 1.5, 0);
+    tent.add(tentLight);
+
+    // Particles
+    const particleCount = 40;
+    const particlePositions = new Float32Array(particleCount * 3);
+    const particlePhases = new Float32Array(particleCount);
+
+    for (let i = 0; i < particleCount; i++) {
+      particlePositions[i * 3] = (Math.random() - 0.5) * 4;
+      particlePositions[i * 3 + 1] = Math.random() * 2.5 + 0.3;
+      particlePositions[i * 3 + 2] = Math.random() * 4;
+      particlePhases[i] = Math.random() * Math.PI * 2;
+    }
+
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+      color: glowColor,
+      size: 0.1,
+      transparent: true,
+      opacity: 0.9,
       blending: THREE.AdditiveBlending,
     });
 
-    const particles = new THREE.Points(particleGeometry, particleMaterial);
-    portal.add(particles);
+    const particles = new THREE.Points(particleGeo, particleMat);
+    tent.add(particles);
 
-    // Store animation data
-    portal.userData.angles = angles;
-    portal.userData.radii = radii;
-    portal.userData.speeds = speeds;
-    portal.userData.heights = heights;
-    portal.userData.vortexHeight = vortexHeight;
-    portal.userData.vortexRadius = vortexRadius;
+    tent.userData.particlePhases = particlePhases;
+    tent.userData.originalParticlePositions = particlePositions.slice();
 
-    // Central core glow
-    const coreGeometry = new THREE.SphereGeometry(1.2, 16, 16);
-    const coreMaterial = new THREE.MeshBasicMaterial({
-      color: config.lightColor,
-      transparent: true,
-      opacity: 0.95,
-    });
-    const core = new THREE.Mesh(coreGeometry, coreMaterial);
-    core.position.y = vortexHeight / 2;
-    portal.add(core);
-
-    // Outer core glow
-    const glowGeometry = new THREE.SphereGeometry(2.5, 16, 16);
-    const glowMaterial = new THREE.MeshBasicMaterial({
-      color: config.lightColor,
+    // Entrance rug
+    const rugGeo = new THREE.PlaneGeometry(3, 2);
+    const rugMat = new THREE.MeshStandardMaterial({
+      color: glowColor,
       transparent: true,
       opacity: 0.35,
+      roughness: 0.9,
     });
-    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-    glow.position.y = vortexHeight / 2;
-    portal.add(glow);
+    const rug = new THREE.Mesh(rugGeo, rugMat);
+    rug.rotation.x = -Math.PI / 2;
+    rug.position.set(0, 0.03, depth / 2 + 1);
+    tent.add(rug);
 
-    // Extra outer glow
-    const outerGlowGeometry = new THREE.SphereGeometry(4, 16, 16);
-    const outerGlowMaterial = new THREE.MeshBasicMaterial({
-      color: config.lightColor,
-      transparent: true,
-      opacity: 0.15,
-    });
-    const outerGlow = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
-    outerGlow.position.y = vortexHeight / 2;
-    portal.add(outerGlow);
-
-    // Point light
-    const portalLight = new THREE.PointLight(config.lightColor, 5, 50);
-    portalLight.position.y = vortexHeight / 2;
-    portal.add(portalLight);
-
-    // Ground ring glow
-    const ringGeometry = new THREE.RingGeometry(vortexRadius * 0.8, vortexRadius * 1.2, 32);
-    const ringMaterial = new THREE.MeshBasicMaterial({
-      color: config.lightColor,
-      transparent: true,
-      opacity: 0.3,
-      side: THREE.DoubleSide,
-    });
-    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.y = 0.05;
-    portal.add(ring);
-
-    // Position portal
+    // Position tent
     const x = Math.cos(angle) * distance;
     const z = Math.sin(angle) * distance;
-    portal.position.set(x, 0, z);
+    tent.position.set(x, 0, z);
 
-    // Store target planet in userData
-    portal.userData.targetPlanet = targetPlanet;
+    // Point tent toward the campfire at (0, 0, -8)
+    const campfireZ = -8;
+    tent.rotation.y = Math.atan2(-x, campfireZ - z);
 
-    return portal;
+    tent.userData.targetPlanet = targetPlanet;
+
+    return tent;
   }
 
   public static createLabel(text: string, subtext: string, color: number): THREE.Group {
@@ -124,12 +160,10 @@ export class Portal {
     canvas.width = 512;
     canvas.height = 200;
 
-    // Convert color to CSS
     const r = (color >> 16) & 255;
     const g = (color >> 8) & 255;
     const b = color & 255;
 
-    // Gradient background
     const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
     gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.1)`);
     gradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.3)`);
@@ -138,7 +172,6 @@ export class Portal {
     context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Glowing border lines
     context.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.8)`;
     context.lineWidth = 3;
     context.beginPath();
@@ -150,7 +183,6 @@ export class Portal {
     context.lineTo(canvas.width - 50, canvas.height - 20);
     context.stroke();
 
-    // Planet name
     context.font = 'bold 52px Arial';
     context.fillStyle = '#ffffff';
     context.textAlign = 'center';
@@ -158,7 +190,6 @@ export class Portal {
     context.shadowBlur = 20;
     context.fillText(text, canvas.width / 2, 85);
 
-    // Section name
     context.font = '300 28px Arial';
     context.fillStyle = `rgb(${Math.min(r + 50, 255)}, ${Math.min(g + 50, 255)}, ${Math.min(b + 50, 255)})`;
     context.shadowBlur = 10;
@@ -179,78 +210,53 @@ export class Portal {
 
   public static animate(
     portal: THREE.Group,
-    delta: number,
+    _delta: number,
     time: number,
     index: number
   ): void {
-    const particles = portal.children[0] as THREE.Points;
-    const positions = particles.geometry.attributes.position.array as Float32Array;
-    const angles = portal.userData.angles as Float32Array;
-    const radii = portal.userData.radii as Float32Array;
-    const speeds = portal.userData.speeds as Float32Array;
-    const heights = portal.userData.heights as Float32Array;
-    const vortexHeight = portal.userData.vortexHeight as number;
+    // Children: leftRoof(0), rightRoof(1), back(2), floor(3), glow(4), outerGlow(5), light(6), particles(7), rug(8)
+    const glow = portal.children[4] as THREE.Mesh;
+    const outerGlow = portal.children[5] as THREE.Mesh;
+    const light = portal.children[6] as THREE.PointLight;
+    const particles = portal.children[7] as THREE.Points;
+    const rug = portal.children[8] as THREE.Mesh;
 
-    const particleCount = angles.length;
+    const pulse = Math.sin(time * 2 + index) * 0.5 + 0.5;
 
-    for (let i = 0; i < particleCount; i++) {
-      // Rotate around center
-      angles[i] += speeds[i] * delta * 2;
-
-      // Move upward and spiral inward
-      heights[i] += delta * (0.5 + speeds[i] * 0.5);
-
-      // As particles rise, they spiral inward
-      const heightRatio = heights[i] / vortexHeight;
-      const currentRadius = radii[i] * (1 - heightRatio * 0.8);
-
-      // Reset when reaching top
-      if (heights[i] > vortexHeight) {
-        heights[i] = 0;
-        angles[i] = Math.random() * Math.PI * 2;
-      }
-
-      const x = Math.cos(angles[i]) * currentRadius;
-      const y = heights[i];
-      const z = Math.sin(angles[i]) * currentRadius;
-
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
-    }
-
-    particles.geometry.attributes.position.needsUpdate = true;
-
-    // Pulse the core and glows
-    const pulse = Math.sin(time * 3 + index) * 0.5 + 0.5;
-    const core = portal.children[1] as THREE.Mesh;
-    const glow = portal.children[2] as THREE.Mesh;
-    const outerGlow = portal.children[3] as THREE.Mesh;
-    const light = portal.children[4] as THREE.PointLight;
-
-    if (core?.material instanceof THREE.MeshBasicMaterial) {
-      core.material.opacity = 0.8 + pulse * 0.2;
-    }
     if (glow?.material instanceof THREE.MeshBasicMaterial) {
-      glow.material.opacity = 0.25 + pulse * 0.2;
-    }
-    if (outerGlow?.material instanceof THREE.MeshBasicMaterial) {
-      outerGlow.material.opacity = 0.1 + pulse * 0.1;
+      glow.material.opacity = 0.6 + pulse * 0.3;
+      const scale = 1 + pulse * 0.3;
+      glow.scale.set(scale, scale, scale);
     }
 
-    const glowScale = 1 + pulse * 0.25;
-    glow.scale.set(glowScale, glowScale, glowScale);
-    const outerScale = 1 + pulse * 0.15;
-    outerGlow.scale.set(outerScale, outerScale, outerScale);
+    if (outerGlow?.material instanceof THREE.MeshBasicMaterial) {
+      outerGlow.material.opacity = 0.2 + pulse * 0.2;
+      const scale = 1 + pulse * 0.2;
+      outerGlow.scale.set(scale, scale, scale);
+    }
 
     if (light) {
-      light.intensity = 3 + pulse * 3;
+      light.intensity = 2.5 + pulse * 2;
     }
 
-    // Rotate ground ring
-    const ring = portal.children[5] as THREE.Mesh;
-    if (ring) {
-      ring.rotation.z = time * 0.5;
+    if (particles && particles.geometry) {
+      const positions = particles.geometry.attributes.position.array as Float32Array;
+      const phases = portal.userData.particlePhases as Float32Array;
+      const original = portal.userData.originalParticlePositions as Float32Array;
+
+      if (phases && original) {
+        for (let i = 0; i < positions.length / 3; i++) {
+          const phase = phases[i];
+          positions[i * 3] = original[i * 3] + Math.sin(time + phase) * 0.5;
+          positions[i * 3 + 1] = original[i * 3 + 1] + Math.sin(time * 1.5 + phase) * 0.4;
+          positions[i * 3 + 2] = original[i * 3 + 2] + Math.cos(time * 0.8 + phase) * 0.3;
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+      }
+    }
+
+    if (rug?.material instanceof THREE.MeshStandardMaterial) {
+      rug.material.opacity = 0.25 + pulse * 0.2;
     }
   }
 }

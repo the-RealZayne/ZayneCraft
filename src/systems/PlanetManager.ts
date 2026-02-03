@@ -125,11 +125,11 @@ export class PlanetManager {
       this.scene.add(portal);
       this.portals.push(portal);
 
-      // Add label above portal
+      // Add label above tent
       const targetConfig = planets[targetPlanet];
       const label = Portal.createLabel(targetConfig.name, targetConfig.section, targetConfig.lightColor);
       label.position.copy(portal.position);
-      label.position.y = 18;
+      label.position.y = 7;
       this.scene.add(label);
       this.portalLabels.push(label);
     });
@@ -188,6 +188,34 @@ export class PlanetManager {
       this.decorations.forEach((dec, i) => {
         dec.position.y = 3 + Math.sin(time + i) * 0.5;
         dec.rotation.y += delta * 0.5;
+      });
+    }
+
+    // Animate fireflies on home planet
+    if (this.currentPlanet === 'home') {
+      this.decorations.forEach((dec) => {
+        if (dec.children) {
+          dec.children.forEach((child) => {
+            if (child instanceof THREE.Points && child.userData.isFireflies) {
+              const positions = child.geometry.attributes.position.array as Float32Array;
+              const phases = child.geometry.attributes.phase.array as Float32Array;
+              const original = child.userData.originalPositions as Float32Array;
+
+              for (let i = 0; i < positions.length / 3; i++) {
+                const phase = phases[i];
+                // Gentle drifting motion
+                positions[i * 3] = original[i * 3] + Math.sin(time * 0.5 + phase) * 0.5;
+                positions[i * 3 + 1] = original[i * 3 + 1] + Math.sin(time * 0.7 + phase * 2) * 0.3;
+                positions[i * 3 + 2] = original[i * 3 + 2] + Math.cos(time * 0.4 + phase) * 0.5;
+              }
+              child.geometry.attributes.position.needsUpdate = true;
+
+              // Pulsing glow
+              const material = child.material as THREE.PointsMaterial;
+              material.opacity = 0.5 + Math.sin(time * 3) * 0.3;
+            }
+          });
+        }
       });
     }
   }

@@ -2,126 +2,204 @@ import * as THREE from 'three';
 
 export class Terminal {
   public static create(): THREE.Group {
-    const terminalGroup = new THREE.Group();
+    const campfireGroup = new THREE.Group();
 
-    // Base pedestal
-    const baseGeo = new THREE.CylinderGeometry(0.8, 1, 0.3, 16);
-    const baseMat = new THREE.MeshStandardMaterial({
-      color: 0x333344,
-      metalness: 0.8,
-      roughness: 0.3,
-    });
-    const base = new THREE.Mesh(baseGeo, baseMat);
-    base.position.y = 0.15;
-    terminalGroup.add(base);
+    // Stone ring base
+    const stoneCount = 10;
+    for (let i = 0; i < stoneCount; i++) {
+      const angle = (i / stoneCount) * Math.PI * 2;
+      const stoneGeo = new THREE.DodecahedronGeometry(0.3 + Math.random() * 0.15, 0);
+      const stoneMat = new THREE.MeshStandardMaterial({
+        color: 0x555555,
+        roughness: 0.9,
+        flatShading: true,
+      });
+      const stone = new THREE.Mesh(stoneGeo, stoneMat);
+      stone.position.set(Math.cos(angle) * 1.2, 0.15, Math.sin(angle) * 1.2);
+      stone.rotation.set(Math.random(), Math.random(), Math.random());
+      stone.castShadow = true;
+      campfireGroup.add(stone);
+    }
 
-    // Main pillar
-    const pillarGeo = new THREE.CylinderGeometry(0.3, 0.5, 1.2, 16);
-    const pillarMat = new THREE.MeshStandardMaterial({
-      color: 0x444455,
-      metalness: 0.9,
-      roughness: 0.2,
-    });
-    const pillar = new THREE.Mesh(pillarGeo, pillarMat);
-    pillar.position.y = 0.9;
-    terminalGroup.add(pillar);
+    // Logs in fire
+    const logMat = new THREE.MeshStandardMaterial({ color: 0x3d2817 });
+    for (let i = 0; i < 4; i++) {
+      const logGeo = new THREE.CylinderGeometry(0.12, 0.15, 1.5, 6);
+      const log = new THREE.Mesh(logGeo, logMat);
+      const angle = (i / 4) * Math.PI * 2 + Math.PI / 8;
+      log.position.set(Math.cos(angle) * 0.3, 0.25, Math.sin(angle) * 0.3);
+      log.rotation.z = Math.PI / 2 - 0.3;
+      log.rotation.y = angle + Math.PI / 2;
+      log.castShadow = true;
+      campfireGroup.add(log);
+    }
 
-    // Top platform
-    const topGeo = new THREE.CylinderGeometry(0.6, 0.4, 0.2, 16);
-    const topMat = new THREE.MeshStandardMaterial({
-      color: 0x555566,
-      metalness: 0.9,
-      roughness: 0.2,
-    });
-    const top = new THREE.Mesh(topGeo, topMat);
-    top.position.y = 1.6;
-    terminalGroup.add(top);
-
-    // Hologram emitter ring
-    const emitterGeo = new THREE.TorusGeometry(0.5, 0.05, 8, 32);
-    const emitterMat = new THREE.MeshBasicMaterial({
-      color: 0x00ffff,
+    // Ember base (glowing coals)
+    const emberGeo = new THREE.SphereGeometry(0.5, 8, 6);
+    const emberMat = new THREE.MeshBasicMaterial({
+      color: 0xff4400,
       transparent: true,
       opacity: 0.8,
     });
-    const emitter = new THREE.Mesh(emitterGeo, emitterMat);
-    emitter.rotation.x = Math.PI / 2;
-    emitter.position.y = 1.75;
-    terminalGroup.add(emitter);
+    const ember = new THREE.Mesh(emberGeo, emberMat);
+    ember.position.y = 0.2;
+    ember.scale.y = 0.4;
+    campfireGroup.add(ember);
 
-    // Hologram beam particles
-    const beamParticleCount = 50;
-    const beamPositions = new Float32Array(beamParticleCount * 3);
-    for (let i = 0; i < beamParticleCount; i++) {
+    // Fire particles
+    const fireParticleCount = 80;
+    const firePositions = new Float32Array(fireParticleCount * 3);
+    const fireColors = new Float32Array(fireParticleCount * 3);
+
+    for (let i = 0; i < fireParticleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 0.4;
-      beamPositions[i * 3] = Math.cos(angle) * radius;
-      beamPositions[i * 3 + 1] = 1.8 + Math.random() * 2;
-      beamPositions[i * 3 + 2] = Math.sin(angle) * radius;
+      const height = Math.random() * 2;
+      firePositions[i * 3] = Math.cos(angle) * radius * (1 - height / 3);
+      firePositions[i * 3 + 1] = 0.3 + height;
+      firePositions[i * 3 + 2] = Math.sin(angle) * radius * (1 - height / 3);
+
+      // Color gradient: orange at bottom, yellow at top
+      const t = height / 2;
+      fireColors[i * 3] = 1;
+      fireColors[i * 3 + 1] = 0.3 + t * 0.5;
+      fireColors[i * 3 + 2] = t * 0.2;
     }
-    const beamGeo = new THREE.BufferGeometry();
-    beamGeo.setAttribute('position', new THREE.BufferAttribute(beamPositions, 3));
-    const beamMat = new THREE.PointsMaterial({
-      color: 0x00ffff,
-      size: 0.08,
+
+    const fireGeo = new THREE.BufferGeometry();
+    fireGeo.setAttribute('position', new THREE.BufferAttribute(firePositions, 3));
+    fireGeo.setAttribute('color', new THREE.BufferAttribute(fireColors, 3));
+
+    const fireMat = new THREE.PointsMaterial({
+      size: 0.25,
+      vertexColors: true,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.9,
       blending: THREE.AdditiveBlending,
     });
-    const beam = new THREE.Points(beamGeo, beamMat);
-    terminalGroup.add(beam);
+    const fire = new THREE.Points(fireGeo, fireMat);
+    campfireGroup.add(fire);
 
-    // Point light for glow
-    const light = new THREE.PointLight(0x00ffff, 1, 10);
-    light.position.y = 2.5;
-    terminalGroup.add(light);
+    // Spark particles (smaller, rising faster)
+    const sparkCount = 30;
+    const sparkPositions = new Float32Array(sparkCount * 3);
+    for (let i = 0; i < sparkCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 0.3;
+      sparkPositions[i * 3] = Math.cos(angle) * radius;
+      sparkPositions[i * 3 + 1] = 0.5 + Math.random() * 3;
+      sparkPositions[i * 3 + 2] = Math.sin(angle) * radius;
+    }
+    const sparkGeo = new THREE.BufferGeometry();
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
+    const sparkMat = new THREE.PointsMaterial({
+      color: 0xffaa00,
+      size: 0.08,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    });
+    const sparks = new THREE.Points(sparkGeo, sparkMat);
+    campfireGroup.add(sparks);
+
+    // Fire light
+    const fireLight = new THREE.PointLight(0xff6622, 2, 15);
+    fireLight.position.y = 1;
+    fireLight.castShadow = true;
+    campfireGroup.add(fireLight);
+
+    // Secondary softer light for ambience
+    const ambientFireLight = new THREE.PointLight(0xff4400, 0.8, 25);
+    ambientFireLight.position.y = 0.5;
+    campfireGroup.add(ambientFireLight);
 
     // Interaction prompt sprite
     const promptCanvas = document.createElement('canvas');
     const ctx = promptCanvas.getContext('2d')!;
     promptCanvas.width = 256;
     promptCanvas.height = 64;
-    ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
-    ctx.font = 'bold 24px Arial';
+    ctx.fillStyle = 'rgba(255, 200, 100, 0.9)';
+    ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('[ Approach to interact ]', 128, 40);
+    ctx.fillText('[ Sit by the fire ]', 128, 40);
     const promptTexture = new THREE.CanvasTexture(promptCanvas);
     const promptMat = new THREE.SpriteMaterial({ map: promptTexture, transparent: true });
     const prompt = new THREE.Sprite(promptMat);
-    prompt.scale.set(4, 1, 1);
-    prompt.position.y = 4;
-    terminalGroup.add(prompt);
+    prompt.scale.set(3, 0.75, 1);
+    prompt.position.y = 3.5;
+    campfireGroup.add(prompt);
 
     // Position in front of spawn
-    terminalGroup.position.set(0, 0, -8);
+    campfireGroup.position.set(0, 0, -8);
 
-    return terminalGroup;
+    return campfireGroup;
   }
 
   public static animate(terminal: THREE.Group, delta: number, time: number): void {
-    // Animate emitter ring rotation
-    const emitter = terminal.children[3] as THREE.Mesh;
-    if (emitter) {
-      emitter.rotation.z = time * 2;
+    // Find fire particles (index after stones, logs, ember)
+    const fireIndex = 15; // 10 stones + 4 logs + 1 ember
+    const fire = terminal.children[fireIndex] as THREE.Points;
+    if (fire && fire.geometry) {
+      const positions = fire.geometry.attributes.position.array as Float32Array;
+      const colors = fire.geometry.attributes.color.array as Float32Array;
+
+      for (let i = 0; i < positions.length / 3; i++) {
+        // Move particles up
+        positions[i * 3 + 1] += delta * (1.5 + Math.random());
+
+        // Reset when too high
+        if (positions[i * 3 + 1] > 2.5) {
+          const angle = Math.random() * Math.PI * 2;
+          const radius = Math.random() * 0.4;
+          positions[i * 3] = Math.cos(angle) * radius;
+          positions[i * 3 + 1] = 0.3;
+          positions[i * 3 + 2] = Math.sin(angle) * radius;
+        }
+
+        // Wobble horizontally
+        positions[i * 3] += (Math.random() - 0.5) * delta * 0.5;
+        positions[i * 3 + 2] += (Math.random() - 0.5) * delta * 0.5;
+
+        // Update colors based on height
+        const height = positions[i * 3 + 1] - 0.3;
+        const t = height / 2;
+        colors[i * 3] = 1;
+        colors[i * 3 + 1] = 0.3 + t * 0.5;
+        colors[i * 3 + 2] = t * 0.2;
+      }
+      fire.geometry.attributes.position.needsUpdate = true;
+      fire.geometry.attributes.color.needsUpdate = true;
     }
 
-    // Animate beam particles
-    const beam = terminal.children[4] as THREE.Points;
-    if (beam) {
-      const positions = beam.geometry.attributes.position.array as Float32Array;
+    // Animate sparks
+    const sparks = terminal.children[fireIndex + 1] as THREE.Points;
+    if (sparks && sparks.geometry) {
+      const positions = sparks.geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < positions.length / 3; i++) {
-        positions[i * 3 + 1] += delta * 2;
+        positions[i * 3 + 1] += delta * (2 + Math.random() * 2);
+        positions[i * 3] += (Math.random() - 0.5) * delta * 0.3;
+        positions[i * 3 + 2] += (Math.random() - 0.5) * delta * 0.3;
+
         if (positions[i * 3 + 1] > 4) {
-          positions[i * 3 + 1] = 1.8;
+          const angle = Math.random() * Math.PI * 2;
+          const radius = Math.random() * 0.2;
+          positions[i * 3] = Math.cos(angle) * radius;
+          positions[i * 3 + 1] = 0.5;
+          positions[i * 3 + 2] = Math.sin(angle) * radius;
         }
       }
-      beam.geometry.attributes.position.needsUpdate = true;
+      sparks.geometry.attributes.position.needsUpdate = true;
     }
 
-    // Pulse the light
-    const light = terminal.children[5] as THREE.PointLight;
-    if (light) {
-      light.intensity = 1 + Math.sin(time * 3) * 0.5;
+    // Flicker the fire lights
+    const fireLight = terminal.children[fireIndex + 2] as THREE.PointLight;
+    if (fireLight) {
+      fireLight.intensity = 1.8 + Math.sin(time * 10) * 0.4 + Math.sin(time * 7) * 0.3;
+    }
+
+    const ambientLight = terminal.children[fireIndex + 3] as THREE.PointLight;
+    if (ambientLight) {
+      ambientLight.intensity = 0.7 + Math.sin(time * 8) * 0.2;
     }
   }
 }
