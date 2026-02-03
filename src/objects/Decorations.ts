@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { planets } from '../config/planets';
 import { Campus } from './Campus';
+import { Terrain } from '../environment/Terrain';
 
 export class Decorations {
   public static create(planetId: string): THREE.Object3D[] {
@@ -77,7 +78,9 @@ export class Decorations {
           decoration.rotation.set(Math.random(), Math.random(), Math.random());
       }
 
+      const terrainY = Terrain.getTerrainHeight(x, z);
       decoration.position.x = x;
+      decoration.position.y += terrainY;
       decoration.position.z = z;
       decoration.castShadow = true;
       objects.push(decoration);
