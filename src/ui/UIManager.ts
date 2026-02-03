@@ -6,6 +6,8 @@ export class UIManager {
   public readonly sectionName: HTMLElement;
   public readonly planetDescription: HTMLElement;
   public readonly hologramPanel: HTMLElement;
+  public readonly dogPrompt: HTMLElement;
+  public readonly dogQuote: HTMLElement;
 
   constructor() {
     this.instructions = document.getElementById('instructions')!;
@@ -13,6 +15,8 @@ export class UIManager {
     this.sectionName = document.getElementById('section-name')!;
     this.planetDescription = document.getElementById('planet-description')!;
     this.hologramPanel = document.getElementById('hologram-panel')!;
+    this.dogPrompt = document.getElementById('dog-prompt')!;
+    this.dogQuote = document.getElementById('dog-quote')!;
   }
 
   public updatePlanetInfo(config: PlanetConfig): void {

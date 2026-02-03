@@ -274,3 +274,83 @@ body {
   color: rgba(0, 255, 255, 0.6);
   letter-spacing: 1px;
 }
+
+/* Dog interaction prompt */
+#dog-prompt {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#dog-prompt.visible {
+  opacity: 1;
+}
+
+#dog-prompt p {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  color: #fff;
+  border: 1px solid rgba(212, 165, 90, 0.4);
+}
+
+#dog-prompt strong {
+  color: #d4a55a;
+  background: rgba(212, 165, 90, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Dog quote panel */
+#dog-quote {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#dog-quote.visible {
+  opacity: 1;
+}
+
+.quote-content {
+  background: linear-gradient(
+    135deg,
+    rgba(212, 165, 90, 0.15) 0%,
+    rgba(180, 140, 70, 0.2) 100%
+  );
+  border: 1px solid rgba(212, 165, 90, 0.5);
+  border-radius: 15px;
+  padding: 40px 50px;
+  max-width: 550px;
+  backdrop-filter: blur(15px);
+  box-shadow:
+    0 0 40px rgba(212, 165, 90, 0.2),
+    inset 0 0 30px rgba(212, 165, 90, 0.05);
+  text-align: center;
+}
+
+.quote-text {
+  font-size: 1.2rem;
+  color: #fff;
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.quote-author {
+  font-size: 1rem;
+  color: #d4a55a;
+  letter-spacing: 1px;
+}
