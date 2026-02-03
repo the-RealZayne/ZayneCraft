@@ -1,0 +1,157 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow: hidden;
+  background: #000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  outline: none;
+}
+
+/* Instructions overlay */
+#instructions {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  cursor: pointer;
+}
+
+#instructions .content {
+  text-align: center;
+  color: #fff;
+  max-width: 400px;
+  padding: 40px;
+}
+
+#instructions h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#instructions > .content > p {
+  font-size: 1.2rem;
+  color: #aaa;
+  margin-bottom: 2rem;
+}
+
+#instructions .controls {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 1.5rem;
+}
+
+#instructions .controls p {
+  margin: 0.5rem 0;
+  color: #ccc;
+  font-size: 0.95rem;
+}
+
+#instructions .controls strong {
+  color: #667eea;
+  min-width: 80px;
+  display: inline-block;
+}
+
+#instructions .hint {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* HUD */
+#hud {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+#hud .planet-info {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 15px 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 10px;
+}
+
+#hud h2 {
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+#hud .planet-info p {
+  font-size: 0.9rem;
+  color: #8888ff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+#hud #planet-description {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-size: 0.9rem;
+  color: #aaa;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* Crosshair */
+#crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 50;
+}
+
+#crosshair::before,
+#crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1px;
+}
+
+#crosshair::before {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#crosshair::after {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}

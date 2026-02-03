@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio - Explore My Universe</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="instructions">
+      <div class="content">
+        <h1>Welcome to My Universe</h1>
+        <p>Click to begin your journey</p>
+        <div class="controls">
+          <p><strong>WASD</strong> - Walk around</p>
+          <p><strong>Mouse</strong> - Look around</p>
+          <p><strong>Space</strong> - Jump</p>
+          <p><strong>Shift</strong> - Sprint</p>
+          <p><strong>Portal</strong> - Walk into to travel</p>
+        </div>
+        <p class="hint">Press ESC to pause</p>
+      </div>
+    </div>
+
+    <div id="hud">
+      <div class="planet-info">
+        <h2 id="planet-name">Terra</h2>
+        <p id="section-name">Welcome</p>
+      </div>
+      <p id="planet-description">Your starting point. Explore the portals to learn more about me.</p>
+    </div>
+
+    <div id="crosshair"></div>
+    <canvas id="canvas"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
