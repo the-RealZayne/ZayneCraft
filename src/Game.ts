@@ -7,6 +7,7 @@ import { ShootingStars } from './environment/ShootingStars';
 import { PlanetManager } from './systems/PlanetManager';
 import { MusicSystem } from './systems/MusicSystem';
 import { UIManager } from './ui/UIManager';
+import { Dog } from './objects/Dog';
 
 export class Game {
   private sceneManager: SceneManager;
@@ -18,6 +19,7 @@ export class Game {
   private musicSystem: MusicSystem;
   private uiManager: UIManager;
   private clock: THREE.Clock;
+  private dog: Dog;
 
   constructor() {
     // Initialize core systems
@@ -31,6 +33,11 @@ export class Game {
       this.sceneManager.camera,
       this.sceneManager.controls
     );
+
+    // Initialize Ivy the dog
+    this.dog = new Dog('Ivy');
+    this.dog.setPosition(3, 0, 3);
+    this.sceneManager.scene.add(this.dog.mesh);
 
     // Initialize environment
     this.skybox = new Skybox();
@@ -110,6 +117,13 @@ export class Game {
       // Check portal collision
       this.planetManager.checkPortalCollision();
     }
+
+    // Update Ivy (always follows player)
+    this.dog.update(
+      delta,
+      this.sceneManager.camera.position,
+      this.planetManager.getCurrentFlatRadius()
+    );
 
     // Render
     this.sceneManager.render();
