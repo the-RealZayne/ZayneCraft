@@ -7,7 +7,7 @@ export class Decorations {
   // Check if position is too close to portal zone (portals are at distance 25)
   private static isNearPortal(x: number, z: number): boolean {
     const distance = Math.sqrt(x * x + z * z);
-    return distance > 18 && distance < 35;
+    return distance > 12 && distance < 40;
   }
 
   private static createTree(scale: number): THREE.Group {
@@ -65,11 +65,12 @@ export class Decorations {
       let treesPlaced = 0;
       let attempts = 0;
 
-      while (treesPlaced < 200 && attempts < 500) {
+      while (treesPlaced < 200 && attempts < 600) {
         attempts++;
 
         const angle = Math.random() * Math.PI * 2;
-        const distance = 15 + Math.random() * 170;
+        // Spread trees from inner ring to outer boundary
+        const distance = 20 + Math.random() * 185;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
