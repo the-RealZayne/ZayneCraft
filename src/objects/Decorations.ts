@@ -687,6 +687,606 @@ export class Decorations {
     return bike;
   }
 
+  private static createBookStack(): THREE.Group {
+    const stack = new THREE.Group();
+
+    const bookColors = [0x8b0000, 0x00008b, 0x006400, 0x4a4a4a, 0x8b4513, 0x2f4f4f];
+
+    const numBooks = 4 + Math.floor(Math.random() * 3);
+    let currentHeight = 0;
+
+    for (let i = 0; i < numBooks; i++) {
+      const width = 0.18 + Math.random() * 0.08;
+      const height = 0.03 + Math.random() * 0.02;
+      const depth = 0.25 + Math.random() * 0.05;
+
+      const bookGeo = new THREE.BoxGeometry(width, height, depth);
+      const bookMat = new THREE.MeshStandardMaterial({
+        color: bookColors[Math.floor(Math.random() * bookColors.length)]
+      });
+      const book = new THREE.Mesh(bookGeo, bookMat);
+
+      book.position.y = currentHeight + height / 2;
+      // Slight random rotation for messiness
+      book.rotation.y = (Math.random() - 0.5) * 0.15;
+      book.position.x = (Math.random() - 0.5) * 0.03;
+      book.position.z = (Math.random() - 0.5) * 0.03;
+
+      stack.add(book);
+      currentHeight += height;
+    }
+
+    return stack;
+  }
+
+  private static createPaperStack(): THREE.Group {
+    const stack = new THREE.Group();
+
+    const paperMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f0 });
+    const numSheets = 8 + Math.floor(Math.random() * 6);
+    let currentHeight = 0;
+
+    for (let i = 0; i < numSheets; i++) {
+      const width = 0.21; // A4-ish paper width
+      const height = 0.003; // Very thin
+      const depth = 0.29; // A4-ish paper depth
+
+      const sheetGeo = new THREE.BoxGeometry(width, height, depth);
+      const sheet = new THREE.Mesh(sheetGeo, paperMat);
+
+      sheet.position.y = currentHeight + height / 2;
+      // Random slight offset and rotation for messy pile effect
+      sheet.rotation.y = (Math.random() - 0.5) * 0.1;
+      sheet.position.x = (Math.random() - 0.5) * 0.02;
+      sheet.position.z = (Math.random() - 0.5) * 0.02;
+
+      stack.add(sheet);
+      currentHeight += height + 0.001; // Small gap
+    }
+
+    // Add a few sheets askew on top
+    for (let i = 0; i < 2; i++) {
+      const sheet = new THREE.Mesh(
+        new THREE.BoxGeometry(0.21, 0.003, 0.29),
+        paperMat
+      );
+      sheet.position.y = currentHeight + 0.01;
+      sheet.rotation.y = (Math.random() - 0.5) * 0.5;
+      sheet.rotation.z = (Math.random() - 0.5) * 0.1;
+      sheet.position.x = (Math.random() - 0.5) * 0.05;
+      sheet.position.z = (Math.random() - 0.5) * 0.05;
+      stack.add(sheet);
+    }
+
+    return stack;
+  }
+
+  private static createHoodie(): THREE.Group {
+    const hoodie = new THREE.Group();
+
+    // Draped hoodie - like it's thrown over something
+    const fabricMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a }); // Dark navy/grey
+
+    // Main body (crumpled/draped shape)
+    const bodyGeo = new THREE.BoxGeometry(0.5, 0.08, 0.6);
+    const body = new THREE.Mesh(bodyGeo, fabricMat);
+    body.position.y = 0.04;
+    body.rotation.x = 0.1;
+    hoodie.add(body);
+
+    // Slightly raised part (bunched up fabric)
+    const bunchGeo = new THREE.SphereGeometry(0.15, 6, 4);
+    const bunch = new THREE.Mesh(bunchGeo, fabricMat);
+    bunch.position.set(0.1, 0.1, 0);
+    bunch.scale.set(1, 0.5, 1);
+    hoodie.add(bunch);
+
+    // Hood part
+    const hoodGeo = new THREE.SphereGeometry(0.12, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2);
+    const hood = new THREE.Mesh(hoodGeo, fabricMat);
+    hood.position.set(-0.15, 0.08, 0.2);
+    hood.rotation.x = 0.3;
+    hoodie.add(hood);
+
+    // Sleeve hanging off
+    const sleeveGeo = new THREE.CylinderGeometry(0.06, 0.07, 0.3, 6);
+    const sleeve = new THREE.Mesh(sleeveGeo, fabricMat);
+    sleeve.position.set(0.25, -0.05, -0.1);
+    sleeve.rotation.z = Math.PI / 2 + 0.3;
+    sleeve.rotation.x = 0.2;
+    hoodie.add(sleeve);
+
+    // Drawstrings
+    const stringMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+    const stringGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.15, 4);
+    const string1 = new THREE.Mesh(stringGeo, stringMat);
+    string1.position.set(-0.1, 0.06, 0.28);
+    string1.rotation.x = 0.5;
+    hoodie.add(string1);
+    const string2 = new THREE.Mesh(stringGeo, stringMat);
+    string2.position.set(-0.05, 0.06, 0.28);
+    string2.rotation.x = 0.3;
+    hoodie.add(string2);
+
+    return hoodie;
+  }
+
+  private static createMiniFridge(): THREE.Group {
+    const fridge = new THREE.Group();
+
+    // Main body
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee });
+    const bodyGeo = new THREE.BoxGeometry(0.5, 0.7, 0.45);
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 0.35;
+    body.castShadow = true;
+    fridge.add(body);
+
+    // Door
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0xdddddd });
+    const doorGeo = new THREE.BoxGeometry(0.48, 0.68, 0.02);
+    const door = new THREE.Mesh(doorGeo, doorMat);
+    door.position.set(0, 0.35, 0.24);
+    fridge.add(door);
+
+    // Handle
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.5 });
+    const handleGeo = new THREE.BoxGeometry(0.03, 0.15, 0.03);
+    const handle = new THREE.Mesh(handleGeo, handleMat);
+    handle.position.set(0.18, 0.45, 0.26);
+    fridge.add(handle);
+
+    // Brand logo area (small rectangle)
+    const logoMat = new THREE.MeshStandardMaterial({ color: 0x3366cc });
+    const logoGeo = new THREE.BoxGeometry(0.12, 0.04, 0.01);
+    const logo = new THREE.Mesh(logoGeo, logoMat);
+    logo.position.set(0, 0.6, 0.25);
+    fridge.add(logo);
+
+    // Feet
+    const footMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+    const footGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.02, 8);
+    const footPositions = [
+      { x: -0.2, z: -0.18 },
+      { x: 0.2, z: -0.18 },
+      { x: -0.2, z: 0.18 },
+      { x: 0.2, z: 0.18 },
+    ];
+    for (const pos of footPositions) {
+      const foot = new THREE.Mesh(footGeo, footMat);
+      foot.position.set(pos.x, 0.01, pos.z);
+      fridge.add(foot);
+    }
+
+    return fridge;
+  }
+
+  private static createWorkbench(): THREE.Group {
+    const bench = new THREE.Group();
+
+    // Workbench materials
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b7355 });
+    const metalMat = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.6, roughness: 0.4 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+
+    // Bench top (thick wooden surface)
+    const topGeo = new THREE.BoxGeometry(1.6, 0.1, 0.8);
+    const top = new THREE.Mesh(topGeo, woodMat);
+    top.position.y = 0.85;
+    top.castShadow = true;
+    top.receiveShadow = true;
+    bench.add(top);
+
+    // Legs (4 sturdy legs)
+    const legGeo = new THREE.BoxGeometry(0.1, 0.85, 0.1);
+    const legPositions = [
+      [-0.7, 0.425, -0.3],
+      [-0.7, 0.425, 0.3],
+      [0.7, 0.425, -0.3],
+      [0.7, 0.425, 0.3]
+    ];
+    for (const pos of legPositions) {
+      const leg = new THREE.Mesh(legGeo, woodMat);
+      leg.position.set(pos[0], pos[1], pos[2]);
+      leg.castShadow = true;
+      bench.add(leg);
+    }
+
+    // Cross braces for stability
+    const braceGeo = new THREE.BoxGeometry(1.4, 0.06, 0.06);
+    const brace1 = new THREE.Mesh(braceGeo, woodMat);
+    brace1.position.set(0, 0.25, -0.3);
+    bench.add(brace1);
+    const brace2 = new THREE.Mesh(braceGeo, woodMat);
+    brace2.position.set(0, 0.25, 0.3);
+    bench.add(brace2);
+
+    // Lower shelf
+    const shelfGeo = new THREE.BoxGeometry(1.4, 0.05, 0.6);
+    const shelf = new THREE.Mesh(shelfGeo, woodMat);
+    shelf.position.set(0, 0.4, 0);
+    bench.add(shelf);
+
+    // === DRILL ===
+    const drillGroup = new THREE.Group();
+
+    // Drill body (main housing)
+    const drillBodyGeo = new THREE.BoxGeometry(0.2, 0.12, 0.08);
+    const drillBody = new THREE.Mesh(drillBodyGeo, new THREE.MeshStandardMaterial({ color: 0xdd4422 })); // Orange/red drill
+    drillBody.position.set(0, 0.06, 0);
+    drillGroup.add(drillBody);
+
+    // Drill motor housing (bulkier back part)
+    const motorGeo = new THREE.CylinderGeometry(0.05, 0.06, 0.1, 8);
+    const motor = new THREE.Mesh(motorGeo, new THREE.MeshStandardMaterial({ color: 0xcc3311 }));
+    motor.rotation.z = Math.PI / 2;
+    motor.position.set(-0.12, 0.06, 0);
+    drillGroup.add(motor);
+
+    // Handle (grip)
+    const handleGeo = new THREE.BoxGeometry(0.05, 0.12, 0.06);
+    const handle = new THREE.Mesh(handleGeo, darkMat);
+    handle.position.set(-0.05, -0.02, 0);
+    drillGroup.add(handle);
+
+    // Chuck (where bit attaches)
+    const chuckGeo = new THREE.CylinderGeometry(0.025, 0.03, 0.04, 8);
+    const chuck = new THREE.Mesh(chuckGeo, metalMat);
+    chuck.rotation.z = Math.PI / 2;
+    chuck.position.set(0.12, 0.06, 0);
+    drillGroup.add(chuck);
+
+    // Drill bit
+    const bitGeo = new THREE.CylinderGeometry(0.008, 0.003, 0.1, 6);
+    const bit = new THREE.Mesh(bitGeo, metalMat);
+    bit.rotation.z = Math.PI / 2;
+    bit.position.set(0.19, 0.06, 0);
+    drillGroup.add(bit);
+
+    // Trigger
+    const triggerGeo = new THREE.BoxGeometry(0.02, 0.04, 0.03);
+    const trigger = new THREE.Mesh(triggerGeo, darkMat);
+    trigger.position.set(0.02, 0, 0);
+    drillGroup.add(trigger);
+
+    // Position drill on workbench (lying on its side)
+    drillGroup.position.set(0.4, 0.9, 0.15);
+    drillGroup.rotation.y = 0.3;
+    bench.add(drillGroup);
+
+    // Add some other workbench items
+
+    // Small toolbox
+    const toolboxGeo = new THREE.BoxGeometry(0.25, 0.12, 0.15);
+    const toolbox = new THREE.Mesh(toolboxGeo, new THREE.MeshStandardMaterial({ color: 0x224488 }));
+    toolbox.position.set(-0.5, 0.96, 0.2);
+    bench.add(toolbox);
+
+    // Screwdriver
+    const screwdriverHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.018, 0.1, 6),
+      new THREE.MeshStandardMaterial({ color: 0xffcc00 })
+    );
+    screwdriverHandle.position.set(-0.2, 0.95, -0.2);
+    screwdriverHandle.rotation.z = Math.PI / 2 + 0.1;
+    bench.add(screwdriverHandle);
+
+    const screwdriverShaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.006, 0.006, 0.12, 6),
+      metalMat
+    );
+    screwdriverShaft.position.set(-0.09, 0.94, -0.2);
+    screwdriverShaft.rotation.z = Math.PI / 2 + 0.1;
+    bench.add(screwdriverShaft);
+
+    // A few screws/nails scattered
+    for (let i = 0; i < 4; i++) {
+      const screwGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.025, 4);
+      const screw = new THREE.Mesh(screwGeo, metalMat);
+      screw.position.set(
+        0.1 + (Math.random() - 0.5) * 0.3,
+        0.91,
+        -0.1 + (Math.random() - 0.5) * 0.2
+      );
+      screw.rotation.x = Math.PI / 2;
+      screw.rotation.z = Math.random() * Math.PI;
+      bench.add(screw);
+    }
+
+    // Tape measure
+    const tapeMeasureGeo = new THREE.BoxGeometry(0.08, 0.08, 0.03);
+    const tapeMeasure = new THREE.Mesh(tapeMeasureGeo, new THREE.MeshStandardMaterial({ color: 0xffff00 }));
+    tapeMeasure.position.set(0.6, 0.94, -0.25);
+    tapeMeasure.rotation.y = 0.5;
+    bench.add(tapeMeasure);
+
+    return bench;
+  }
+
+  private static createBBQ(): THREE.Group {
+    const bbq = new THREE.Group();
+
+    const metalMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.6, roughness: 0.4 });
+    const grillMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.7 });
+    const redMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
+
+    // Main barrel body (kettle style)
+    const bodyGeo = new THREE.SphereGeometry(0.45, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2);
+    const body = new THREE.Mesh(bodyGeo, metalMat);
+    body.position.y = 0.8;
+    body.rotation.x = Math.PI;
+    body.castShadow = true;
+    bbq.add(body);
+
+    // Lid
+    const lidGeo = new THREE.SphereGeometry(0.46, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+    const lid = new THREE.Mesh(lidGeo, metalMat);
+    lid.position.y = 0.82;
+    lid.castShadow = true;
+    bbq.add(lid);
+
+    // Lid handle
+    const lidHandleGeo = new THREE.BoxGeometry(0.15, 0.03, 0.04);
+    const lidHandle = new THREE.Mesh(lidHandleGeo, grillMat);
+    lidHandle.position.set(0, 1.25, 0);
+    bbq.add(lidHandle);
+
+    // Grill grate (visible lines)
+    for (let i = -3; i <= 3; i++) {
+      const grateGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.7, 4);
+      const grate = new THREE.Mesh(grateGeo, grillMat);
+      grate.rotation.z = Math.PI / 2;
+      grate.position.set(0, 0.78, i * 0.1);
+      bbq.add(grate);
+    }
+
+    // Tripod legs
+    for (let i = 0; i < 3; i++) {
+      const angle = (i / 3) * Math.PI * 2;
+      const legGeo = new THREE.CylinderGeometry(0.025, 0.03, 0.85, 6);
+      const leg = new THREE.Mesh(legGeo, metalMat);
+      leg.position.set(Math.sin(angle) * 0.35, 0.4, Math.cos(angle) * 0.35);
+      leg.rotation.x = Math.sin(angle) * 0.15;
+      leg.rotation.z = Math.cos(angle) * 0.15;
+      bbq.add(leg);
+    }
+
+    // Side handle
+    const sideHandleGeo = new THREE.TorusGeometry(0.08, 0.015, 6, 12, Math.PI);
+    const sideHandle = new THREE.Mesh(sideHandleGeo, redMat);
+    sideHandle.position.set(0.5, 0.8, 0);
+    sideHandle.rotation.y = Math.PI / 2;
+    sideHandle.rotation.x = Math.PI / 2;
+    bbq.add(sideHandle);
+
+    // Ash catcher below
+    const ashGeo = new THREE.CylinderGeometry(0.15, 0.12, 0.05, 8);
+    const ash = new THREE.Mesh(ashGeo, metalMat);
+    ash.position.y = 0.35;
+    bbq.add(ash);
+
+    return bbq;
+  }
+
+  private static createGardenTools(): THREE.Group {
+    const tools = new THREE.Group();
+
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b7355 });
+    const metalMat = new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.5 });
+
+    // Rake
+    const rakeHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.025, 1.5, 6),
+      woodMat
+    );
+    rakeHandle.position.set(0, 0.75, 0);
+    rakeHandle.rotation.z = 0.15;
+    tools.add(rakeHandle);
+
+    // Rake head
+    const rakeHeadGeo = new THREE.BoxGeometry(0.3, 0.02, 0.05);
+    const rakeHead = new THREE.Mesh(rakeHeadGeo, metalMat);
+    rakeHead.position.set(0.1, 0.05, 0);
+    rakeHead.rotation.z = 0.15;
+    tools.add(rakeHead);
+
+    // Rake tines
+    for (let i = -4; i <= 4; i++) {
+      const tineGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.1, 4);
+      const tine = new THREE.Mesh(tineGeo, metalMat);
+      tine.position.set(0.1 + i * 0.03, 0, 0);
+      tine.rotation.x = Math.PI / 2;
+      tools.add(tine);
+    }
+
+    // Shovel (leaning next to rake)
+    const shovelHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.025, 1.4, 6),
+      woodMat
+    );
+    shovelHandle.position.set(0.15, 0.7, 0.1);
+    shovelHandle.rotation.z = 0.2;
+    tools.add(shovelHandle);
+
+    // Shovel blade
+    const shovelBladeGeo = new THREE.BoxGeometry(0.2, 0.25, 0.02);
+    const shovelBlade = new THREE.Mesh(shovelBladeGeo, metalMat);
+    shovelBlade.position.set(0.22, 0.08, 0.1);
+    shovelBlade.rotation.z = 0.2;
+    shovelBlade.rotation.x = -0.3;
+    tools.add(shovelBlade);
+
+    // Watering can nearby
+    const canMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
+    const canBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.12, 0.1, 0.2, 8),
+      canMat
+    );
+    canBody.position.set(-0.3, 0.1, 0.2);
+    tools.add(canBody);
+
+    // Watering can spout
+    const spoutGeo = new THREE.CylinderGeometry(0.02, 0.035, 0.2, 6);
+    const spout = new THREE.Mesh(spoutGeo, canMat);
+    spout.position.set(-0.2, 0.15, 0.2);
+    spout.rotation.z = -0.8;
+    tools.add(spout);
+
+    // Watering can handle
+    const canHandleGeo = new THREE.TorusGeometry(0.06, 0.012, 6, 12, Math.PI);
+    const canHandle = new THREE.Mesh(canHandleGeo, canMat);
+    canHandle.position.set(-0.3, 0.22, 0.2);
+    canHandle.rotation.x = Math.PI / 2;
+    tools.add(canHandle);
+
+    return tools;
+  }
+
+  private static createDogToys(): THREE.Group {
+    const toys = new THREE.Group();
+
+    // Tennis ball
+    const ballMat = new THREE.MeshStandardMaterial({ color: 0xccff00 });
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(0.06, 8, 6),
+      ballMat
+    );
+    ball.position.set(0, 0.06, 0);
+    toys.add(ball);
+
+    // White stripe on tennis ball
+    const stripeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+    const stripe = new THREE.Mesh(
+      new THREE.TorusGeometry(0.06, 0.008, 4, 16),
+      stripeMat
+    );
+    stripe.position.set(0, 0.06, 0);
+    stripe.rotation.x = Math.PI / 2;
+    toys.add(stripe);
+
+    // Rope toy
+    const ropeMat = new THREE.MeshStandardMaterial({ color: 0xcc8844 });
+    const rope2Mat = new THREE.MeshStandardMaterial({ color: 0x4488cc });
+
+    const ropeGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.35, 8);
+    const rope = new THREE.Mesh(ropeGeo, ropeMat);
+    rope.position.set(0.25, 0.03, 0.15);
+    rope.rotation.z = Math.PI / 2;
+    rope.rotation.y = 0.5;
+    toys.add(rope);
+
+    // Rope knots
+    const knotGeo = new THREE.SphereGeometry(0.05, 6, 5);
+    const knot1 = new THREE.Mesh(knotGeo, rope2Mat);
+    knot1.position.set(0.08, 0.03, 0.1);
+    toys.add(knot1);
+    const knot2 = new THREE.Mesh(knotGeo, rope2Mat);
+    knot2.position.set(0.42, 0.03, 0.2);
+    toys.add(knot2);
+
+    // Frisbee
+    const frisbeeMat = new THREE.MeshStandardMaterial({ color: 0xff4444 });
+    const frisbeeGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.02, 16);
+    const frisbee = new THREE.Mesh(frisbeeGeo, frisbeeMat);
+    frisbee.position.set(-0.3, 0.01, 0.3);
+    frisbee.rotation.x = 0.1;
+    toys.add(frisbee);
+
+    // Frisbee rim
+    const rimGeo = new THREE.TorusGeometry(0.14, 0.015, 6, 16);
+    const rim = new THREE.Mesh(rimGeo, frisbeeMat);
+    rim.position.set(-0.3, 0.02, 0.3);
+    rim.rotation.x = Math.PI / 2 + 0.1;
+    toys.add(rim);
+
+    return toys;
+  }
+
+  private static createLeash(): THREE.Group {
+    const leash = new THREE.Group();
+
+    // Leash material (nylon-like)
+    const leashMat = new THREE.MeshStandardMaterial({ color: 0x2244aa });
+    const metalMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.7 });
+
+    // Coiled leash on ground
+    const coilRadius = 0.15;
+    const coils = 3;
+    for (let i = 0; i < 20; i++) {
+      const t = i / 20;
+      const angle = t * Math.PI * 2 * coils;
+      const r = coilRadius * (1 - t * 0.3);
+      const segGeo = new THREE.SphereGeometry(0.015, 4, 3);
+      const seg = new THREE.Mesh(segGeo, leashMat);
+      seg.position.set(
+        Math.cos(angle) * r,
+        0.02 + t * 0.08,
+        Math.sin(angle) * r
+      );
+      leash.add(seg);
+    }
+
+    // Handle loop
+    const handleGeo = new THREE.TorusGeometry(0.06, 0.012, 6, 12);
+    const handle = new THREE.Mesh(handleGeo, leashMat);
+    handle.position.set(0, 0.12, 0);
+    handle.rotation.x = Math.PI / 3;
+    leash.add(handle);
+
+    // Metal clip at end
+    const clipGeo = new THREE.BoxGeometry(0.025, 0.04, 0.01);
+    const clip = new THREE.Mesh(clipGeo, metalMat);
+    clip.position.set(0.12, 0.03, 0.08);
+    leash.add(clip);
+
+    return leash;
+  }
+
+  private static createRubberDuck(): THREE.Group {
+    const duck = new THREE.Group();
+
+    const yellowMat = new THREE.MeshStandardMaterial({ color: 0xffd700 });
+    const orangeMat = new THREE.MeshStandardMaterial({ color: 0xff8c00 });
+    const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+
+    // Body
+    const bodyGeo = new THREE.SphereGeometry(0.06, 10, 8);
+    const body = new THREE.Mesh(bodyGeo, yellowMat);
+    body.scale.set(1, 0.85, 1.1);
+    body.position.y = 0.05;
+    duck.add(body);
+
+    // Head
+    const headGeo = new THREE.SphereGeometry(0.04, 8, 6);
+    const head = new THREE.Mesh(headGeo, yellowMat);
+    head.position.set(0, 0.11, 0.04);
+    duck.add(head);
+
+    // Beak
+    const beakGeo = new THREE.ConeGeometry(0.015, 0.03, 6);
+    const beak = new THREE.Mesh(beakGeo, orangeMat);
+    beak.position.set(0, 0.1, 0.08);
+    beak.rotation.x = Math.PI / 2;
+    duck.add(beak);
+
+    // Eyes
+    const eyeGeo = new THREE.SphereGeometry(0.008, 6, 4);
+    const eye1 = new THREE.Mesh(eyeGeo, blackMat);
+    eye1.position.set(-0.02, 0.125, 0.065);
+    duck.add(eye1);
+    const eye2 = new THREE.Mesh(eyeGeo, blackMat);
+    eye2.position.set(0.02, 0.125, 0.065);
+    duck.add(eye2);
+
+    // Tail (small bump at back)
+    const tailGeo = new THREE.SphereGeometry(0.02, 6, 4);
+    const tail = new THREE.Mesh(tailGeo, yellowMat);
+    tail.position.set(0, 0.07, -0.07);
+    duck.add(tail);
+
+    return duck;
+  }
+
   private static createMoss(): THREE.Mesh {
     const size = 0.5 + Math.random() * 1;
     const mossGeo = new THREE.CircleGeometry(size, 8);
@@ -1187,16 +1787,36 @@ export class Decorations {
       const bikeX = deskX - 5;
       const bikeZ = deskZ - 2;
 
+      // Workbench position
+      const workbenchX = -10;
+      const workbenchZ = 12;
+
+      // BBQ position (outdoor cooking area)
+      const bbqX = 8;
+      const bbqZ = 12;
+
+      // Garden tools position (near cabin)
+      const toolsX = cabinX + 8;
+      const toolsZ = cabinZ - 2;
+
+      // Second server rack position
+      const rack2X = rackX - 1.2;
+      const rack2Z = rackZ + 0.5;
+
       // Exclusion zones: { x, z, radius }
       const exclusionZones = [
         { x: 0, z: -8, r: 4 },       // Campfire
         { x: deskX, z: deskZ, r: 3.5 },  // Desk area
         { x: bedX, z: bedZ, r: 1.5 },    // Pet bed
         { x: rackX, z: rackZ, r: 1.2 },  // Server rack
+        { x: rack2X, z: rack2Z, r: 1.2 }, // Second server rack
         { x: radioX, z: radioZ, r: 1 },  // Radio
         { x: binX, z: binZ, r: 0.8 },    // Bin
         { x: bikeX, z: bikeZ, r: 1.5 },  // Bike
         { x: cabinX, z: cabinZ, r: 8 },  // Cabin
+        { x: workbenchX, z: workbenchZ, r: 1.5 },  // Workbench
+        { x: bbqX, z: bbqZ, r: 1.2 },    // BBQ
+        { x: toolsX, z: toolsZ, r: 1.5 }, // Garden tools
       ];
 
       // Helper to check if position is in any exclusion zone
@@ -1271,6 +1891,135 @@ export class Decorations {
       bike.position.set(bikeX, Terrain.getTerrainHeight(bikeX, bikeZ), bikeZ);
       bike.rotation.y = Math.PI * 0.3;
       objects.push(bike);
+
+      // Stack of books near the campfire seating area
+      const books1 = this.createBookStack();
+      const books1X = -4;
+      const books1Z = -10;
+      books1.position.set(books1X, Terrain.getTerrainHeight(books1X, books1Z), books1Z);
+      books1.rotation.y = Math.random() * Math.PI;
+      objects.push(books1);
+
+      // Another stack near the bench
+      const books2 = this.createBookStack();
+      const books2X = 4;
+      const books2Z = -5;
+      books2.position.set(books2X, Terrain.getTerrainHeight(books2X, books2Z), books2Z);
+      books2.rotation.y = Math.random() * Math.PI;
+      objects.push(books2);
+
+      // More book stacks scattered around
+      const books3 = this.createBookStack();
+      const books3X = -6;
+      const books3Z = 3;
+      books3.position.set(books3X, Terrain.getTerrainHeight(books3X, books3Z), books3Z);
+      books3.rotation.y = Math.random() * Math.PI;
+      objects.push(books3);
+
+      const books4 = this.createBookStack();
+      const books4X = 6;
+      const books4Z = 8;
+      books4.position.set(books4X, Terrain.getTerrainHeight(books4X, books4Z), books4Z);
+      books4.rotation.y = Math.random() * Math.PI;
+      objects.push(books4);
+
+      const books5 = this.createBookStack();
+      const books5X = -2;
+      const books5Z = 10;
+      books5.position.set(books5X, Terrain.getTerrainHeight(books5X, books5Z), books5Z);
+      books5.rotation.y = Math.random() * Math.PI;
+      objects.push(books5);
+
+      // Paper stacks around the area
+      const papers1 = this.createPaperStack();
+      const papers1X = deskX - 2;
+      const papers1Z = deskZ + 1.5;
+      papers1.position.set(papers1X, Terrain.getTerrainHeight(papers1X, papers1Z), papers1Z);
+      papers1.rotation.y = 0.2;
+      objects.push(papers1);
+
+      const papers2 = this.createPaperStack();
+      const papers2X = 2;
+      const papers2Z = -12;
+      papers2.position.set(papers2X, Terrain.getTerrainHeight(papers2X, papers2Z), papers2Z);
+      papers2.rotation.y = -0.3;
+      objects.push(papers2);
+
+      const papers3 = this.createPaperStack();
+      const papers3X = -5;
+      const papers3Z = 7;
+      papers3.position.set(papers3X, Terrain.getTerrainHeight(papers3X, papers3Z), papers3Z);
+      papers3.rotation.y = Math.random() * Math.PI;
+      objects.push(papers3);
+
+      const papers4 = this.createPaperStack();
+      const papers4X = 7;
+      const papers4Z = 3;
+      papers4.position.set(papers4X, Terrain.getTerrainHeight(papers4X, papers4Z), papers4Z);
+      papers4.rotation.y = 1.2;
+      objects.push(papers4);
+
+      // Hoodie draped on one of the logs
+      const hoodie = this.createHoodie();
+      const hoodieX = -3.5;
+      const hoodieZ = -11;
+      hoodie.position.set(hoodieX, Terrain.getTerrainHeight(hoodieX, hoodieZ) + 0.4, hoodieZ);
+      hoodie.rotation.y = 0.5;
+      objects.push(hoodie);
+
+      // Mini fridge between desk area and campfire
+      const fridge = this.createMiniFridge();
+      const fridgeX = 5;
+      const fridgeZ = -2;
+      fridge.position.set(fridgeX, Terrain.getTerrainHeight(fridgeX, fridgeZ), fridgeZ);
+      fridge.rotation.y = -0.3;
+      objects.push(fridge);
+
+      // Workbench with drill (away from desk, near cabin side)
+      const workbench = this.createWorkbench();
+      workbench.position.set(workbenchX, Terrain.getTerrainHeight(workbenchX, workbenchZ), workbenchZ);
+      workbench.rotation.y = 0.4; // Angled slightly
+      objects.push(workbench);
+
+      // BBQ grill for outdoor cooking
+      const bbq = this.createBBQ();
+      bbq.position.set(bbqX, Terrain.getTerrainHeight(bbqX, bbqZ), bbqZ);
+      bbq.rotation.y = -0.5;
+      objects.push(bbq);
+
+      // Garden tools leaning against area near cabin
+      const gardenTools = this.createGardenTools();
+      gardenTools.position.set(toolsX, Terrain.getTerrainHeight(toolsX, toolsZ), toolsZ);
+      gardenTools.rotation.y = 0.8;
+      objects.push(gardenTools);
+
+      // Second server rack next to the first one
+      const serverRack2 = this.createServerRack();
+      serverRack2.position.set(rack2X, Terrain.getTerrainHeight(rack2X, rack2Z), rack2Z);
+      serverRack2.rotation.y = Math.PI * 0.1;
+      objects.push(serverRack2);
+
+      // Dog toys scattered near the pet bed
+      const dogToys = this.createDogToys();
+      const toysX = bedX - 1.5;
+      const toysZ = bedZ + 1;
+      dogToys.position.set(toysX, Terrain.getTerrainHeight(toysX, toysZ), toysZ);
+      dogToys.rotation.y = 0.3;
+      objects.push(dogToys);
+
+      // Leash near the pet bed
+      const leash = this.createLeash();
+      const leashX = bedX + 0.8;
+      const leashZ = bedZ - 0.5;
+      leash.position.set(leashX, Terrain.getTerrainHeight(leashX, leashZ), leashZ);
+      leash.rotation.y = 1.2;
+      objects.push(leash);
+
+      // Rubber duck on the desk (for debugging!)
+      const rubberDuck = this.createRubberDuck();
+      rubberDuck.position.set(deskX + 0.7, Terrain.getTerrainHeight(deskX, deskZ) + 0.9, deskZ - 0.1);
+      rubberDuck.rotation.y = -0.5; // Looking at the monitor
+      objects.push(rubberDuck);
 
       // Add moss patches around (avoiding all objects)
       for (let i = 0; i < 15; i++) {
