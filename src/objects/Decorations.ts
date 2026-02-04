@@ -9,7 +9,7 @@ export class Decorations {
     // Portal positions depend on the number of connections
     // Home planet has 4 portals evenly distributed
     const portalDistance = 25;
-    const portalClearance = 8; // Keep this radius clear around each portal
+    const portalClearance = 12; // Keep this radius clear around each portal
 
     // For home planet, there are typically 4 portals
     const numPortals = 4;
@@ -1387,37 +1387,107 @@ export class Decorations {
     post.castShadow = true;
     lantern.add(post);
 
-    // Lantern housing (top)
-    const housingGeo = new THREE.BoxGeometry(0.4, 0.5, 0.4);
-    const housingMat = new THREE.MeshStandardMaterial({ color: 0x3d3d3d });
-    const housing = new THREE.Mesh(housingGeo, housingMat);
-    housing.position.y = 2.25;
-    housing.castShadow = true;
-    lantern.add(housing);
+    // Lantern frame - corner posts so you can see inside
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x3d3d3d });
+    const cornerPositions = [
+      [-0.15, -0.15],
+      [-0.15, 0.15],
+      [0.15, -0.15],
+      [0.15, 0.15]
+    ];
 
-    // Glass/light part
-    const glassGeo = new THREE.BoxGeometry(0.3, 0.35, 0.3);
-    const glassMat = new THREE.MeshBasicMaterial({
-      color: 0xffaa44,
+    // Corner posts
+    for (const [px, pz] of cornerPositions) {
+      const cornerGeo = new THREE.BoxGeometry(0.04, 0.4, 0.04);
+      const corner = new THREE.Mesh(cornerGeo, frameMat);
+      corner.position.set(px, 2.2, pz);
+      lantern.add(corner);
+    }
+
+    // Top frame (horizontal bars connecting corners)
+    const topBarGeo = new THREE.BoxGeometry(0.34, 0.04, 0.04);
+    const topBar1 = new THREE.Mesh(topBarGeo, frameMat);
+    topBar1.position.set(0, 2.4, -0.15);
+    lantern.add(topBar1);
+    const topBar2 = new THREE.Mesh(topBarGeo, frameMat);
+    topBar2.position.set(0, 2.4, 0.15);
+    lantern.add(topBar2);
+
+    const topBarSideGeo = new THREE.BoxGeometry(0.04, 0.04, 0.34);
+    const topBar3 = new THREE.Mesh(topBarSideGeo, frameMat);
+    topBar3.position.set(-0.15, 2.4, 0);
+    lantern.add(topBar3);
+    const topBar4 = new THREE.Mesh(topBarSideGeo, frameMat);
+    topBar4.position.set(0.15, 2.4, 0);
+    lantern.add(topBar4);
+
+    // Bottom frame
+    const bottomBar1 = new THREE.Mesh(topBarGeo, frameMat);
+    bottomBar1.position.set(0, 2.0, -0.15);
+    lantern.add(bottomBar1);
+    const bottomBar2 = new THREE.Mesh(topBarGeo, frameMat);
+    bottomBar2.position.set(0, 2.0, 0.15);
+    lantern.add(bottomBar2);
+    const bottomBar3 = new THREE.Mesh(topBarSideGeo, frameMat);
+    bottomBar3.position.set(-0.15, 2.0, 0);
+    lantern.add(bottomBar3);
+    const bottomBar4 = new THREE.Mesh(topBarSideGeo, frameMat);
+    bottomBar4.position.set(0.15, 2.0, 0);
+    lantern.add(bottomBar4);
+
+    // Flame inside the lantern
+    const flameMat = new THREE.MeshBasicMaterial({
+      color: 0xffdd44,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.9
     });
-    const glass = new THREE.Mesh(glassGeo, glassMat);
-    glass.position.y = 2.25;
-    lantern.add(glass);
+    // Main flame body
+    const flameGeo = new THREE.ConeGeometry(0.06, 0.18, 8);
+    const flame = new THREE.Mesh(flameGeo, flameMat);
+    flame.position.y = 2.2;
+    lantern.add(flame);
 
-    // Roof
-    const roofGeo = new THREE.ConeGeometry(0.3, 0.2, 4);
+    // Inner bright core
+    const coreGeo = new THREE.ConeGeometry(0.03, 0.12, 6);
+    const coreMat = new THREE.MeshBasicMaterial({
+      color: 0xffffaa,
+      transparent: true,
+      opacity: 1
+    });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    core.position.y = 2.18;
+    lantern.add(core);
+
+    // Candle base
+    const candleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.08, 8);
+    const candleMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc });
+    const candle = new THREE.Mesh(candleGeo, candleMat);
+    candle.position.y = 2.06;
+    lantern.add(candle);
+
+    // Roof - sits on top of the frame
+    const roofGeo = new THREE.ConeGeometry(0.25, 0.18, 4);
     const roofMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
     const roof = new THREE.Mesh(roofGeo, roofMat);
-    roof.position.y = 2.6;
+    roof.position.y = 2.51; // Sits right on top of frame (top bars at 2.4 + 0.02 height)
     roof.rotation.y = Math.PI / 4;
     lantern.add(roof);
 
-    // Light
-    const light = new THREE.PointLight(0xffaa44, 0.8, 12);
+    // Roof base plate to connect roof to frame
+    const roofBaseGeo = new THREE.BoxGeometry(0.34, 0.03, 0.34);
+    const roofBase = new THREE.Mesh(roofBaseGeo, roofMat);
+    roofBase.position.y = 2.43;
+    lantern.add(roofBase);
+
+    // Light - warm ambient glow
+    const light = new THREE.PointLight(0xffaa44, 1.5, 18);
     light.position.y = 2.25;
     lantern.add(light);
+
+    // Secondary softer fill light for more ambient spread
+    const ambientLight = new THREE.PointLight(0xffcc66, 0.4, 10);
+    ambientLight.position.y = 2.25;
+    lantern.add(ambientLight);
 
     return lantern;
   }
