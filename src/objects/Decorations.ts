@@ -4,6 +4,76 @@ import { Campus } from './Campus';
 import { Terrain } from '../environment/Terrain';
 
 export class Decorations {
+  // ============================================
+  // SHARED MATERIALS - Created once, reused everywhere for performance
+  // ============================================
+  private static readonly mats = {
+    // Woods
+    wood: new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.8 }),
+    darkWood: new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.7 }),
+    lightWood: new THREE.MeshStandardMaterial({ color: 0x654321, roughness: 0.8 }),
+    trunk: new THREE.MeshStandardMaterial({ color: 0x4a3728, roughness: 0.9 }),
+
+    // Stone
+    stone: new THREE.MeshStandardMaterial({ color: 0x6b6b6b, roughness: 0.9, flatShading: true }),
+    darkStone: new THREE.MeshStandardMaterial({ color: 0x4a4a4a, roughness: 0.8 }),
+    lightStone: new THREE.MeshStandardMaterial({ color: 0x8888a0, roughness: 0.7 }),
+
+    // Metal
+    metal: new THREE.MeshStandardMaterial({ color: 0x8b7355, metalness: 0.6, roughness: 0.4 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xb5a642, metalness: 0.7, roughness: 0.3 }),
+    darkMetal: new THREE.MeshStandardMaterial({ color: 0x3d3d3d }),
+    copper: new THREE.MeshStandardMaterial({ color: 0xb87333 }),
+
+    // Nature
+    leaves: new THREE.MeshStandardMaterial({ color: 0x2d5a27, flatShading: true }),
+    bush: new THREE.MeshStandardMaterial({ color: 0x2a4a2a }),
+    grass: new THREE.MeshStandardMaterial({ color: 0x3d5c3d, roughness: 0.9 }),
+
+    // Fabric/Furniture
+    cushion: new THREE.MeshStandardMaterial({ color: 0x8b4557, roughness: 0.9 }),
+
+    // Paper/Books
+    paper: new THREE.MeshStandardMaterial({ color: 0xf5f5dc }),
+    scroll: new THREE.MeshStandardMaterial({ color: 0xd4b896, roughness: 0.9 }),
+
+    // Book colors
+    bookRed: new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.9 }),
+    bookGreen: new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.9 }),
+    bookBlue: new THREE.MeshStandardMaterial({ color: 0x00008b, roughness: 0.9 }),
+    bookPurple: new THREE.MeshStandardMaterial({ color: 0x4b0082, roughness: 0.9 }),
+    bookBrown: new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.9 }),
+    bookTeal: new THREE.MeshStandardMaterial({ color: 0x2f4f4f, roughness: 0.9 }),
+    bookMaroon: new THREE.MeshStandardMaterial({ color: 0x800000, roughness: 0.9 }),
+    bookNavy: new THREE.MeshStandardMaterial({ color: 0x191970, roughness: 0.9 }),
+
+    // Emissive/Glow
+    flame: new THREE.MeshBasicMaterial({ color: 0xffaa22 }),
+    flameYellow: new THREE.MeshBasicMaterial({ color: 0xffdd44, transparent: true, opacity: 0.9 }),
+    flameCore: new THREE.MeshBasicMaterial({ color: 0xffffaa, transparent: true, opacity: 1 }),
+    candle: new THREE.MeshStandardMaterial({ color: 0xf5f5dc }),
+
+    // Misc
+    black: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }),
+    white: new THREE.MeshStandardMaterial({ color: 0xf5f5f5 }),
+    roofDark: new THREE.MeshStandardMaterial({ color: 0x2a2a2a }),
+    lens: new THREE.MeshStandardMaterial({ color: 0x4488aa, metalness: 0.9, roughness: 0.1 }),
+    mushroomCap: new THREE.MeshStandardMaterial({ color: 0xcc4444 }),
+    mushroomSpot: new THREE.MeshStandardMaterial({ color: 0xffffee }),
+  };
+
+  // Book materials array for random selection
+  private static readonly bookMats = [
+    Decorations.mats.bookRed,
+    Decorations.mats.bookGreen,
+    Decorations.mats.bookBlue,
+    Decorations.mats.bookPurple,
+    Decorations.mats.bookBrown,
+    Decorations.mats.bookTeal,
+    Decorations.mats.bookMaroon,
+    Decorations.mats.bookNavy,
+  ];
+
   // Check if position is too close to any portal tent (portals are at distance 25 at various angles)
   private static isNearPortal(x: number, z: number): boolean {
     // Portal positions depend on the number of connections
@@ -31,35 +101,28 @@ export class Decorations {
 
   private static createRock(scale: number): THREE.Mesh {
     const geo = new THREE.DodecahedronGeometry(scale, 0);
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0x6b6b6b,
-      roughness: 0.9,
-      flatShading: true,
-    });
-    const rock = new THREE.Mesh(geo, mat);
+    const rock = new THREE.Mesh(geo, this.mats.stone);
     rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
     rock.castShadow = true;
     return rock;
   }
 
-  // Shared materials for performance
-  private static bushMaterial = new THREE.MeshStandardMaterial({ color: 0x2a4a2a });
-
   private static createBush(): THREE.Group {
     const bush = new THREE.Group();
 
-    // Multiple spheres for organic bush shape - reduced segments
-    for (let i = 0; i < 3; i++) {
-      const size = 0.4 + Math.random() * 0.4;
+    // Low-poly bush using icosahedrons
+    for (let i = 0; i < 2; i++) {
+      const size = 0.5 + Math.random() * 0.3;
       const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(size, 6, 4),
-        this.bushMaterial
+        new THREE.IcosahedronGeometry(size, 0),
+        this.mats.bush
       );
       sphere.position.set(
-        (Math.random() - 0.5) * 0.6,
-        size * 0.8,
-        (Math.random() - 0.5) * 0.6
+        (Math.random() - 0.5) * 0.4,
+        size * 0.7,
+        (Math.random() - 0.5) * 0.4
       );
+      sphere.rotation.set(Math.random(), Math.random(), Math.random());
       bush.add(sphere);
     }
     return bush;
@@ -70,15 +133,13 @@ export class Decorations {
 
     // Stem
     const stemGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.3, 6);
-    const stemMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc });
-    const stem = new THREE.Mesh(stemGeo, stemMat);
+    const stem = new THREE.Mesh(stemGeo, this.mats.candle); // cream color
     stem.position.y = 0.15;
     mushroom.add(stem);
 
     // Cap
     const capGeo = new THREE.SphereGeometry(0.2, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2);
-    const capMat = new THREE.MeshStandardMaterial({ color: 0xcc4444 });
-    const cap = new THREE.Mesh(capGeo, capMat);
+    const cap = new THREE.Mesh(capGeo, this.mats.mushroomCap);
     cap.position.y = 0.3;
     mushroom.add(cap);
 
@@ -96,37 +157,20 @@ export class Decorations {
   private static createFlower(): THREE.Group {
     const flower = new THREE.Group();
 
-    // Stem - reduced segments
-    const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 4);
+    // Stem - minimal segments
+    const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 3);
     const stem = new THREE.Mesh(stemGeo, this.stemMaterial);
     stem.position.y = 0.2;
     flower.add(stem);
 
-    // Flower head - use shared material
+    // Flower head - single low-poly shape
     const petalMat = this.flowerMaterials[Math.floor(Math.random() * this.flowerMaterials.length)];
-
-    // Petals - reduced to 4 with fewer segments
-    for (let i = 0; i < 4; i++) {
-      const petal = new THREE.Mesh(
-        new THREE.SphereGeometry(0.06, 4, 3),
-        petalMat
-      );
-      const angle = (i / 4) * Math.PI * 2;
-      petal.position.set(
-        Math.cos(angle) * 0.08,
-        0.4,
-        Math.sin(angle) * 0.08
-      );
-      flower.add(petal);
-    }
-
-    // Center
-    const center = new THREE.Mesh(
-      new THREE.SphereGeometry(0.05, 4, 3),
-      this.flowerCenterMaterial
+    const head = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.08, 0),
+      petalMat
     );
-    center.position.y = 0.4;
-    flower.add(center);
+    head.position.y = 0.4;
+    flower.add(head);
 
     return flower;
   }
@@ -612,12 +656,12 @@ export class Decorations {
 
     const backWheel = new THREE.Mesh(wheelGeo, tireMat);
     backWheel.position.set(backWheelX, wheelRadius, 0);
-    backWheel.rotation.y = Math.PI / 2;
+    // No rotation - wheel stands upright facing along Z axis
     bike.add(backWheel);
 
     const frontWheel = new THREE.Mesh(wheelGeo, tireMat);
     frontWheel.position.set(frontWheelX, wheelRadius, 0);
-    frontWheel.rotation.y = Math.PI / 2;
+    // No rotation - wheel stands upright facing along Z axis
     bike.add(frontWheel);
 
     // Wheel hubs
@@ -718,8 +762,6 @@ export class Decorations {
   private static createBookStack(): THREE.Group {
     const stack = new THREE.Group();
 
-    const bookColors = [0x8b0000, 0x00008b, 0x006400, 0x4a4a4a, 0x8b4513, 0x2f4f4f];
-
     const numBooks = 4 + Math.floor(Math.random() * 3);
     let currentHeight = 0;
 
@@ -729,10 +771,9 @@ export class Decorations {
       const depth = 0.25 + Math.random() * 0.05;
 
       const bookGeo = new THREE.BoxGeometry(width, height, depth);
-      const bookMat = new THREE.MeshStandardMaterial({
-        color: bookColors[Math.floor(Math.random() * bookColors.length)]
-      });
-      const book = new THREE.Mesh(bookGeo, bookMat);
+      // Use shared book materials
+      const mat = this.bookMats[Math.floor(Math.random() * this.bookMats.length)];
+      const book = new THREE.Mesh(bookGeo, mat);
 
       book.position.y = currentHeight + height / 2;
       // Slight random rotation for messiness
@@ -749,8 +790,6 @@ export class Decorations {
 
   private static createPaperStack(): THREE.Group {
     const stack = new THREE.Group();
-
-    const paperMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f0 });
     const numSheets = 8 + Math.floor(Math.random() * 6);
     let currentHeight = 0;
 
@@ -760,7 +799,7 @@ export class Decorations {
       const depth = 0.29; // A4-ish paper depth
 
       const sheetGeo = new THREE.BoxGeometry(width, height, depth);
-      const sheet = new THREE.Mesh(sheetGeo, paperMat);
+      const sheet = new THREE.Mesh(sheetGeo, this.mats.paper);
 
       sheet.position.y = currentHeight + height / 2;
       // Random slight offset and rotation for messy pile effect
@@ -776,7 +815,7 @@ export class Decorations {
     for (let i = 0; i < 2; i++) {
       const sheet = new THREE.Mesh(
         new THREE.BoxGeometry(0.21, 0.003, 0.29),
-        paperMat
+        this.mats.paper
       );
       sheet.position.y = currentHeight + 0.01;
       sheet.rotation.y = (Math.random() - 0.5) * 0.5;
@@ -1036,62 +1075,44 @@ export class Decorations {
 
     const metalMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.6, roughness: 0.4 });
     const grillMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.7 });
-    const redMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
+    const fireMat = new THREE.MeshStandardMaterial({ color: 0xff4500, emissive: 0xff2200, emissiveIntensity: 0.6 });
 
-    // Main barrel body (kettle style)
-    const bodyGeo = new THREE.SphereGeometry(0.45, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2);
+    // Simple square grill body
+    const bodyGeo = new THREE.BoxGeometry(0.8, 0.3, 0.5);
     const body = new THREE.Mesh(bodyGeo, metalMat);
-    body.position.y = 0.8;
-    body.rotation.x = Math.PI;
+    body.position.y = 0.75;
     body.castShadow = true;
     bbq.add(body);
 
-    // Lid
-    const lidGeo = new THREE.SphereGeometry(0.46, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+    // Grill top surface
+    const topGeo = new THREE.BoxGeometry(0.75, 0.02, 0.45);
+    const top = new THREE.Mesh(topGeo, grillMat);
+    top.position.y = 0.92;
+    bbq.add(top);
+
+    // Open lid (tilted back)
+    const lidGeo = new THREE.BoxGeometry(0.8, 0.05, 0.5);
     const lid = new THREE.Mesh(lidGeo, metalMat);
-    lid.position.y = 0.82;
-    lid.castShadow = true;
+    lid.position.set(0, 1.1, -0.35);
+    lid.rotation.x = -Math.PI / 3;
     bbq.add(lid);
 
-    // Lid handle
-    const lidHandleGeo = new THREE.BoxGeometry(0.15, 0.03, 0.04);
-    const lidHandle = new THREE.Mesh(lidHandleGeo, grillMat);
-    lidHandle.position.set(0, 1.25, 0);
-    bbq.add(lidHandle);
+    // Small fire glow inside
+    const fireGeo = new THREE.IcosahedronGeometry(0.15, 0);
+    const fire = new THREE.Mesh(fireGeo, fireMat);
+    fire.position.set(0, 0.85, 0);
+    fire.scale.set(1.5, 0.6, 1);
+    bbq.add(fire);
 
-    // Grill grate (visible lines)
-    for (let i = -3; i <= 3; i++) {
-      const grateGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.7, 4);
-      const grate = new THREE.Mesh(grateGeo, grillMat);
-      grate.rotation.z = Math.PI / 2;
-      grate.position.set(0, 0.78, i * 0.1);
-      bbq.add(grate);
-    }
-
-    // Tripod legs
-    for (let i = 0; i < 3; i++) {
-      const angle = (i / 3) * Math.PI * 2;
-      const legGeo = new THREE.CylinderGeometry(0.025, 0.03, 0.85, 6);
+    // Four legs
+    for (let i = 0; i < 4; i++) {
+      const xPos = (i % 2 === 0 ? -1 : 1) * 0.3;
+      const zPos = (i < 2 ? -1 : 1) * 0.18;
+      const legGeo = new THREE.BoxGeometry(0.05, 0.6, 0.05);
       const leg = new THREE.Mesh(legGeo, metalMat);
-      leg.position.set(Math.sin(angle) * 0.35, 0.4, Math.cos(angle) * 0.35);
-      leg.rotation.x = Math.sin(angle) * 0.15;
-      leg.rotation.z = Math.cos(angle) * 0.15;
+      leg.position.set(xPos, 0.3, zPos);
       bbq.add(leg);
     }
-
-    // Side handle
-    const sideHandleGeo = new THREE.TorusGeometry(0.08, 0.015, 6, 12, Math.PI);
-    const sideHandle = new THREE.Mesh(sideHandleGeo, redMat);
-    sideHandle.position.set(0.5, 0.8, 0);
-    sideHandle.rotation.y = Math.PI / 2;
-    sideHandle.rotation.x = Math.PI / 2;
-    bbq.add(sideHandle);
-
-    // Ash catcher below
-    const ashGeo = new THREE.CylinderGeometry(0.15, 0.12, 0.05, 8);
-    const ash = new THREE.Mesh(ashGeo, metalMat);
-    ash.position.y = 0.35;
-    bbq.add(ash);
 
     return bbq;
   }
@@ -1376,19 +1397,271 @@ export class Decorations {
     return group;
   }
 
+  // ============================================
+  // Ancient Library components for Memoria/Story world
+  // ============================================
+  private static createBookshelf(height: number = 3): THREE.Group {
+    const shelf = new THREE.Group();
+
+    // Side panels
+    const sideGeo = new THREE.BoxGeometry(0.1, height, 0.8);
+    const leftSide = new THREE.Mesh(sideGeo, this.mats.wood);
+    leftSide.position.set(-0.75, height / 2, 0);
+    leftSide.castShadow = true;
+    shelf.add(leftSide);
+
+    const rightSide = new THREE.Mesh(sideGeo, this.mats.wood);
+    rightSide.position.set(0.75, height / 2, 0);
+    rightSide.castShadow = true;
+    shelf.add(rightSide);
+
+    // Back panel
+    const backGeo = new THREE.BoxGeometry(1.6, height, 0.05);
+    const back = new THREE.Mesh(backGeo, this.mats.darkWood);
+    back.position.set(0, height / 2, -0.375);
+    shelf.add(back);
+
+    // Shelves with books
+    const shelfCount = Math.floor(height / 0.7);
+    const shelfGeo = new THREE.BoxGeometry(1.5, 0.08, 0.75);
+    for (let i = 0; i <= shelfCount; i++) {
+      const shelfBoard = new THREE.Mesh(shelfGeo, this.mats.wood);
+      shelfBoard.position.set(0, i * 0.7 + 0.1, 0);
+      shelf.add(shelfBoard);
+
+      // Add books on each shelf (except top)
+      if (i < shelfCount) {
+        const books = this.createBookRow();
+        books.position.set(0, i * 0.7 + 0.3, 0);
+        shelf.add(books);
+      }
+    }
+
+    // Top decorative trim
+    const trimGeo = new THREE.BoxGeometry(1.7, 0.15, 0.85);
+    const trim = new THREE.Mesh(trimGeo, this.mats.darkWood);
+    trim.position.y = height + 0.05;
+    shelf.add(trim);
+
+    return shelf;
+  }
+
+  private static createBookRow(): THREE.Group {
+    const books = new THREE.Group();
+
+    let xPos = -0.6;
+    while (xPos < 0.6) {
+      const width = 0.06 + Math.random() * 0.08;
+      const height = 0.35 + Math.random() * 0.15;
+      const depth = 0.5 + Math.random() * 0.15;
+
+      // Use shared book materials
+      const mat = this.bookMats[Math.floor(Math.random() * this.bookMats.length)];
+
+      const bookGeo = new THREE.BoxGeometry(width, height, depth);
+      const book = new THREE.Mesh(bookGeo, mat);
+
+      book.rotation.z = (Math.random() - 0.5) * 0.1;
+      book.position.set(xPos + width / 2, height / 2, (Math.random() - 0.5) * 0.1);
+
+      books.add(book);
+      xPos += width + 0.01;
+    }
+
+    return books;
+  }
+
+  private static createReadingNook(): THREE.Group {
+    const nook = new THREE.Group();
+
+    // Armchair base
+    const baseGeo = new THREE.BoxGeometry(1.2, 0.4, 1.2);
+    const base = new THREE.Mesh(baseGeo, this.mats.lightWood);
+    base.position.y = 0.2;
+    base.castShadow = true;
+    nook.add(base);
+
+    // Seat cushion
+    const cushionGeo = new THREE.BoxGeometry(1.0, 0.15, 1.0);
+    const cushion = new THREE.Mesh(cushionGeo, this.mats.cushion);
+    cushion.position.y = 0.48;
+    nook.add(cushion);
+
+    // Back rest
+    const backGeo = new THREE.BoxGeometry(1.2, 1.0, 0.2);
+    const backRest = new THREE.Mesh(backGeo, this.mats.lightWood);
+    backRest.position.set(0, 0.9, -0.5);
+    backRest.castShadow = true;
+    nook.add(backRest);
+
+    // Back cushion
+    const backCushionGeo = new THREE.BoxGeometry(1.0, 0.8, 0.15);
+    const backCushion = new THREE.Mesh(backCushionGeo, this.mats.cushion);
+    backCushion.position.set(0, 0.9, -0.35);
+    nook.add(backCushion);
+
+    // Armrests
+    const armGeo = new THREE.BoxGeometry(0.15, 0.5, 1.0);
+    const leftArm = new THREE.Mesh(armGeo, this.mats.lightWood);
+    leftArm.position.set(-0.525, 0.65, 0);
+    nook.add(leftArm);
+
+    const rightArm = new THREE.Mesh(armGeo, this.mats.lightWood);
+    rightArm.position.set(0.525, 0.65, 0);
+    nook.add(rightArm);
+
+    // Small side table
+    const tableLegGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 6);
+    const tableTopGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.05, 12);
+
+    const tableTop = new THREE.Mesh(tableTopGeo, this.mats.lightWood);
+    tableTop.position.set(1.0, 0.55, 0);
+    nook.add(tableTop);
+
+    const tableLeg = new THREE.Mesh(tableLegGeo, this.mats.lightWood);
+    tableLeg.position.set(1.0, 0.25, 0);
+    nook.add(tableLeg);
+
+    // Candle on table
+    const candleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.15, 8);
+    const candle = new THREE.Mesh(candleGeo, this.mats.candle);
+    candle.position.set(1.0, 0.65, 0);
+    nook.add(candle);
+
+    // Flame
+    const flameGeo = new THREE.ConeGeometry(0.025, 0.06, 6);
+    const flame = new THREE.Mesh(flameGeo, this.mats.flame);
+    flame.position.set(1.0, 0.76, 0);
+    nook.add(flame);
+
+    // Candle light
+    const candleLight = new THREE.PointLight(0xffaa44, 0.4, 5);
+    candleLight.position.set(1.0, 0.8, 0);
+    nook.add(candleLight);
+
+    return nook;
+  }
+
+  private static createStudyDesk(): THREE.Group {
+    const desk = new THREE.Group();
+
+    // Desk top
+    const topGeo = new THREE.BoxGeometry(2.0, 0.1, 1.0);
+    const top = new THREE.Mesh(topGeo, this.mats.wood);
+    top.position.y = 0.8;
+    top.castShadow = true;
+    desk.add(top);
+
+    // Legs
+    const legGeo = new THREE.BoxGeometry(0.1, 0.8, 0.1);
+    const legPositions = [
+      { x: -0.9, z: -0.4 },
+      { x: -0.9, z: 0.4 },
+      { x: 0.9, z: -0.4 },
+      { x: 0.9, z: 0.4 },
+    ];
+    for (const pos of legPositions) {
+      const leg = new THREE.Mesh(legGeo, this.mats.wood);
+      leg.position.set(pos.x, 0.4, pos.z);
+      leg.castShadow = true;
+      desk.add(leg);
+    }
+
+    // Open book on desk
+    const leftPage = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.02, 0.5), this.mats.paper);
+    leftPage.position.set(-0.25, 0.87, 0);
+    leftPage.rotation.z = 0.05;
+    desk.add(leftPage);
+
+    const rightPage = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.02, 0.5), this.mats.paper);
+    rightPage.position.set(0.25, 0.87, 0);
+    rightPage.rotation.z = -0.05;
+    desk.add(rightPage);
+
+    const spine = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.04, 0.52), this.mats.bookBrown);
+    spine.position.set(0, 0.86, 0);
+    desk.add(spine);
+
+    // Quill and inkwell
+    const inkwell = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.08, 8), this.mats.black);
+    inkwell.position.set(0.7, 0.89, -0.3);
+    desk.add(inkwell);
+
+    const quill = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.002, 0.25, 4), this.mats.white);
+    quill.position.set(0.72, 0.95, -0.28);
+    quill.rotation.z = 0.3;
+    quill.rotation.x = 0.2;
+    desk.add(quill);
+
+    // Desk candle holder
+    const holder = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.05, 8), this.mats.copper);
+    holder.position.set(-0.7, 0.87, -0.3);
+    desk.add(holder);
+
+    const deskCandle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 8), this.mats.candle);
+    deskCandle.position.set(-0.7, 0.95, -0.3);
+    desk.add(deskCandle);
+
+    const deskFlame = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.05, 6), this.mats.flame);
+    deskFlame.position.set(-0.7, 1.04, -0.3);
+    desk.add(deskFlame);
+
+    const deskLight = new THREE.PointLight(0xffaa44, 0.5, 6);
+    deskLight.position.set(-0.7, 1.1, -0.3);
+    desk.add(deskLight);
+
+    return desk;
+  }
+
+  private static createScrollRack(): THREE.Group {
+    const rack = new THREE.Group();
+
+    // Frame
+    const frameH = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.3), this.mats.lightWood);
+    frameH.position.y = 1.2;
+    rack.add(frameH);
+
+    const frameH2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.3), this.mats.lightWood);
+    frameH2.position.y = 0.1;
+    rack.add(frameH2);
+
+    const frameV1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.2, 0.3), this.mats.lightWood);
+    frameV1.position.set(-0.7, 0.65, 0);
+    rack.add(frameV1);
+
+    const frameV2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.2, 0.3), this.mats.lightWood);
+    frameV2.position.set(0.7, 0.65, 0);
+    rack.add(frameV2);
+
+    // Scrolls in cubbies
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 4; col++) {
+        if (Math.random() > 0.3) {
+          const scroll = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.06, 0.06, 0.25, 8),
+            this.mats.scroll
+          );
+          scroll.rotation.z = Math.PI / 2;
+          scroll.position.set(-0.5 + col * 0.35, 0.3 + row * 0.35, 0);
+          rack.add(scroll);
+        }
+      }
+    }
+
+    return rack;
+  }
+
   private static createLantern(): THREE.Group {
     const lantern = new THREE.Group();
 
     // Post
     const postGeo = new THREE.CylinderGeometry(0.08, 0.1, 2, 6);
-    const postMat = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
-    const post = new THREE.Mesh(postGeo, postMat);
+    const post = new THREE.Mesh(postGeo, this.mats.trunk);
     post.position.y = 1;
     post.castShadow = true;
     lantern.add(post);
 
     // Lantern frame - corner posts so you can see inside
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x3d3d3d });
     const cornerPositions = [
       [-0.15, -0.15],
       [-0.15, 0.15],
@@ -1399,83 +1672,71 @@ export class Decorations {
     // Corner posts
     for (const [px, pz] of cornerPositions) {
       const cornerGeo = new THREE.BoxGeometry(0.04, 0.4, 0.04);
-      const corner = new THREE.Mesh(cornerGeo, frameMat);
+      const corner = new THREE.Mesh(cornerGeo, this.mats.darkMetal);
       corner.position.set(px, 2.2, pz);
       lantern.add(corner);
     }
 
     // Top frame (horizontal bars connecting corners)
     const topBarGeo = new THREE.BoxGeometry(0.34, 0.04, 0.04);
-    const topBar1 = new THREE.Mesh(topBarGeo, frameMat);
+    const topBar1 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
     topBar1.position.set(0, 2.4, -0.15);
     lantern.add(topBar1);
-    const topBar2 = new THREE.Mesh(topBarGeo, frameMat);
+    const topBar2 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
     topBar2.position.set(0, 2.4, 0.15);
     lantern.add(topBar2);
 
     const topBarSideGeo = new THREE.BoxGeometry(0.04, 0.04, 0.34);
-    const topBar3 = new THREE.Mesh(topBarSideGeo, frameMat);
+    const topBar3 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
     topBar3.position.set(-0.15, 2.4, 0);
     lantern.add(topBar3);
-    const topBar4 = new THREE.Mesh(topBarSideGeo, frameMat);
+    const topBar4 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
     topBar4.position.set(0.15, 2.4, 0);
     lantern.add(topBar4);
 
     // Bottom frame
-    const bottomBar1 = new THREE.Mesh(topBarGeo, frameMat);
+    const bottomBar1 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
     bottomBar1.position.set(0, 2.0, -0.15);
     lantern.add(bottomBar1);
-    const bottomBar2 = new THREE.Mesh(topBarGeo, frameMat);
+    const bottomBar2 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
     bottomBar2.position.set(0, 2.0, 0.15);
     lantern.add(bottomBar2);
-    const bottomBar3 = new THREE.Mesh(topBarSideGeo, frameMat);
+    const bottomBar3 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
     bottomBar3.position.set(-0.15, 2.0, 0);
     lantern.add(bottomBar3);
-    const bottomBar4 = new THREE.Mesh(topBarSideGeo, frameMat);
+    const bottomBar4 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
     bottomBar4.position.set(0.15, 2.0, 0);
     lantern.add(bottomBar4);
 
     // Flame inside the lantern
-    const flameMat = new THREE.MeshBasicMaterial({
-      color: 0xffdd44,
-      transparent: true,
-      opacity: 0.9
-    });
     // Main flame body
     const flameGeo = new THREE.ConeGeometry(0.06, 0.18, 8);
-    const flame = new THREE.Mesh(flameGeo, flameMat);
+    const flame = new THREE.Mesh(flameGeo, this.mats.flameYellow);
     flame.position.y = 2.2;
     lantern.add(flame);
 
     // Inner bright core
     const coreGeo = new THREE.ConeGeometry(0.03, 0.12, 6);
-    const coreMat = new THREE.MeshBasicMaterial({
-      color: 0xffffaa,
-      transparent: true,
-      opacity: 1
-    });
-    const core = new THREE.Mesh(coreGeo, coreMat);
+    const core = new THREE.Mesh(coreGeo, this.mats.flameCore);
     core.position.y = 2.18;
     lantern.add(core);
 
     // Candle base
     const candleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.08, 8);
-    const candleMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc });
-    const candle = new THREE.Mesh(candleGeo, candleMat);
+    const candle = new THREE.Mesh(candleGeo, this.mats.candle);
     candle.position.y = 2.06;
     lantern.add(candle);
 
     // Roof - sits on top of the frame
     const roofGeo = new THREE.ConeGeometry(0.25, 0.18, 4);
-    const roofMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
-    const roof = new THREE.Mesh(roofGeo, roofMat);
+    const roof = new THREE.Mesh(roofGeo, this.mats.roofDark);
     roof.position.y = 2.51; // Sits right on top of frame (top bars at 2.4 + 0.02 height)
     roof.rotation.y = Math.PI / 4;
     lantern.add(roof);
 
     // Roof base plate to connect roof to frame
     const roofBaseGeo = new THREE.BoxGeometry(0.34, 0.03, 0.34);
-    const roofBase = new THREE.Mesh(roofBaseGeo, roofMat);
+    const roofBase = new THREE.Mesh(roofBaseGeo, this.mats.roofDark);
     roofBase.position.y = 2.43;
     lantern.add(roofBase);
 
@@ -1724,18 +1985,15 @@ export class Decorations {
 
     const trunkHeight = 5 * scale;
     const trunkGeo = new THREE.CylinderGeometry(0.3 * scale, 0.5 * scale, trunkHeight, 8);
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
-    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+    const trunk = new THREE.Mesh(trunkGeo, this.mats.trunk);
     trunk.position.y = trunkHeight / 2;
     trunk.castShadow = true;
     tree.add(trunk);
 
     // Layered foliage
-    const leavesMat = new THREE.MeshStandardMaterial({ color: 0x2d5a2d });
-
     const leaves1 = new THREE.Mesh(
       new THREE.ConeGeometry(3 * scale, 4 * scale, 8),
-      leavesMat
+      this.mats.leaves
     );
     leaves1.position.y = trunkHeight + 1 * scale;
     leaves1.castShadow = true;
@@ -1743,7 +2001,7 @@ export class Decorations {
 
     const leaves2 = new THREE.Mesh(
       new THREE.ConeGeometry(2.2 * scale, 3 * scale, 8),
-      leavesMat
+      this.mats.leaves
     );
     leaves2.position.y = trunkHeight + 3 * scale;
     leaves2.castShadow = true;
@@ -1751,7 +2009,7 @@ export class Decorations {
 
     const leaves3 = new THREE.Mesh(
       new THREE.ConeGeometry(1.4 * scale, 2 * scale, 8),
-      leavesMat
+      this.mats.leaves
     );
     leaves3.position.y = trunkHeight + 4.5 * scale;
     leaves3.castShadow = true;
@@ -1767,6 +2025,133 @@ export class Decorations {
     // Education planet gets the full campus
     if (planetId === 'education') {
       return Campus.create();
+    }
+
+    // Story/Memoria planet - Ancient Library
+    if (planetId === 'story') {
+      // Central study area
+      const studyDesk = this.createStudyDesk();
+      studyDesk.position.set(0, Terrain.getTerrainHeight(0, 0), 0);
+      studyDesk.rotation.y = Math.PI;
+      objects.push(studyDesk);
+
+      // Bookshelves arranged in sections representing life chapters
+
+      // Section 1: Early Life (behind spawn, to the left)
+      const earlyLifeShelves = [
+        { x: -12, z: -8, rot: 0.3 },
+        { x: -15, z: -6, rot: 0.2 },
+        { x: -18, z: -4, rot: 0.1 },
+      ];
+      for (const pos of earlyLifeShelves) {
+        const shelf = this.createBookshelf(2.5);
+        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        shelf.rotation.y = pos.rot;
+        objects.push(shelf);
+      }
+
+      // Reading nook for Early Life section
+      const nook1 = this.createReadingNook();
+      nook1.position.set(-14, Terrain.getTerrainHeight(-14, -2), -2);
+      nook1.rotation.y = Math.PI * 0.3;
+      objects.push(nook1);
+
+      // Section 2: Education (to the right)
+      const educationShelves = [
+        { x: 12, z: -8, rot: -0.3 },
+        { x: 15, z: -6, rot: -0.2 },
+        { x: 18, z: -4, rot: -0.1 },
+      ];
+      for (const pos of educationShelves) {
+        const shelf = this.createBookshelf(3);
+        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        shelf.rotation.y = pos.rot;
+        objects.push(shelf);
+      }
+
+      // Scroll rack for education
+      const scrolls = this.createScrollRack();
+      scrolls.position.set(14, Terrain.getTerrainHeight(14, -2), -2);
+      scrolls.rotation.y = -Math.PI * 0.2;
+      objects.push(scrolls);
+
+      // Section 3: Career Start (front left)
+      const careerStartShelves = [
+        { x: -10, z: 10, rot: -0.4 },
+        { x: -14, z: 12, rot: -0.3 },
+      ];
+      for (const pos of careerStartShelves) {
+        const shelf = this.createBookshelf(3.5);
+        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        shelf.rotation.y = pos.rot;
+        objects.push(shelf);
+      }
+
+      const nook2 = this.createReadingNook();
+      nook2.position.set(-8, Terrain.getTerrainHeight(-8, 14), 14);
+      nook2.rotation.y = Math.PI * 0.8;
+      objects.push(nook2);
+
+      // Section 4: Growth & Experience (front right)
+      const growthShelves = [
+        { x: 10, z: 10, rot: 0.4 },
+        { x: 14, z: 12, rot: 0.3 },
+      ];
+      for (const pos of growthShelves) {
+        const shelf = this.createBookshelf(4);
+        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        shelf.rotation.y = pos.rot;
+        objects.push(shelf);
+      }
+
+      // Section 5: Present Day (directly ahead, taller shelves)
+      const presentShelves = [
+        { x: -4, z: 20, rot: 0.1 },
+        { x: 0, z: 22, rot: 0 },
+        { x: 4, z: 20, rot: -0.1 },
+      ];
+      for (const pos of presentShelves) {
+        const shelf = this.createBookshelf(4.5);
+        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        shelf.rotation.y = pos.rot;
+        objects.push(shelf);
+      }
+
+      // Grand reading nook at the end
+      const nook3 = this.createReadingNook();
+      nook3.position.set(0, Terrain.getTerrainHeight(0, 16), 16);
+      nook3.rotation.y = Math.PI;
+      objects.push(nook3);
+
+      // Ambient lanterns throughout
+      const lanternPositions = [
+        { x: -10, z: -5 }, { x: 10, z: -5 },
+        { x: -12, z: 8 }, { x: 12, z: 8 },
+        { x: -5, z: 18 }, { x: 5, z: 18 },
+        { x: 0, z: 8 }, { x: -6, z: 0 }, { x: 6, z: 0 },
+      ];
+      for (const pos of lanternPositions) {
+        const lantern = this.createLantern();
+        lantern.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        objects.push(lantern);
+      }
+
+      // Scattered individual book stacks
+      for (let i = 0; i < 8; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 5 + Math.random() * 10;
+        const x = Math.cos(angle) * dist;
+        const z = Math.sin(angle) * dist;
+
+        if (this.isNearPortal(x, z)) continue;
+
+        const books = this.createBookStack();
+        books.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        books.rotation.y = Math.random() * Math.PI;
+        objects.push(books);
+      }
+
+      return objects;
     }
 
     // Home planet gets lots of trees
@@ -1800,12 +2185,13 @@ export class Decorations {
         return dx * dx + dz * dz < cabinClearance * cabinClearance;
       };
 
+      // === TREES (100) ===
       while (treesPlaced < 100 && attempts < 1000) {
         attempts++;
 
         const angle = Math.random() * Math.PI * 2;
-        // Spread trees from inner ring to outer boundary
-        const distance = 20 + Math.random() * 185;
+        // Spread trees from inner ring to outer boundary (reduced for performance)
+        const distance = 20 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -1836,13 +2222,13 @@ export class Decorations {
         treesPlaced++;
       }
 
-      // Add a single cabin near spawn point (uses cabinX, cabinZ defined above)
+      // === CABIN ===
       const cabin = this.createCabin();
       cabin.position.set(cabinX, Terrain.getTerrainHeight(cabinX, cabinZ), cabinZ);
-      // Face the cabin towards spawn (0, 0)
       cabin.rotation.y = Math.atan2(-cabinX, -cabinZ);
       objects.push(cabin);
 
+      // === ALL SMALL ITEMS ===
       // Add a bench near the campfire (campfire is at 0, 0, -8)
       const bench = this.createBench();
       const benchX = 3;
@@ -2057,14 +2443,6 @@ export class Decorations {
       papers4.rotation.y = 1.2;
       objects.push(papers4);
 
-      // Hoodie draped on one of the logs
-      const hoodie = this.createHoodie();
-      const hoodieX = -3.5;
-      const hoodieZ = -11;
-      hoodie.position.set(hoodieX, Terrain.getTerrainHeight(hoodieX, hoodieZ) + 0.4, hoodieZ);
-      hoodie.rotation.y = 0.5;
-      objects.push(hoodie);
-
       // Mini fridge between desk area and campfire
       const fridge = this.createMiniFridge();
       const fridgeX = 5;
@@ -2133,10 +2511,10 @@ export class Decorations {
         objects.push(moss);
       }
 
-      // Most flowers spread throughout the outer areas
+      // === OUTER FLOWERS (60 clusters, ~400 flowers) ===
       for (let i = 0; i < 60; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 42 + Math.random() * 140; // distance 42-182 (wide spread)
+        const distance = 42 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2151,12 +2529,12 @@ export class Decorations {
         }
       }
 
-      // Add fireflies - multiple clusters spread around the world
+      // === FIREFLIES (5 clusters) ===
       // Center area fireflies (around the desk area)
       const centerFireflies = this.createFireflyCluster(deskX, deskZ, 20);
       objects.push(centerFireflies);
 
-      // Add more firefly clusters throughout the forest (reduced for performance)
+      // Add more firefly clusters throughout the forest
       const fireflyClusterPositions = [
         { x: 50, z: 30 },
         { x: -60, z: 40 },
@@ -2169,8 +2547,7 @@ export class Decorations {
         objects.push(clusterFireflies);
       }
 
-      // Add more elements to fill the outer middle area (avoiding all objects and portals)
-      // Rocks spread around
+      // === MIDDLE ROCKS (12) ===
       for (let i = 0; i < 12; i++) {
         let x, z, attempts = 0;
         do {
@@ -2188,7 +2565,7 @@ export class Decorations {
         objects.push(rock);
       }
 
-      // Tall grass clusters spread around (avoiding objects)
+      // === MIDDLE TALL GRASS (18) ===
       for (let i = 0; i < 18; i++) {
         let x, z, attempts = 0;
         do {
@@ -2206,7 +2583,7 @@ export class Decorations {
         objects.push(grass);
       }
 
-      // Ferns spread around (avoiding objects)
+      // === MIDDLE FERNS (10) ===
       for (let i = 0; i < 10; i++) {
         let x, z, attempts = 0;
         do {
@@ -2226,7 +2603,7 @@ export class Decorations {
         objects.push(fern);
       }
 
-      // Small flower patches scattered around (avoiding objects)
+      // === SMALL FLOWER PATCHES (8, ~24 flowers) ===
       for (let i = 0; i < 8; i++) {
         let x, z, attempts = 0;
         do {
@@ -2249,8 +2626,8 @@ export class Decorations {
         }
       }
 
-      // Bushes randomly placed around middle area
-      for (let i = 0; i < 6; i++) {
+      // === MIDDLE BUSHES (5) ===
+      for (let i = 0; i < 5; i++) {
         let x, z, attempts = 0;
         do {
           const angle = Math.random() * Math.PI * 2;
@@ -2267,7 +2644,7 @@ export class Decorations {
         objects.push(bush);
       }
 
-      // A few logs near the campfire for seating (moved back a bit)
+      // === SEAT LOGS (2) ===
       const seatLogPositions = [
         { x: -3, z: -11, rot: 0.3 },
         { x: 3, z: -11.5, rot: -0.2 },
@@ -2280,6 +2657,7 @@ export class Decorations {
         objects.push(log);
       }
 
+      /* === MIDDLE FOLIAGE CONTINUED ===
       const getObjectClearanceRadius = (obj: THREE.Object3D): number => {
         if (typeof obj.userData?.clearanceRadius === 'number') {
           return obj.userData.clearanceRadius as number;
@@ -2388,16 +2766,16 @@ export class Decorations {
 
         // Mix of foliage
         const choice = Math.random();
-        if (choice < 0.25) {
+        if (choice < 0.2) {
           const bush = this.createBush();
           bush.position.set(x, terrainY, z);
           objects.push(bush);
-        } else if (choice < 0.5) {
+        } else if (choice < 0.45) {
           const fern = this.createFern();
           fern.position.set(x, terrainY, z);
           fern.rotation.y = Math.random() * Math.PI * 2;
           objects.push(fern);
-        } else if (choice < 0.75) {
+        } else if (choice < 0.7) {
           const grass = this.createTallGrass();
           grass.position.set(x, terrainY, z);
           objects.push(grass);
@@ -2424,11 +2802,11 @@ export class Decorations {
         const terrainY = Terrain.getTerrainHeight(x, z);
 
         const choice = Math.random();
-        if (choice < 0.4) {
+        if (choice < 0.3) {
           const bush = this.createBush();
           bush.position.set(x, terrainY, z);
           objects.push(bush);
-        } else if (choice < 0.7) {
+        } else if (choice < 0.6) {
           const fern = this.createFern();
           fern.position.set(x, terrainY, z);
           fern.rotation.y = Math.random() * Math.PI * 2;
@@ -2470,11 +2848,12 @@ export class Decorations {
           objects.push(fern);
         }
       }
+      === END MIDDLE FOLIAGE === */
 
-      // Add rocks scattered around
+      // === ROCKS (25) ===
       for (let i = 0; i < 25; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 25 + Math.random() * 170;
+        const distance = 25 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2487,10 +2866,10 @@ export class Decorations {
         objects.push(rock);
       }
 
-      // Add bushes
-      for (let i = 0; i < 40; i++) {
+      // === BUSHES (25) ===
+      for (let i = 0; i < 25; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 20 + Math.random() * 180;
+        const distance = 20 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2502,10 +2881,10 @@ export class Decorations {
         objects.push(bush);
       }
 
-      // Add ferns
+      // === FERNS (35) ===
       for (let i = 0; i < 35; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 25 + Math.random() * 175;
+        const distance = 25 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2519,10 +2898,10 @@ export class Decorations {
         objects.push(fern);
       }
 
-      // Add tall grass patches
+      // === TALL GRASS (50 patches) ===
       for (let i = 0; i < 50; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 18 + Math.random() * 180;
+        const distance = 18 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2535,10 +2914,10 @@ export class Decorations {
         objects.push(grass);
       }
 
-      // Add mushroom clusters
+      // === MUSHROOM CLUSTERS (15, ~45 mushrooms) ===
       for (let i = 0; i < 15; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 30 + Math.random() * 150;
+        const distance = 30 + Math.random() * 70;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2557,10 +2936,10 @@ export class Decorations {
         }
       }
 
-      // Add flowers in patches
+      /* === FLOWER PATCHES (25 patches, ~175 flowers) ===
       for (let i = 0; i < 25; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 25 + Math.random() * 160;
+        const distance = 25 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2579,10 +2958,10 @@ export class Decorations {
         }
       }
 
-      // Add fallen logs
+      // === FALLEN LOGS (10) ===
       for (let i = 0; i < 10; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 40 + Math.random() * 140;
+        const distance = 40 + Math.random() * 80;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2595,6 +2974,7 @@ export class Decorations {
         log.rotation.y = Math.random() * Math.PI * 2;
         objects.push(log);
       }
+      === END FLOWER/LOGS === */
 
       return objects;
     }
@@ -2602,7 +2982,7 @@ export class Decorations {
     // Other planets get their decorations
     for (let i = 0; i < 30; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const distance = 30 + Math.random() * 150;
+      const distance = 30 + Math.random() * 70;
       const x = Math.cos(angle) * distance;
       const z = Math.sin(angle) * distance;
 

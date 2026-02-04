@@ -42,8 +42,8 @@ export class Terrain {
   public static createGround(color: number, flatRadius = 40): THREE.Group {
     const group = new THREE.Group();
 
-    // Main terrain
-    const geometry = new THREE.PlaneGeometry(600, 600, 120, 120);
+    // Main terrain - reduced size for performance
+    const geometry = new THREE.PlaneGeometry(300, 300, 60, 60);
 
     const positions = geometry.attributes.position;
     const colors = new Float32Array(positions.count * 3);
@@ -99,6 +99,7 @@ export class Terrain {
     mesh.receiveShadow = true;
     group.add(mesh);
 
+    /* === TERRAIN ROCKS COMMENTED OUT FOR PERFORMANCE TESTING ===
     // Add scattered rocks/details on terrain
     for (let i = 0; i < 60; i++) {
       const rockGeo = new THREE.DodecahedronGeometry(0.3 + Math.random() * 0.8, 0);
@@ -110,12 +111,13 @@ export class Terrain {
       const rock = new THREE.Mesh(rockGeo, rockMat);
 
       const angle = Math.random() * Math.PI * 2;
-      const dist = 50 + Math.random() * 200;
+      const dist = 50 + Math.random() * 80;
       rock.position.set(Math.cos(angle) * dist, 0.2 + Math.random() * 0.3, Math.sin(angle) * dist);
       rock.rotation.set(Math.random(), Math.random(), Math.random());
       rock.castShadow = true;
       group.add(rock);
     }
+    === END TERRAIN ROCKS === */
 
     return group;
   }

@@ -19,7 +19,7 @@ export class SkyEnvironment {
 
     // Main stars - small and numerous (upper hemisphere only)
     const smallStarsGeo = new THREE.BufferGeometry();
-    const smallCount = 10000;
+    const smallCount = 4000;
     const smallPositions = new Float32Array(smallCount * 3);
     const smallColors = new Float32Array(smallCount * 3);
 
@@ -74,7 +74,7 @@ export class SkyEnvironment {
 
     // Medium brightness stars
     const mediumStarsGeo = new THREE.BufferGeometry();
-    const mediumCount = 3000;
+    const mediumCount = 1500;
     const mediumPositions = new Float32Array(mediumCount * 3);
     const mediumColors = new Float32Array(mediumCount * 3);
 
@@ -120,7 +120,7 @@ export class SkyEnvironment {
 
     // Bright twinkling stars
     const brightStarsGeo = new THREE.BufferGeometry();
-    const brightCount = 600;
+    const brightCount = 300;
     const brightPositions = new Float32Array(brightCount * 3);
     const brightColors = new Float32Array(brightCount * 3);
 
@@ -174,7 +174,7 @@ export class SkyEnvironment {
 
     // Main milky way band - dense star cluster
     const milkyWayGeo = new THREE.BufferGeometry();
-    const count = 25000;
+    const count = 12000;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
 
@@ -228,7 +228,7 @@ export class SkyEnvironment {
 
     // Galactic core - denser concentration
     const coreGeo = new THREE.BufferGeometry();
-    const coreCount = 5000;
+    const coreCount = 2500;
     const corePositions = new Float32Array(coreCount * 3);
     const coreColors = new Float32Array(coreCount * 3);
 
@@ -268,7 +268,7 @@ export class SkyEnvironment {
 
     // Outer halo - faint diffuse stars
     const haloGeo = new THREE.BufferGeometry();
-    const haloCount = 8000;
+    const haloCount = 4000;
     const haloPositions = new Float32Array(haloCount * 3);
     const haloColors = new Float32Array(haloCount * 3);
 

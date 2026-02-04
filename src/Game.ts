@@ -26,12 +26,22 @@ export class Game {
   private dogInteractionDistance: number = 3;
   private isShowingDogQuote: boolean = false;
 
+  // FPS counter
+  private fpsCounter: HTMLDivElement;
+  private frameCount: number = 0;
+  private lastFpsUpdate: number = 0;
+
   constructor() {
     // Initialize core systems
     this.sceneManager = new SceneManager();
     this.uiManager = new UIManager();
     this.musicSystem = new MusicSystem();
     this.clock = new THREE.Clock();
+
+    // Create FPS counter
+    this.fpsCounter = document.createElement('div');
+    this.fpsCounter.style.cssText = 'position:fixed;top:10px;left:10px;color:#0f0;font:bold 16px monospace;background:rgba(0,0,0,0.7);padding:5px 10px;z-index:9999;border-radius:4px;';
+    document.body.appendChild(this.fpsCounter);
 
     // Initialize player controller
     this.playerController = new PlayerController(
@@ -141,6 +151,15 @@ export class Game {
 
     const delta = this.clock.getDelta();
     const time = this.clock.getElapsedTime();
+
+    // Update FPS counter
+    this.frameCount++;
+    if (time - this.lastFpsUpdate >= 0.5) {
+      const fps = Math.round(this.frameCount / (time - this.lastFpsUpdate));
+      this.fpsCounter.textContent = `FPS: ${fps}`;
+      this.frameCount = 0;
+      this.lastFpsUpdate = time;
+    }
 
     // Update sky environment
     this.skyEnvironment.update(delta, time);
