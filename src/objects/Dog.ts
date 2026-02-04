@@ -151,11 +151,11 @@ export class Dog {
     const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x3d2314 });
 
     const leftEye = new THREE.Mesh(eyeGeo, eyeMaterial);
-    leftEye.position.set(-0.2, 0.1, 0.32);
+    leftEye.position.set(-0.2, 0.22, 0.32);
     this.head.add(leftEye);
 
     const rightEye = new THREE.Mesh(eyeGeo, eyeMaterial);
-    rightEye.position.set(0.2, 0.1, 0.32);
+    rightEye.position.set(0.2, 0.22, 0.32);
     this.head.add(rightEye);
 
     // Ears
@@ -171,25 +171,16 @@ export class Dog {
     rightEar.rotation.z = -0.25;
     this.head.add(rightEar);
 
-    // Tail (two segments for better animation)
+    // Tail (single piece)
     this.tail = new THREE.Group();
-    this.tail.position.set(0, 0.95, -1.1);
+    this.tail.position.set(0, 0.95, -0.85);
     this.spine.add(this.tail);
 
-    const tailBaseGeo = new THREE.BoxGeometry(0.18, 0.18, 0.45);
-    const tailBase = new THREE.Mesh(tailBaseGeo, darkFurMaterial);
-    tailBase.position.set(0, 0, -0.2);
-    tailBase.rotation.x = -0.6;
-    this.tail.add(tailBase);
-
-    const tailTipGroup = new THREE.Group();
-    tailTipGroup.position.set(0, 0.15, -0.4);
-    this.tail.add(tailTipGroup);
-
-    const tailTipGeo = new THREE.BoxGeometry(0.15, 0.15, 0.4);
-    this.tailTip = new THREE.Mesh(tailTipGeo, darkFurMaterial);
-    this.tailTip.position.set(0, 0.15, -0.15);
-    tailTipGroup.add(this.tailTip);
+    const tailGeo = new THREE.BoxGeometry(0.16, 0.16, 0.7);
+    this.tailTip = new THREE.Mesh(tailGeo, darkFurMaterial);
+    this.tailTip.position.set(0, 0.2, -0.35);
+    this.tailTip.rotation.x = -0.5;
+    this.tail.add(this.tailTip);
 
     // Create articulated legs
     this.frontLeftLeg = this.createArticulatedLeg(furMaterial, true);
