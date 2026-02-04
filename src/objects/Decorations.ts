@@ -77,12 +77,13 @@ export class Decorations {
   // Check if position is too close to any portal tent (portals are at distance 25 at various angles)
   private static isNearPortal(x: number, z: number): boolean {
     // Portal positions depend on the number of connections
-    // Home planet has 4 portals evenly distributed
+    // Home planet has 5 portals evenly distributed
     const portalDistance = 18;
-    const portalClearance = 14; // Keep this radius clear around each portal
+    // Tent is 6 wide x 5 deep, add small buffer
+    const clearanceRadius = 5;
 
-    // For home planet, there are typically 4 portals
-    const numPortals = 4;
+    // For home planet, there are 5 portals
+    const numPortals = 5;
     for (let i = 0; i < numPortals; i++) {
       const angle = (i / numPortals) * Math.PI * 2 - Math.PI / 2;
       const portalX = Math.cos(angle) * portalDistance;
@@ -90,9 +91,10 @@ export class Decorations {
 
       const dx = x - portalX;
       const dz = z - portalZ;
-      const distToPortal = Math.sqrt(dx * dx + dz * dz);
+      const dist = Math.sqrt(dx * dx + dz * dz);
 
-      if (distToPortal < portalClearance) {
+      // Circular clearance matching tent size
+      if (dist < clearanceRadius) {
         return true;
       }
     }
@@ -2083,13 +2085,31 @@ export class Decorations {
         return dx * dx + dz * dz < cabinClearance * cabinClearance;
       };
 
+      // === DEBUG: Portal clearance zone outlines ===
+      const portalDistance = 18;
+      const clearanceRadius = 5;
+      const numPortals = 5;
+      for (let i = 0; i < numPortals; i++) {
+        const angle = (i / numPortals) * Math.PI * 2 - Math.PI / 2;
+        const portalX = Math.cos(angle) * portalDistance;
+        const portalZ = Math.sin(angle) * portalDistance;
+
+        // Circular outline matching tent size
+        const circleGeo = new THREE.RingGeometry(clearanceRadius - 0.1, clearanceRadius, 32);
+        const circleMat = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+        const circle = new THREE.Mesh(circleGeo, circleMat);
+        circle.rotation.x = -Math.PI / 2;
+        circle.position.set(portalX, 0.1, portalZ);
+        objects.push(circle);
+      }
+
       // === TREES (200) ===
       while (treesPlaced < 200 && attempts < 2000) {
         attempts++;
 
         const angle = Math.random() * Math.PI * 2;
         // Trees form a forest ring surrounding the center clearing
-        const distance = 14 + Math.random() * 50;
+        const distance = 14 + Math.random() * 35;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2615,30 +2635,22 @@ export class Decorations {
       };
 
       const lanternPositions = [
-        { x: -9, z: 9 },
-        { x: 9, z: 9 },
-        { x: -9, z: -9 },
-        { x: 9, z: -9 },
-        { x: cabinX - 4, z: cabinZ + 7 },
+        { x: -6, z: 6 },
+        { x: 6, z: 6 },
+        { x: -6, z: -4 },
+        { x: 6, z: -4 },
+        { x: cabinX + 5, z: cabinZ - 3 },
       ];
       for (const pos of lanternPositions) {
-        let placed = false;
-        for (let attempt = 0; attempt < 12 && !placed; attempt++) {
-          const offsetRadius = attempt === 0 ? 0 : 1.5;
-          const offsetAngle = Math.random() * Math.PI * 2;
-          const x = pos.x + Math.cos(offsetAngle) * offsetRadius;
-          const z = pos.z + Math.sin(offsetAngle) * offsetRadius;
+        const x = pos.x;
+        const z = pos.z;
 
-          if (this.isNearPortal(x, z)) continue;
-          if (isInExclusionZone(x, z)) continue;
-          if (isTooCloseToExistingObject(x, z)) continue;
+        if (isInExclusionZone(x, z)) continue;
 
-          const lantern = this.createLantern();
-          lantern.position.set(x, Terrain.getTerrainHeight(x, z), z);
-          objects.push(lantern);
-          exclusionZones.push({ x, z, r: 2 });
-          placed = true;
-        }
+        const lantern = this.createLantern();
+        lantern.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        objects.push(lantern);
+        exclusionZones.push({ x, z, r: 2 });
       }
 
       // === BIRD HOUSES & PORTAL FOLIAGE ===
