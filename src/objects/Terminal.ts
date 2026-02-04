@@ -66,9 +66,16 @@ export class Terminal {
       fireColors[i * 3 + 2] = t * 0.2;
     }
 
+    // Pre-compute random speeds for animation
+    const fireSpeeds = new Float32Array(fireParticleCount);
+    for (let i = 0; i < fireParticleCount; i++) {
+      fireSpeeds[i] = 1.5 + Math.random();
+    }
+
     const fireGeo = new THREE.BufferGeometry();
     fireGeo.setAttribute('position', new THREE.BufferAttribute(firePositions, 3));
     fireGeo.setAttribute('color', new THREE.BufferAttribute(fireColors, 3));
+    fireGeo.setAttribute('speed', new THREE.BufferAttribute(fireSpeeds, 1));
 
     const fireMat = new THREE.PointsMaterial({
       size: 0.25,
@@ -83,15 +90,18 @@ export class Terminal {
     // Spark particles (smaller, rising faster)
     const sparkCount = 30;
     const sparkPositions = new Float32Array(sparkCount * 3);
+    const sparkSpeeds = new Float32Array(sparkCount);
     for (let i = 0; i < sparkCount; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 0.3;
       sparkPositions[i * 3] = Math.cos(angle) * radius;
       sparkPositions[i * 3 + 1] = 0.5 + Math.random() * 3;
       sparkPositions[i * 3 + 2] = Math.sin(angle) * radius;
+      sparkSpeeds[i] = 2 + Math.random() * 2;
     }
     const sparkGeo = new THREE.BufferGeometry();
     sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
+    sparkGeo.setAttribute('speed', new THREE.BufferAttribute(sparkSpeeds, 1));
     const sparkMat = new THREE.PointsMaterial({
       color: 0xffaa00,
       size: 0.08,
@@ -142,23 +152,27 @@ export class Terminal {
     if (fire && fire.geometry) {
       const positions = fire.geometry.attributes.position.array as Float32Array;
       const colors = fire.geometry.attributes.color.array as Float32Array;
+      const speeds = fire.geometry.attributes.speed?.array as Float32Array;
 
       for (let i = 0; i < positions.length / 3; i++) {
-        // Move particles up
-        positions[i * 3 + 1] += delta * (1.5 + Math.random());
+        // Move particles up using pre-computed speed
+        const speed = speeds ? speeds[i] : 2;
+        positions[i * 3 + 1] += delta * speed;
 
         // Reset when too high
         if (positions[i * 3 + 1] > 2.5) {
-          const angle = Math.random() * Math.PI * 2;
-          const radius = Math.random() * 0.4;
+          // Use time-based pseudo-random for reset position
+          const angle = (time * 3 + i * 0.7) % (Math.PI * 2);
+          const radius = ((i * 0.13) % 1) * 0.4;
           positions[i * 3] = Math.cos(angle) * radius;
           positions[i * 3 + 1] = 0.3;
           positions[i * 3 + 2] = Math.sin(angle) * radius;
         }
 
-        // Wobble horizontally
-        positions[i * 3] += (Math.random() - 0.5) * delta * 0.5;
-        positions[i * 3 + 2] += (Math.random() - 0.5) * delta * 0.5;
+        // Wobble using sin/cos instead of random (cheaper)
+        const wobble = Math.sin(time * 5 + i * 0.5) * delta * 0.3;
+        positions[i * 3] += wobble;
+        positions[i * 3 + 2] += Math.cos(time * 4 + i * 0.7) * delta * 0.3;
 
         // Update colors based on height
         const height = positions[i * 3 + 1] - 0.3;
@@ -175,14 +189,19 @@ export class Terminal {
     const sparks = terminal.children[fireIndex + 1] as THREE.Points;
     if (sparks && sparks.geometry) {
       const positions = sparks.geometry.attributes.position.array as Float32Array;
+      const speeds = sparks.geometry.attributes.speed?.array as Float32Array;
+
       for (let i = 0; i < positions.length / 3; i++) {
-        positions[i * 3 + 1] += delta * (2 + Math.random() * 2);
-        positions[i * 3] += (Math.random() - 0.5) * delta * 0.3;
-        positions[i * 3 + 2] += (Math.random() - 0.5) * delta * 0.3;
+        const speed = speeds ? speeds[i] : 3;
+        positions[i * 3 + 1] += delta * speed;
+
+        // Wobble using sin/cos
+        positions[i * 3] += Math.sin(time * 6 + i) * delta * 0.2;
+        positions[i * 3 + 2] += Math.cos(time * 5 + i) * delta * 0.2;
 
         if (positions[i * 3 + 1] > 4) {
-          const angle = Math.random() * Math.PI * 2;
-          const radius = Math.random() * 0.2;
+          const angle = (time * 2 + i * 0.9) % (Math.PI * 2);
+          const radius = ((i * 0.17) % 1) * 0.2;
           positions[i * 3] = Math.cos(angle) * radius;
           positions[i * 3 + 1] = 0.5;
           positions[i * 3 + 2] = Math.sin(angle) * radius;

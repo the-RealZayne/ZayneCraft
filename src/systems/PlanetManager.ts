@@ -27,6 +27,9 @@ export class PlanetManager {
   private portalLabels: THREE.Group[] = [];
   private decorations: THREE.Object3D[] = [];
 
+  // Animation frame skipping for performance
+  private animationFrame: number = 0;
+
   constructor(
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
@@ -100,8 +103,8 @@ export class PlanetManager {
     this.directionalLight = new THREE.DirectionalLight(config.lightColor, config.lightIntensity);
     this.directionalLight.position.set(50, 100, 50);
     this.directionalLight.castShadow = true;
-    this.directionalLight.shadow.mapSize.width = 2048;
-    this.directionalLight.shadow.mapSize.height = 2048;
+    this.directionalLight.shadow.mapSize.width = 1024;
+    this.directionalLight.shadow.mapSize.height = 1024;
     this.directionalLight.shadow.camera.near = 0.5;
     this.directionalLight.shadow.camera.far = 500;
     this.directionalLight.shadow.camera.left = -100;
@@ -183,6 +186,8 @@ export class PlanetManager {
   }
 
   public animateDecorations(delta: number, time: number): void {
+    this.animationFrame++;
+
     // Animate floating decorations (crystals on skills planet)
     if (this.currentPlanet === 'skills') {
       this.decorations.forEach((dec, i) => {
@@ -191,8 +196,8 @@ export class PlanetManager {
       });
     }
 
-    // Animate fireflies on home planet
-    if (this.currentPlanet === 'home') {
+    // Animate fireflies on home planet - skip every other frame for performance
+    if (this.currentPlanet === 'home' && this.animationFrame % 2 === 0) {
       this.decorations.forEach((dec) => {
         if (dec.children) {
           dec.children.forEach((child) => {
