@@ -9,7 +9,7 @@ export class Decorations {
     // Portal positions depend on the number of connections
     // Home planet has 4 portals evenly distributed
     const portalDistance = 25;
-    const portalClearance = 12; // Keep this radius clear around each portal
+    const portalClearance = 18; // Keep this radius clear around each portal (large for trees)
 
     // For home planet, there are typically 4 portals
     const numPortals = 4;
@@ -2280,19 +2280,59 @@ export class Decorations {
         objects.push(log);
       }
 
-      // Add lanterns around the area
+      const getObjectClearanceRadius = (obj: THREE.Object3D): number => {
+        if (typeof obj.userData?.clearanceRadius === 'number') {
+          return obj.userData.clearanceRadius as number;
+        }
+        if (obj instanceof THREE.Points || obj.userData?.isFireflies) {
+          return 0;
+        }
+        const box = new THREE.Box3().setFromObject(obj);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const radius = Math.max(0.5, maxDim * 0.5);
+        obj.userData.clearanceRadius = radius;
+        return radius;
+      };
+
+      const isTooCloseToExistingObject = (x: number, z: number, minClearance = 0.8): boolean => {
+        for (const obj of objects) {
+          if (obj instanceof THREE.Points || obj.userData?.isFireflies) continue;
+          const dx = x - obj.position.x;
+          const dz = z - obj.position.z;
+          const radius = getObjectClearanceRadius(obj) + minClearance;
+          if (dx * dx + dz * dz < radius * radius) return true;
+        }
+        return false;
+      };
+
+      // Add lanterns around the area (avoid clipping into existing objects)
       const lanternPositions = [
-        { x: -12, z: 8 },
-        { x: 12, z: 10 },
-        { x: -8, z: -15 },
-        { x: 5, z: 15 },
-        { x: cabinX + 5, z: cabinZ - 3 }, // Near cabin
+        { x: -9, z: 9 },
+        { x: 9, z: 9 },
+        { x: -9, z: -9 },
+        { x: 9, z: -9 },
+        { x: cabinX - 4, z: cabinZ + 7 }, // Near cabin (kept clear of portal radius)
       ];
       for (const pos of lanternPositions) {
-        if (this.isNearPortal(pos.x, pos.z)) continue;
-        const lantern = this.createLantern();
-        lantern.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
-        objects.push(lantern);
+        let placed = false;
+        for (let attempt = 0; attempt < 12 && !placed; attempt++) {
+          const offsetRadius = attempt === 0 ? 0 : 1.5;
+          const offsetAngle = Math.random() * Math.PI * 2;
+          const x = pos.x + Math.cos(offsetAngle) * offsetRadius;
+          const z = pos.z + Math.sin(offsetAngle) * offsetRadius;
+
+          if (this.isNearPortal(x, z)) continue;
+          if (isInExclusionZone(x, z)) continue;
+          if (isTooCloseToExistingObject(x, z)) continue;
+
+          const lantern = this.createLantern();
+          lantern.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          objects.push(lantern);
+          exclusionZones.push({ x, z, r: 2 });
+          placed = true;
+        }
       }
 
       // Add bird houses on some trees (attach to tree positions)
