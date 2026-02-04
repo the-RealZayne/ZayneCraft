@@ -151,6 +151,8 @@ export class Decorations {
   private static flowerMaterials = Decorations.flowerColors.map(
     c => new THREE.MeshStandardMaterial({ color: c })
   );
+
+  // @ts-ignore
   private static flowerCenterMaterial = new THREE.MeshStandardMaterial({ color: 0xffd700 });
   private static stemMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 });
 
@@ -826,56 +828,6 @@ export class Decorations {
     }
 
     return stack;
-  }
-
-  private static createHoodie(): THREE.Group {
-    const hoodie = new THREE.Group();
-
-    // Draped hoodie - like it's thrown over something
-    const fabricMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a }); // Dark navy/grey
-
-    // Main body (crumpled/draped shape)
-    const bodyGeo = new THREE.BoxGeometry(0.5, 0.08, 0.6);
-    const body = new THREE.Mesh(bodyGeo, fabricMat);
-    body.position.y = 0.04;
-    body.rotation.x = 0.1;
-    hoodie.add(body);
-
-    // Slightly raised part (bunched up fabric)
-    const bunchGeo = new THREE.SphereGeometry(0.15, 6, 4);
-    const bunch = new THREE.Mesh(bunchGeo, fabricMat);
-    bunch.position.set(0.1, 0.1, 0);
-    bunch.scale.set(1, 0.5, 1);
-    hoodie.add(bunch);
-
-    // Hood part
-    const hoodGeo = new THREE.SphereGeometry(0.12, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2);
-    const hood = new THREE.Mesh(hoodGeo, fabricMat);
-    hood.position.set(-0.15, 0.08, 0.2);
-    hood.rotation.x = 0.3;
-    hoodie.add(hood);
-
-    // Sleeve hanging off
-    const sleeveGeo = new THREE.CylinderGeometry(0.06, 0.07, 0.3, 6);
-    const sleeve = new THREE.Mesh(sleeveGeo, fabricMat);
-    sleeve.position.set(0.25, -0.05, -0.1);
-    sleeve.rotation.z = Math.PI / 2 + 0.3;
-    sleeve.rotation.x = 0.2;
-    hoodie.add(sleeve);
-
-    // Drawstrings
-    const stringMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
-    const stringGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.15, 4);
-    const string1 = new THREE.Mesh(stringGeo, stringMat);
-    string1.position.set(-0.1, 0.06, 0.28);
-    string1.rotation.x = 0.5;
-    hoodie.add(string1);
-    const string2 = new THREE.Mesh(stringGeo, stringMat);
-    string2.position.set(-0.05, 0.06, 0.28);
-    string2.rotation.x = 0.3;
-    hoodie.add(string2);
-
-    return hoodie;
   }
 
   private static createMiniFridge(): THREE.Group {
