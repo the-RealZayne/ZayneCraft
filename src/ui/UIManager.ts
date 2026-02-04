@@ -40,4 +40,20 @@ export class UIManager {
   public hideInstructions(): void {
     this.instructions.style.display = 'none';
   }
+
+  public showDogPrompt(): void {
+    this.dogPrompt.classList.add('visible');
+  }
+
+  public hideDogPrompt(): void {
+    this.dogPrompt.classList.remove('visible');
+  }
+
+  public showDogQuote(): void {
+    this.dogQuote.classList.add('visible');
+  }
+
+  public hideDogQuote(): void {
+    this.dogQuote.classList.remove('visible');
+  }
 }

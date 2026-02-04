@@ -21,6 +21,11 @@ export class Game {
   private clock: THREE.Clock;
   private dog: Dog;
 
+  // Dog interaction state
+  private isNearDog: boolean = false;
+  private dogInteractionDistance: number = 3;
+  private isShowingDogQuote: boolean = false;
+
   constructor() {
     // Initialize core systems
     this.sceneManager = new SceneManager();
@@ -60,6 +65,9 @@ export class Game {
 
     // Setup event listeners
     this.setupEventListeners();
+
+    // Setup dog interaction
+    this.setupDogInteraction();
   }
 
   private setupEventListeners(): void {
@@ -76,6 +84,48 @@ export class Game {
     this.sceneManager.controls.addEventListener('unlock', () => {
       this.uiManager.showInstructions();
     });
+  }
+
+  private setupDogInteraction(): void {
+    this.playerController.setInteractCallback(() => {
+      if (this.isNearDog && !this.isShowingDogQuote) {
+        this.petDog();
+      } else if (this.isShowingDogQuote) {
+        this.hideDogQuote();
+      }
+    });
+  }
+
+  private petDog(): void {
+    this.dog.pet();
+    this.uiManager.hideDogPrompt();
+    this.uiManager.showDogQuote();
+    this.isShowingDogQuote = true;
+  }
+
+  private hideDogQuote(): void {
+    this.uiManager.hideDogQuote();
+    this.isShowingDogQuote = false;
+  }
+
+  private checkDogProximity(): void {
+    if (!this.sceneManager.controls.isLocked) return;
+
+    const distance = this.dog.getDistanceToPlayer(this.sceneManager.camera.position);
+    const wasNearDog = this.isNearDog;
+    this.isNearDog = distance <= this.dogInteractionDistance;
+
+    // Show/hide prompt based on proximity
+    if (this.isNearDog && !wasNearDog && !this.isShowingDogQuote) {
+      this.uiManager.showDogPrompt();
+    } else if (!this.isNearDog && wasNearDog && !this.isShowingDogQuote) {
+      this.uiManager.hideDogPrompt();
+    }
+
+    // Hide quote if player walks away
+    if (!this.isNearDog && this.isShowingDogQuote) {
+      this.hideDogQuote();
+    }
   }
 
   public start(): void {
@@ -124,6 +174,9 @@ export class Game {
       this.sceneManager.camera.position,
       this.planetManager.getCurrentFlatRadius()
     );
+
+    // Check dog proximity for interaction prompt
+    this.checkDogProximity();
 
     // Render
     this.sceneManager.render();

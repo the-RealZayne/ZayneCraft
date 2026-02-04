@@ -30,11 +30,18 @@ export class PlayerController {
 
   private isOnGround = true;
 
+  // Interaction callback
+  private onInteract: (() => void) | null = null;
+
   constructor(
     private readonly camera: THREE.PerspectiveCamera,
     private readonly controls: PointerLockControls
   ) {
     this.setupKeyboardControls();
+  }
+
+  public setInteractCallback(callback: () => void): void {
+    this.onInteract = callback;
   }
 
   private setupKeyboardControls(): void {
@@ -65,6 +72,11 @@ export class PlayerController {
         case 'ShiftLeft':
         case 'ShiftRight':
           this.movement.sprint = true;
+          break;
+        case 'KeyE':
+          if (this.onInteract) {
+            this.onInteract();
+          }
           break;
       }
     });

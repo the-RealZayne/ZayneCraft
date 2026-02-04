@@ -51,6 +51,10 @@ export class Dog {
   private moveSpeed: number = 35;
   private runSpeed: number = 55;
 
+  // Interaction state
+  private isPetted: boolean = false;
+  private pettedTimer: number = 0;
+
   constructor(name: string = 'Ivy') {
     this.name = name;
     this.mesh = new THREE.Group();
@@ -244,6 +248,25 @@ export class Dog {
     this.mesh.position.set(x, y, z);
   }
 
+  public getPosition(): THREE.Vector3 {
+    return this.mesh.position.clone();
+  }
+
+  public getDistanceToPlayer(playerPosition: THREE.Vector3): number {
+    const dogFlat = new THREE.Vector3(this.mesh.position.x, 0, this.mesh.position.z);
+    const playerFlat = new THREE.Vector3(playerPosition.x, 0, playerPosition.z);
+    return dogFlat.distanceTo(playerFlat);
+  }
+
+  public pet(): void {
+    this.isPetted = true;
+    this.pettedTimer = 2; // 2 seconds of happy response
+  }
+
+  public isBeingPetted(): boolean {
+    return this.isPetted;
+  }
+
   public update(delta: number, playerPosition: THREE.Vector3, flatRadius: number = 40): void {
     // Calculate direction to player
     this.targetPosition.copy(playerPosition);
@@ -297,6 +320,15 @@ export class Dog {
     // Update Y position based on terrain
     const terrainY = Terrain.getTerrainHeight(this.mesh.position.x, this.mesh.position.z, flatRadius);
     this.mesh.position.y = terrainY;
+
+    // Update petted timer
+    if (this.isPetted) {
+      this.pettedTimer -= delta;
+      if (this.pettedTimer <= 0) {
+        this.isPetted = false;
+        this.pettedTimer = 0;
+      }
+    }
 
     // Run all animations
     this.animateWalk(delta);
@@ -387,20 +419,23 @@ export class Dog {
   }
 
   private animateTail(delta: number): void {
-    this.tailWag += delta * (this.isMoving ? 10 : 6);
+    // Wag faster when being petted
+    const wagSpeed = this.isPetted ? 18 : (this.isMoving ? 10 : 6);
+    this.tailWag += delta * wagSpeed;
 
-    // Wag intensity varies
-    const wagIntensity = this.isMoving ? 0.4 : 0.6;
+    // Wag intensity - extra enthusiastic when petted
+    const wagIntensity = this.isPetted ? 0.8 : (this.isMoving ? 0.4 : 0.6);
 
     // Main tail wag (side to side)
     this.tail.rotation.y = Math.sin(this.tailWag) * wagIntensity;
 
-    // Tail up when happy/alert, more horizontal when moving
-    const baseAngle = this.isMoving ? -0.3 : -0.5;
+    // Tail up when happy/alert, even higher when petted
+    const baseAngle = this.isPetted ? -0.7 : (this.isMoving ? -0.3 : -0.5);
     this.tail.rotation.x = baseAngle + Math.sin(this.tailWag * 0.7) * 0.15;
 
     // Tip has extra wag
-    this.tailTip.rotation.y = Math.sin(this.tailWag * 1.3) * 0.3;
+    const tipIntensity = this.isPetted ? 0.5 : 0.3;
+    this.tailTip.rotation.y = Math.sin(this.tailWag * 1.3) * tipIntensity;
     this.tailTip.rotation.x = Math.sin(this.tailWag * 0.8) * 0.2;
   }
 
