@@ -2085,7 +2085,7 @@ export class Decorations {
         return dx * dx + dz * dz < cabinClearance * cabinClearance;
       };
 
-      // === DEBUG: Portal clearance zone outlines ===
+      // === DEBUG: Portal clearance zone outlines (hidden by default, toggle with C key) ===
       const portalDistance = 18;
       const clearanceRadius = 5;
       const numPortals = 5;
@@ -2100,6 +2100,8 @@ export class Decorations {
         const circle = new THREE.Mesh(circleGeo, circleMat);
         circle.rotation.x = -Math.PI / 2;
         circle.position.set(portalX, 0.1, portalZ);
+        circle.visible = false;
+        circle.userData.isDebugClearance = true;
         objects.push(circle);
       }
 

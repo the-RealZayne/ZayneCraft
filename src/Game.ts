@@ -38,10 +38,25 @@ export class Game {
     this.musicSystem = new MusicSystem();
     this.clock = new THREE.Clock();
 
-    // Create FPS counter
+    // Create FPS counter (hidden by default, toggle with F key)
     this.fpsCounter = document.createElement('div');
-    this.fpsCounter.style.cssText = 'position:fixed;top:10px;left:10px;color:#0f0;font:bold 16px monospace;background:rgba(0,0,0,0.7);padding:5px 10px;z-index:9999;border-radius:4px;';
+    this.fpsCounter.style.cssText = 'position:fixed;top:10px;left:10px;color:#0f0;font:bold 16px monospace;background:rgba(0,0,0,0.7);padding:5px 10px;z-index:9999;border-radius:4px;display:none;';
     document.body.appendChild(this.fpsCounter);
+
+    // Toggle FPS counter with F key, debug clearance zones with C key
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'KeyF') {
+        this.fpsCounter.style.display = this.fpsCounter.style.display === 'none' ? 'block' : 'none';
+      }
+      if (event.code === 'KeyC') {
+        const decorations = this.planetManager.getDecorations();
+        decorations.forEach((dec) => {
+          if (dec.userData.isDebugClearance) {
+            dec.visible = !dec.visible;
+          }
+        });
+      }
+    });
 
     // Initialize player controller
     this.playerController = new PlayerController(
