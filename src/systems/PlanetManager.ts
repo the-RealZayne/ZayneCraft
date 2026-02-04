@@ -196,11 +196,12 @@ export class PlanetManager {
       });
     }
 
-    // Animate fireflies on home planet - skip every other frame for performance
+    // Animate fireflies and lantern flames on home planet - skip every other frame for performance
     if (this.currentPlanet === 'home' && this.animationFrame % 2 === 0) {
-      this.decorations.forEach((dec) => {
+      this.decorations.forEach((dec, decIndex) => {
         if (dec.children) {
           dec.children.forEach((child) => {
+            // Fireflies animation
             if (child instanceof THREE.Points && child.userData.isFireflies) {
               const positions = child.geometry.attributes.position.array as Float32Array;
               const phases = child.geometry.attributes.phase.array as Float32Array;
@@ -218,6 +219,21 @@ export class PlanetManager {
               // Pulsing glow
               const material = child.material as THREE.PointsMaterial;
               material.opacity = 0.5 + Math.sin(time * 3) * 0.3;
+            }
+
+            // Lantern flame animation
+            if (child.userData.isLanternFlame) {
+              const flicker = Math.sin(time * 8 + decIndex) * 0.02 + Math.sin(time * 12 + decIndex * 2) * 0.01;
+              child.position.y = child.userData.baseY + flicker;
+              child.scale.setScalar(1 + Math.sin(time * 10 + decIndex) * 0.1);
+            }
+            if (child.userData.isLanternCore) {
+              child.position.y = child.userData.baseY + Math.sin(time * 10 + decIndex) * 0.015;
+              child.scale.setScalar(1 + Math.sin(time * 15 + decIndex) * 0.15);
+            }
+            if (child.userData.isLanternLight) {
+              const light = child as THREE.PointLight;
+              light.intensity = child.userData.baseIntensity + Math.sin(time * 6 + decIndex) * 0.3;
             }
           });
         }

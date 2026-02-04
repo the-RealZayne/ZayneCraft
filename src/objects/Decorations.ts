@@ -1654,101 +1654,63 @@ export class Decorations {
   private static createLantern(): THREE.Group {
     const lantern = new THREE.Group();
 
-    // Post
-    const postGeo = new THREE.CylinderGeometry(0.08, 0.1, 2, 6);
+    // Simple post
+    const postGeo = new THREE.BoxGeometry(0.12, 2, 0.12);
     const post = new THREE.Mesh(postGeo, this.mats.trunk);
     post.position.y = 1;
-    post.castShadow = true;
     lantern.add(post);
 
-    // Lantern frame - corner posts so you can see inside
-    const cornerPositions = [
-      [-0.15, -0.15],
-      [-0.15, 0.15],
-      [0.15, -0.15],
-      [0.15, 0.15]
-    ];
+    // Simple lantern box frame
+    const frameGeo = new THREE.BoxGeometry(0.3, 0.4, 0.3);
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: 0x222222,
+      metalness: 0.6,
+      transparent: true,
+      opacity: 0.7
+    });
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    frame.position.y = 2.2;
+    lantern.add(frame);
 
-    // Corner posts
-    for (const [px, pz] of cornerPositions) {
-      const cornerGeo = new THREE.BoxGeometry(0.04, 0.4, 0.04);
-      const corner = new THREE.Mesh(cornerGeo, this.mats.darkMetal);
-      corner.position.set(px, 2.2, pz);
-      lantern.add(corner);
-    }
-
-    // Top frame (horizontal bars connecting corners)
-    const topBarGeo = new THREE.BoxGeometry(0.34, 0.04, 0.04);
-    const topBar1 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
-    topBar1.position.set(0, 2.4, -0.15);
-    lantern.add(topBar1);
-    const topBar2 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
-    topBar2.position.set(0, 2.4, 0.15);
-    lantern.add(topBar2);
-
-    const topBarSideGeo = new THREE.BoxGeometry(0.04, 0.04, 0.34);
-    const topBar3 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
-    topBar3.position.set(-0.15, 2.4, 0);
-    lantern.add(topBar3);
-    const topBar4 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
-    topBar4.position.set(0.15, 2.4, 0);
-    lantern.add(topBar4);
-
-    // Bottom frame
-    const bottomBar1 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
-    bottomBar1.position.set(0, 2.0, -0.15);
-    lantern.add(bottomBar1);
-    const bottomBar2 = new THREE.Mesh(topBarGeo, this.mats.darkMetal);
-    bottomBar2.position.set(0, 2.0, 0.15);
-    lantern.add(bottomBar2);
-    const bottomBar3 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
-    bottomBar3.position.set(-0.15, 2.0, 0);
-    lantern.add(bottomBar3);
-    const bottomBar4 = new THREE.Mesh(topBarSideGeo, this.mats.darkMetal);
-    bottomBar4.position.set(0.15, 2.0, 0);
-    lantern.add(bottomBar4);
-
-    // Flame inside the lantern
-    // Main flame body
-    const flameGeo = new THREE.ConeGeometry(0.06, 0.18, 8);
-    const flame = new THREE.Mesh(flameGeo, this.mats.flameYellow);
-    flame.position.y = 2.2;
+    // Glowing flame - cone shape, bright emissive
+    const flameMat = new THREE.MeshStandardMaterial({
+      color: 0xffaa00,
+      emissive: 0xff6600,
+      emissiveIntensity: 2
+    });
+    const flameGeo = new THREE.ConeGeometry(0.06, 0.15, 6);
+    const flame = new THREE.Mesh(flameGeo, flameMat);
+    flame.position.y = 2.15;
+    flame.userData.isLanternFlame = true;
+    flame.userData.baseY = 2.15;
     lantern.add(flame);
 
-    // Inner bright core
-    const coreGeo = new THREE.ConeGeometry(0.03, 0.12, 6);
-    const core = new THREE.Mesh(coreGeo, this.mats.flameCore);
-    core.position.y = 2.18;
+    // Bright core
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0xffffaa,
+      emissive: 0xffff66,
+      emissiveIntensity: 3
+    });
+    const coreGeo = new THREE.ConeGeometry(0.03, 0.1, 4);
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    core.position.y = 2.13;
+    core.userData.isLanternCore = true;
+    core.userData.baseY = 2.13;
     lantern.add(core);
 
-    // Candle base
-    const candleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.08, 8);
-    const candle = new THREE.Mesh(candleGeo, this.mats.candle);
-    candle.position.y = 2.06;
-    lantern.add(candle);
-
-    // Roof - sits on top of the frame
-    const roofGeo = new THREE.ConeGeometry(0.25, 0.18, 4);
+    // Simple roof
+    const roofGeo = new THREE.ConeGeometry(0.22, 0.15, 4);
     const roof = new THREE.Mesh(roofGeo, this.mats.roofDark);
-    roof.position.y = 2.51; // Sits right on top of frame (top bars at 2.4 + 0.02 height)
+    roof.position.y = 2.48;
     roof.rotation.y = Math.PI / 4;
     lantern.add(roof);
 
-    // Roof base plate to connect roof to frame
-    const roofBaseGeo = new THREE.BoxGeometry(0.34, 0.03, 0.34);
-    const roofBase = new THREE.Mesh(roofBaseGeo, this.mats.roofDark);
-    roofBase.position.y = 2.43;
-    lantern.add(roofBase);
-
-    // Light - warm ambient glow
-    const light = new THREE.PointLight(0xffaa44, 1.5, 18);
-    light.position.y = 2.25;
+    // Warm glow light
+    const light = new THREE.PointLight(0xffaa44, 1.2, 12);
+    light.position.y = 2.2;
+    light.userData.isLanternLight = true;
+    light.userData.baseIntensity = 1.2;
     lantern.add(light);
-
-    // Secondary softer fill light for more ambient spread
-    const ambientLight = new THREE.PointLight(0xffcc66, 0.4, 10);
-    ambientLight.position.y = 2.25;
-    lantern.add(ambientLight);
 
     return lantern;
   }
@@ -1900,32 +1862,16 @@ export class Decorations {
     const log = new THREE.Group();
 
     const length = 2 + Math.random() * 2;
-    const radius = 0.3 + Math.random() * 0.2;
+    const size = 0.35 + Math.random() * 0.15;
 
-    // Main log - lying flat on ground
-    const logGeo = new THREE.CylinderGeometry(radius, radius * 1.1, length, 8);
-    const logMat = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
-    const logMesh = new THREE.Mesh(logGeo, logMat);
-    logMesh.rotation.z = Math.PI / 2;
+    // Simple box log
+    const logGeo = new THREE.BoxGeometry(length, size, size);
+    const logMesh = new THREE.Mesh(logGeo, this.mats.wood);
     logMesh.castShadow = true;
     log.add(logMesh);
 
-    // End caps (lighter wood)
-    const endMat = new THREE.MeshStandardMaterial({ color: 0x8b7355 });
-    const endGeo = new THREE.CircleGeometry(radius, 8);
-
-    const end1 = new THREE.Mesh(endGeo, endMat);
-    end1.rotation.y = Math.PI / 2;
-    end1.position.set(length / 2, 0, 0);
-    log.add(end1);
-
-    const end2 = new THREE.Mesh(endGeo, endMat);
-    end2.rotation.y = -Math.PI / 2;
-    end2.position.set(-length / 2, 0, 0);
-    log.add(end2);
-
     // Store radius for positioning
-    log.userData.radius = radius;
+    log.userData.radius = size / 2;
 
     return log;
   }
@@ -2657,7 +2603,7 @@ export class Decorations {
         objects.push(log);
       }
 
-      /* === MIDDLE FOLIAGE CONTINUED ===
+      // === LANTERNS (5) - simplified, no PointLights ===
       const getObjectClearanceRadius = (obj: THREE.Object3D): number => {
         if (typeof obj.userData?.clearanceRadius === 'number') {
           return obj.userData.clearanceRadius as number;
@@ -2685,13 +2631,12 @@ export class Decorations {
         return false;
       };
 
-      // Add lanterns around the area (avoid clipping into existing objects)
       const lanternPositions = [
         { x: -9, z: 9 },
         { x: 9, z: 9 },
         { x: -9, z: -9 },
         { x: 9, z: -9 },
-        { x: cabinX - 4, z: cabinZ + 7 }, // Near cabin (kept clear of portal radius)
+        { x: cabinX - 4, z: cabinZ + 7 },
       ];
       for (const pos of lanternPositions) {
         let placed = false;
@@ -2713,6 +2658,7 @@ export class Decorations {
         }
       }
 
+      // === BIRD HOUSES & PORTAL FOLIAGE ===
       // Add bird houses on some trees (attach to tree positions)
       let birdHousesPlaced = 0;
       for (const treePos of treesPositions) {
@@ -2848,7 +2794,6 @@ export class Decorations {
           objects.push(fern);
         }
       }
-      === END MIDDLE FOLIAGE === */
 
       // === ROCKS (25) ===
       for (let i = 0; i < 25; i++) {
@@ -2936,7 +2881,7 @@ export class Decorations {
         }
       }
 
-      /* === FLOWER PATCHES (25 patches, ~175 flowers) ===
+      // === FLOWER PATCHES (25 patches, ~175 flowers) ===
       for (let i = 0; i < 25; i++) {
         const angle = Math.random() * Math.PI * 2;
         const distance = 25 + Math.random() * 80;
@@ -2974,7 +2919,6 @@ export class Decorations {
         log.rotation.y = Math.random() * Math.PI * 2;
         objects.push(log);
       }
-      === END FLOWER/LOGS === */
 
       return objects;
     }
