@@ -78,8 +78,8 @@ export class Decorations {
   private static isNearPortal(x: number, z: number): boolean {
     // Portal positions depend on the number of connections
     // Home planet has 4 portals evenly distributed
-    const portalDistance = 25;
-    const portalClearance = 18; // Keep this radius clear around each portal (large for trees)
+    const portalDistance = 18;
+    const portalClearance = 14; // Keep this radius clear around each portal
 
     // For home planet, there are typically 4 portals
     const numPortals = 4;
@@ -1926,7 +1926,7 @@ export class Decorations {
     return cabin;
   }
 
-  private static createTree(scale: number): THREE.Group {
+  private static createTree(scale: number, bushiness: number = 1): THREE.Group {
     const tree = new THREE.Group();
 
     const trunkHeight = 5 * scale;
@@ -1936,9 +1936,9 @@ export class Decorations {
     trunk.castShadow = true;
     tree.add(trunk);
 
-    // Layered foliage
+    // Layered foliage - bushiness affects width
     const leaves1 = new THREE.Mesh(
-      new THREE.ConeGeometry(3 * scale, 4 * scale, 8),
+      new THREE.ConeGeometry(3 * scale * bushiness, 4 * scale, 8),
       this.mats.leaves
     );
     leaves1.position.y = trunkHeight + 1 * scale;
@@ -1946,7 +1946,7 @@ export class Decorations {
     tree.add(leaves1);
 
     const leaves2 = new THREE.Mesh(
-      new THREE.ConeGeometry(2.2 * scale, 3 * scale, 8),
+      new THREE.ConeGeometry(2.2 * scale * bushiness, 3 * scale, 8),
       this.mats.leaves
     );
     leaves2.position.y = trunkHeight + 3 * scale;
@@ -1954,7 +1954,7 @@ export class Decorations {
     tree.add(leaves2);
 
     const leaves3 = new THREE.Mesh(
-      new THREE.ConeGeometry(1.4 * scale, 2 * scale, 8),
+      new THREE.ConeGeometry(1.4 * scale * bushiness, 2 * scale, 8),
       this.mats.leaves
     );
     leaves3.position.y = trunkHeight + 4.5 * scale;
@@ -2103,13 +2103,13 @@ export class Decorations {
     // Home planet gets lots of trees
     if (planetId === 'home') {
       // Cabin position (near spawn but away from portals which are at distance 25)
-      const cabinX = -20;
-      const cabinZ = 35;
+      const cabinX = -14;
+      const cabinZ = 25;
       const cabinClearance = 12; // Keep trees away from cabin
 
       let treesPlaced = 0;
       let attempts = 0;
-      const minTreeSpacing = 12; // Minimum distance between trees
+      const minTreeSpacing = 6; // Minimum distance between trees
       const treesPositions: { x: number; z: number }[] = [];
 
       // Helper to check if position is too close to existing trees
@@ -2131,13 +2131,13 @@ export class Decorations {
         return dx * dx + dz * dz < cabinClearance * cabinClearance;
       };
 
-      // === TREES (100) ===
-      while (treesPlaced < 100 && attempts < 1000) {
+      // === TREES (200) ===
+      while (treesPlaced < 200 && attempts < 2000) {
         attempts++;
 
         const angle = Math.random() * Math.PI * 2;
-        // Spread trees from inner ring to outer boundary (reduced for performance)
-        const distance = 20 + Math.random() * 80;
+        // Trees form a forest ring surrounding the center clearing
+        const distance = 14 + Math.random() * 50;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -2156,8 +2156,9 @@ export class Decorations {
           continue;
         }
 
-        const scale = 1.0 + Math.random() * 1.2;
-        const tree = this.createTree(scale);
+        const scale = 0.6 + Math.random() * 1.8;
+        const bushiness = 0.5 + Math.random() * 0.6; // 0.5 (thin) to 1.1 (normal)
+        const tree = this.createTree(scale, bushiness);
 
         const terrainY = Terrain.getTerrainHeight(x, z);
         tree.position.set(x, terrainY, z);
@@ -2218,12 +2219,12 @@ export class Decorations {
       const bikeZ = deskZ - 2;
 
       // Workbench position
-      const workbenchX = -10;
-      const workbenchZ = 12;
+      const workbenchX = -8;
+      const workbenchZ = 9;
 
       // BBQ position (outdoor cooking area)
-      const bbqX = 8;
-      const bbqZ = 12;
+      const bbqX = 6;
+      const bbqZ = 9;
 
       // Garden tools position (near cabin)
       const toolsX = cabinX + 8;
@@ -2511,12 +2512,42 @@ export class Decorations {
         objects.push(rock);
       }
 
-      // === MIDDLE TALL GRASS (18) ===
-      for (let i = 0; i < 18; i++) {
+      // === CENTER FLOWERS (scattered around spawn) ===
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 2 + Math.random() * 6;
+        const x = Math.cos(angle) * dist;
+        const z = Math.sin(angle) * dist;
+
+        if (isInExclusionZone(x, z)) continue;
+
+        const flower = this.createFlower();
+        flower.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        flower.scale.setScalar(0.6 + Math.random() * 0.4);
+        objects.push(flower);
+      }
+
+      // === CENTER GRASS (scattered around spawn) ===
+      for (let i = 0; i < 15; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 2 + Math.random() * 6;
+        const x = Math.cos(angle) * dist;
+        const z = Math.sin(angle) * dist;
+
+        if (isInExclusionZone(x, z)) continue;
+
+        const grass = this.createTallGrass();
+        grass.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        grass.scale.setScalar(0.7 + Math.random() * 0.3);
+        objects.push(grass);
+      }
+
+      // === MIDDLE TALL GRASS (35) ===
+      for (let i = 0; i < 35; i++) {
         let x, z, attempts = 0;
         do {
           const angle = Math.random() * Math.PI * 2;
-          const distance = 15 + Math.random() * 30;
+          const distance = 8 + Math.random() * 20;
           x = Math.cos(angle) * distance;
           z = Math.sin(angle) * distance;
           attempts++;
@@ -2529,12 +2560,12 @@ export class Decorations {
         objects.push(grass);
       }
 
-      // === MIDDLE FERNS (10) ===
-      for (let i = 0; i < 10; i++) {
+      // === MIDDLE FERNS (20) ===
+      for (let i = 0; i < 20; i++) {
         let x, z, attempts = 0;
         do {
           const angle = Math.random() * Math.PI * 2;
-          const dist = 15 + Math.random() * 25;
+          const dist = 8 + Math.random() * 18;
           x = Math.cos(angle) * dist;
           z = Math.sin(angle) * dist;
           attempts++;
@@ -2549,12 +2580,12 @@ export class Decorations {
         objects.push(fern);
       }
 
-      // === SMALL FLOWER PATCHES (8, ~24 flowers) ===
-      for (let i = 0; i < 8; i++) {
+      // === SMALL FLOWER PATCHES (15, ~45 flowers) ===
+      for (let i = 0; i < 15; i++) {
         let x, z, attempts = 0;
         do {
           const angle = Math.random() * Math.PI * 2;
-          const dist = 12 + Math.random() * 20;
+          const dist = 6 + Math.random() * 16;
           x = Math.cos(angle) * dist;
           z = Math.sin(angle) * dist;
           attempts++;
@@ -2572,12 +2603,12 @@ export class Decorations {
         }
       }
 
-      // === MIDDLE BUSHES (5) ===
-      for (let i = 0; i < 5; i++) {
+      // === MIDDLE BUSHES (10) ===
+      for (let i = 0; i < 10; i++) {
         let x, z, attempts = 0;
         do {
           const angle = Math.random() * Math.PI * 2;
-          const dist = 12 + Math.random() * 25;
+          const dist = 8 + Math.random() * 18;
           x = Math.cos(angle) * dist;
           z = Math.sin(angle) * dist;
           attempts++;
@@ -2794,7 +2825,6 @@ export class Decorations {
           objects.push(fern);
         }
       }
-
       // === ROCKS (25) ===
       for (let i = 0; i < 25; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -2919,7 +2949,6 @@ export class Decorations {
         log.rotation.y = Math.random() * Math.PI * 2;
         objects.push(log);
       }
-
       return objects;
     }
 

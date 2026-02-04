@@ -162,7 +162,7 @@ export class PlayerController {
     }
 
     // Keep player in bounds
-    const maxDistance = 140;
+    const maxDistance = 120;
     const playerDist = Math.sqrt(
       this.camera.position.x * this.camera.position.x +
         this.camera.position.z * this.camera.position.z

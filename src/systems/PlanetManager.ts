@@ -124,7 +124,7 @@ export class PlanetManager {
 
     connections.forEach((targetPlanet, index) => {
       const angle = angleStep * index - Math.PI / 2;
-      const portal = Portal.create(targetPlanet, angle, 25);
+      const portal = Portal.create(targetPlanet, angle, 18);
       this.scene.add(portal);
       this.portals.push(portal);
 
