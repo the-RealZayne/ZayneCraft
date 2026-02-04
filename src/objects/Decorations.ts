@@ -4,10 +4,29 @@ import { Campus } from './Campus';
 import { Terrain } from '../environment/Terrain';
 
 export class Decorations {
-  // Check if position is too close to portal zone (portals are at distance 25)
+  // Check if position is too close to any portal tent (portals are at distance 25 at various angles)
   private static isNearPortal(x: number, z: number): boolean {
-    const distance = Math.sqrt(x * x + z * z);
-    return distance > 12 && distance < 40;
+    // Portal positions depend on the number of connections
+    // Home planet has 4 portals evenly distributed
+    const portalDistance = 25;
+    const portalClearance = 8; // Keep this radius clear around each portal
+
+    // For home planet, there are typically 4 portals
+    const numPortals = 4;
+    for (let i = 0; i < numPortals; i++) {
+      const angle = (i / numPortals) * Math.PI * 2 - Math.PI / 2;
+      const portalX = Math.cos(angle) * portalDistance;
+      const portalZ = Math.sin(angle) * portalDistance;
+
+      const dx = x - portalX;
+      const dz = z - portalZ;
+      const distToPortal = Math.sqrt(dx * dx + dz * dz);
+
+      if (distToPortal < portalClearance) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static createRock(scale: number): THREE.Mesh {
@@ -496,19 +515,28 @@ export class Decorations {
   private static createTrashBin(): THREE.Group {
     const bin = new THREE.Group();
 
-    // Bin body (cylinder, open top)
-    const binMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-    const binGeo = new THREE.CylinderGeometry(0.2, 0.18, 0.4, 10, 1, true);
-    const binMesh = new THREE.Mesh(binGeo, binMat);
-    binMesh.position.y = 0.2;
-    bin.add(binMesh);
+    // Bin body (solid cylinder with walls)
+    const binMat = new THREE.MeshStandardMaterial({ color: 0x333333, side: THREE.DoubleSide });
 
-    // Bottom
-    const bottomGeo = new THREE.CircleGeometry(0.18, 10);
-    const bottom = new THREE.Mesh(bottomGeo, binMat);
-    bottom.rotation.x = -Math.PI / 2;
-    bottom.position.y = 0.01;
-    bin.add(bottom);
+    // Outer shell
+    const outerGeo = new THREE.CylinderGeometry(0.2, 0.18, 0.4, 12);
+    const outer = new THREE.Mesh(outerGeo, binMat);
+    outer.position.y = 0.2;
+    bin.add(outer);
+
+    // Inner cavity (slightly smaller, darker)
+    const innerMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+    const innerGeo = new THREE.CylinderGeometry(0.18, 0.16, 0.38, 12);
+    const inner = new THREE.Mesh(innerGeo, innerMat);
+    inner.position.y = 0.22;
+    bin.add(inner);
+
+    // Rim at top
+    const rimGeo = new THREE.TorusGeometry(0.19, 0.02, 6, 12);
+    const rim = new THREE.Mesh(rimGeo, binMat);
+    rim.position.y = 0.4;
+    rim.rotation.x = Math.PI / 2;
+    bin.add(rim);
 
     // Crumpled paper balls
     const paperMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f0 });
@@ -1782,8 +1810,8 @@ export class Decorations {
       const rackZ = deskZ + 1;
       const radioX = deskX + 2.5;
       const radioZ = deskZ - 1.5;
-      const binX = deskX + 1.8;
-      const binZ = deskZ + 1.2;
+      const binX = -7;
+      const binZ = 8;
       const bikeX = deskX - 5;
       const bikeZ = deskZ - 2;
 
@@ -1883,7 +1911,7 @@ export class Decorations {
 
       // Trash bin with crumpled paper near desk
       const bin = this.createTrashBin();
-      bin.position.set(binX, Terrain.getTerrainHeight(binX, binZ), binZ);
+      bin.position.set(binX, 0, binZ); // Place on flat ground
       objects.push(bin);
 
       // Bicycle parked nearby
