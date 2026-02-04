@@ -74,15 +74,10 @@ export class Decorations {
     Decorations.mats.bookNavy,
   ];
 
-  // Check if position is too close to any portal tent (portals are at distance 25 at various angles)
+  // Check if position is too close to any portal tent
   private static isNearPortal(x: number, z: number): boolean {
-    // Portal positions depend on the number of connections
-    // Home planet has 5 portals evenly distributed
     const portalDistance = 18;
-    // Tent is 6 wide x 5 deep, add small buffer
-    const clearanceRadius = 5;
-
-    // For home planet, there are 5 portals
+    const clearanceRadius = 5; // Matches tent size (6x5)
     const numPortals = 5;
     for (let i = 0; i < numPortals; i++) {
       const angle = (i / numPortals) * Math.PI * 2 - Math.PI / 2;
@@ -2609,32 +2604,6 @@ export class Decorations {
       }
 
       // === LANTERNS (5) - simplified, no PointLights ===
-      const getObjectClearanceRadius = (obj: THREE.Object3D): number => {
-        if (typeof obj.userData?.clearanceRadius === 'number') {
-          return obj.userData.clearanceRadius as number;
-        }
-        if (obj instanceof THREE.Points || obj.userData?.isFireflies) {
-          return 0;
-        }
-        const box = new THREE.Box3().setFromObject(obj);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const radius = Math.max(0.5, maxDim * 0.5);
-        obj.userData.clearanceRadius = radius;
-        return radius;
-      };
-
-      const isTooCloseToExistingObject = (x: number, z: number, minClearance = 0.8): boolean => {
-        for (const obj of objects) {
-          if (obj instanceof THREE.Points || obj.userData?.isFireflies) continue;
-          const dx = x - obj.position.x;
-          const dz = z - obj.position.z;
-          const radius = getObjectClearanceRadius(obj) + minClearance;
-          if (dx * dx + dz * dz < radius * radius) return true;
-        }
-        return false;
-      };
 
       const lanternPositions = [
         { x: -6, z: 6 },

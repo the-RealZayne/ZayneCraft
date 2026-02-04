@@ -99,26 +99,6 @@ export class Terrain {
     mesh.receiveShadow = true;
     group.add(mesh);
 
-    /* === TERRAIN ROCKS COMMENTED OUT FOR PERFORMANCE TESTING ===
-    // Add scattered rocks/details on terrain
-    for (let i = 0; i < 60; i++) {
-      const rockGeo = new THREE.DodecahedronGeometry(0.3 + Math.random() * 0.8, 0);
-      const rockMat = new THREE.MeshStandardMaterial({
-        color: baseColor.clone().multiplyScalar(0.7 + Math.random() * 0.3),
-        roughness: 0.9,
-        flatShading: true,
-      });
-      const rock = new THREE.Mesh(rockGeo, rockMat);
-
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 50 + Math.random() * 80;
-      rock.position.set(Math.cos(angle) * dist, 0.2 + Math.random() * 0.3, Math.sin(angle) * dist);
-      rock.rotation.set(Math.random(), Math.random(), Math.random());
-      rock.castShadow = true;
-      group.add(rock);
-    }
-    === END TERRAIN ROCKS === */
-
     return group;
   }
 }

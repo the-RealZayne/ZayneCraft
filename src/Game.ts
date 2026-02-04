@@ -43,7 +43,7 @@ export class Game {
     this.fpsCounter.style.cssText = 'position:fixed;top:10px;left:10px;color:#0f0;font:bold 16px monospace;background:rgba(0,0,0,0.7);padding:5px 10px;z-index:9999;border-radius:4px;display:none;';
     document.body.appendChild(this.fpsCounter);
 
-    // Toggle FPS counter with F key, debug clearance zones with C key
+    // Debug key toggles (F = FPS counter, C = clearance zones)
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyF') {
         this.fpsCounter.style.display = this.fpsCounter.style.display === 'none' ? 'block' : 'none';
