@@ -13,6 +13,9 @@ import { SlideRenderer, SlideContent } from './systems/SlideRenderer';
 // Slide images - add your images to src/assets/ and import them here
 import childhoodImage from './assets/childhood.png';
 import javaImage from './assets/java.svg';
+import image2014 from './assets/2014.jpg';
+import image2016 from './assets/2016.png';
+import image2017 from './assets/2017.png';
 
 export class Game {
   private sceneManager: SceneManager;
@@ -68,8 +71,26 @@ export class Game {
     },
     {
       title: '2012',
-      text: 'Wrote my first lines of code. Java, to build mods and addons for games.',
+      text: 'Wrote my first lines of code. Java for game mods, plus learning sysadmin along the way.',
       image: javaImage,
+      layout: 'image-top'
+    },
+    {
+      title: '2014',
+      text: 'Discovered web development. Started building side projects and taking on small client work.',
+      image: image2014,
+      layout: 'image-top'
+    },
+    {
+      title: '2016',
+      text: 'Moved into mobile app development. First internship building a prototype mental health app.',
+      image: image2016,
+      layout: 'image-top'
+    },
+    {
+      title: '2017',
+      text: 'Started a Software Development Apprenticeship at 3PL.',
+      image: image2017,
       layout: 'image-top'
     },
     {
