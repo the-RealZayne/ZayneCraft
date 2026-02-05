@@ -8,6 +8,7 @@ import { PlanetManager } from './systems/PlanetManager';
 import { MusicSystem } from './systems/MusicSystem';
 import { UIManager } from './ui/UIManager';
 import { Dog } from './objects/Dog';
+import { SlideRenderer, SlideContent } from './systems/SlideRenderer';
 
 export class Game {
   private sceneManager: SceneManager;
@@ -31,6 +32,45 @@ export class Game {
   private frameCount: number = 0;
   private lastFpsUpdate: number = 0;
 
+  // Slideshow state
+  private isNearScreen: boolean = false;
+  private screenInteractionDistance: number = 14;
+  private screenPosition = { x: 15, z: 0 }; // Match position from Decorations.ts
+  private projectorPosition = { x: 0, z: 0 }; // Projector position
+  private projectorInteractionDistance: number = 4;
+  private isNearProjector: boolean = false;
+  private currentSlide: number = 0;
+  private slideRenderer: SlideRenderer;
+  private screenMesh: THREE.Mesh | null = null;
+  private raycaster: THREE.Raycaster;
+  private slides: SlideContent[] = [
+    {
+      title: 'The Beginning',
+      text: 'Every journey starts somewhere. Mine began with curiosity about how things work and a desire to create.',
+      layout: 'text-only'
+    },
+    {
+      title: 'First Steps',
+      text: 'Taking the leap into software development. Learning, failing, and learning some more. The early days were challenging but exciting.',
+      layout: 'text-only'
+    },
+    {
+      title: 'Finding My Path',
+      text: 'Discovering what I love to build and the technologies that excite me most. Every project taught me something new.',
+      layout: 'text-only'
+    },
+    {
+      title: 'Growth & Challenges',
+      text: 'Every bug fixed and feature shipped shaped who I am today. The challenges made me stronger.',
+      layout: 'text-only'
+    },
+    {
+      title: 'Where I Am Now',
+      text: 'Continuing to learn, build, and share. The journey never really ends - and that\'s the best part.',
+      layout: 'text-only'
+    },
+  ];
+
   constructor() {
     // Initialize core systems
     this.sceneManager = new SceneManager();
@@ -38,12 +78,44 @@ export class Game {
     this.musicSystem = new MusicSystem();
     this.clock = new THREE.Clock();
 
+    // Initialize slide renderer for projector screen
+    this.slideRenderer = new SlideRenderer();
+    this.slideRenderer.preloadImages(this.slides);
+
+    // Initialize raycaster for click detection
+    this.raycaster = new THREE.Raycaster();
+
+    // Click handler for projector - advances slides
+    document.addEventListener('click', () => {
+      if (!this.sceneManager.controls.isLocked) return;
+      if (this.planetManager.getCurrentPlanet() !== 'story') return;
+
+      // Cast ray from center of screen (crosshair)
+      this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.sceneManager.camera);
+
+      const decorations = this.planetManager.getDecorations();
+      const intersects = this.raycaster.intersectObjects(decorations, true);
+
+      for (const intersect of intersects) {
+        // Check if we clicked the projector or its children
+        let obj: THREE.Object3D | null = intersect.object;
+        while (obj) {
+          if (obj.userData.isProjector) {
+            this.nextSlide();
+            return;
+          }
+          obj = obj.parent;
+        }
+      }
+    });
+
     // Create FPS counter (hidden by default, toggle with F key)
     this.fpsCounter = document.createElement('div');
     this.fpsCounter.style.cssText = 'position:fixed;top:10px;left:10px;color:#0f0;font:bold 16px monospace;background:rgba(0,0,0,0.7);padding:5px 10px;z-index:9999;border-radius:4px;display:none;';
     document.body.appendChild(this.fpsCounter);
 
     // Debug key toggles (F = FPS counter, C = clearance zones)
+    // Slideshow navigation ([ = prev, ] = next)
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyF') {
         this.fpsCounter.style.display = this.fpsCounter.style.display === 'none' ? 'block' : 'none';
@@ -55,6 +127,15 @@ export class Game {
             dec.visible = !dec.visible;
           }
         });
+      }
+      // Slideshow navigation
+      if (this.isNearScreen && this.planetManager.getCurrentPlanet() === 'story') {
+        if (event.code === 'BracketLeft') {
+          this.prevSlide();
+        }
+        if (event.code === 'BracketRight') {
+          this.nextSlide();
+        }
       }
     });
 
@@ -153,6 +234,113 @@ export class Game {
     }
   }
 
+  private checkScreenProximity(): void {
+    if (!this.sceneManager.controls.isLocked) return;
+    if (this.planetManager.getCurrentPlanet() !== 'story') {
+      if (this.isNearScreen) {
+        this.uiManager.hideSlidePrompt();
+        this.isNearScreen = false;
+      }
+      this.screenMesh = null; // Always reset when not on story planet
+      return;
+    }
+
+    // Find and setup screen mesh if not already done (or if decorations were reloaded)
+    if (!this.screenMesh || !this.screenMesh.parent) {
+      this.setupScreenMesh();
+    }
+
+    const playerPos = this.sceneManager.camera.position;
+    const dx = playerPos.x - this.screenPosition.x;
+    const dz = playerPos.z - this.screenPosition.z;
+    const distance = Math.sqrt(dx * dx + dz * dz);
+
+    const wasNearScreen = this.isNearScreen;
+    this.isNearScreen = distance <= this.screenInteractionDistance;
+
+    if (this.isNearScreen && !wasNearScreen) {
+      this.uiManager.showSlidePrompt();
+      this.updateSlideDisplay();
+    } else if (!this.isNearScreen && wasNearScreen) {
+      // Only hide if also not near projector
+      if (!this.isNearProjector) {
+        this.uiManager.hideSlidePrompt();
+      }
+      this.slideRenderer.renderIdleScreen();
+    }
+  }
+
+  private checkProjectorProximity(): void {
+    if (!this.sceneManager.controls.isLocked) return;
+    if (this.planetManager.getCurrentPlanet() !== 'story') {
+      if (this.isNearProjector) {
+        this.uiManager.hideSlidePrompt();
+        this.isNearProjector = false;
+      }
+      return;
+    }
+
+    const playerPos = this.sceneManager.camera.position;
+    const dx = playerPos.x - this.projectorPosition.x;
+    const dz = playerPos.z - this.projectorPosition.z;
+    const distance = Math.sqrt(dx * dx + dz * dz);
+
+    const wasNearProjector = this.isNearProjector;
+    this.isNearProjector = distance <= this.projectorInteractionDistance;
+
+    if (this.isNearProjector && !wasNearProjector) {
+      this.uiManager.showSlidePrompt();
+    } else if (!this.isNearProjector && wasNearProjector) {
+      // Only hide if also not near screen
+      if (!this.isNearScreen) {
+        this.uiManager.hideSlidePrompt();
+      }
+    }
+  }
+
+  private setupScreenMesh(): void {
+    // Find the projector screen in the scene
+    const decorations = this.planetManager.getDecorations();
+    for (const obj of decorations) {
+      obj.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.userData.isProjectorScreen) {
+          this.screenMesh = child;
+          // Apply the slide texture to the screen
+          const material = new THREE.MeshBasicMaterial({
+            map: this.slideRenderer.getTexture(),
+          });
+          this.screenMesh.material = material;
+          // Render idle screen initially, or current slide if player is near
+          const playerPos = this.sceneManager.camera.position;
+          const dx = playerPos.x - this.screenPosition.x;
+          const dz = playerPos.z - this.screenPosition.z;
+          const distance = Math.sqrt(dx * dx + dz * dz);
+          if (distance <= this.screenInteractionDistance) {
+            this.updateSlideDisplay();
+          } else {
+            this.slideRenderer.renderIdleScreen();
+          }
+        }
+      });
+    }
+  }
+
+  private nextSlide(): void {
+    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+    this.updateSlideDisplay();
+  }
+
+  private prevSlide(): void {
+    this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+    this.updateSlideDisplay();
+  }
+
+  private updateSlideDisplay(): void {
+    const slide = this.slides[this.currentSlide];
+    // Render slide to the projector screen texture
+    this.slideRenderer.renderSlide(slide, this.currentSlide, this.slides.length);
+  }
+
   public start(): void {
     // Load the initial planet
     this.planetManager.loadPlanet('home');
@@ -211,6 +399,12 @@ export class Game {
 
     // Check dog proximity for interaction prompt
     this.checkDogProximity();
+
+    // Check screen proximity for slideshow
+    this.checkScreenProximity();
+
+    // Check projector proximity for slide prompt
+    this.checkProjectorProximity();
 
     // Render
     this.sceneManager.render();

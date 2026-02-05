@@ -365,3 +365,38 @@ body {
   color: #d4a55a;
   letter-spacing: 1px;
 }
+
+/* Slide prompt - stacked above dog prompt */
+#slide-prompt {
+  position: fixed;
+  bottom: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#slide-prompt.visible {
+  opacity: 1;
+}
+
+#slide-prompt p {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  color: #fff;
+  border: 1px solid rgba(107, 76, 122, 0.4);
+}
+
+#slide-prompt strong {
+  color: #9a7ab0;
+  background: rgba(107, 76, 122, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+

@@ -1346,260 +1346,6 @@ export class Decorations {
     return group;
   }
 
-  // ============================================
-  // Ancient Library components for Memoria/Story world
-  // ============================================
-  private static createBookshelf(height: number = 3): THREE.Group {
-    const shelf = new THREE.Group();
-
-    // Side panels
-    const sideGeo = new THREE.BoxGeometry(0.1, height, 0.8);
-    const leftSide = new THREE.Mesh(sideGeo, this.mats.wood);
-    leftSide.position.set(-0.75, height / 2, 0);
-    leftSide.castShadow = true;
-    shelf.add(leftSide);
-
-    const rightSide = new THREE.Mesh(sideGeo, this.mats.wood);
-    rightSide.position.set(0.75, height / 2, 0);
-    rightSide.castShadow = true;
-    shelf.add(rightSide);
-
-    // Back panel
-    const backGeo = new THREE.BoxGeometry(1.6, height, 0.05);
-    const back = new THREE.Mesh(backGeo, this.mats.darkWood);
-    back.position.set(0, height / 2, -0.375);
-    shelf.add(back);
-
-    // Shelves with books
-    const shelfCount = Math.floor(height / 0.7);
-    const shelfGeo = new THREE.BoxGeometry(1.5, 0.08, 0.75);
-    for (let i = 0; i <= shelfCount; i++) {
-      const shelfBoard = new THREE.Mesh(shelfGeo, this.mats.wood);
-      shelfBoard.position.set(0, i * 0.7 + 0.1, 0);
-      shelf.add(shelfBoard);
-
-      // Add books on each shelf (except top)
-      if (i < shelfCount) {
-        const books = this.createBookRow();
-        books.position.set(0, i * 0.7 + 0.3, 0);
-        shelf.add(books);
-      }
-    }
-
-    // Top decorative trim
-    const trimGeo = new THREE.BoxGeometry(1.7, 0.15, 0.85);
-    const trim = new THREE.Mesh(trimGeo, this.mats.darkWood);
-    trim.position.y = height + 0.05;
-    shelf.add(trim);
-
-    return shelf;
-  }
-
-  private static createBookRow(): THREE.Group {
-    const books = new THREE.Group();
-
-    let xPos = -0.6;
-    while (xPos < 0.6) {
-      const width = 0.06 + Math.random() * 0.08;
-      const height = 0.35 + Math.random() * 0.15;
-      const depth = 0.5 + Math.random() * 0.15;
-
-      // Use shared book materials
-      const mat = this.bookMats[Math.floor(Math.random() * this.bookMats.length)];
-
-      const bookGeo = new THREE.BoxGeometry(width, height, depth);
-      const book = new THREE.Mesh(bookGeo, mat);
-
-      book.rotation.z = (Math.random() - 0.5) * 0.1;
-      book.position.set(xPos + width / 2, height / 2, (Math.random() - 0.5) * 0.1);
-
-      books.add(book);
-      xPos += width + 0.01;
-    }
-
-    return books;
-  }
-
-  private static createReadingNook(): THREE.Group {
-    const nook = new THREE.Group();
-
-    // Armchair base
-    const baseGeo = new THREE.BoxGeometry(1.2, 0.4, 1.2);
-    const base = new THREE.Mesh(baseGeo, this.mats.lightWood);
-    base.position.y = 0.2;
-    base.castShadow = true;
-    nook.add(base);
-
-    // Seat cushion
-    const cushionGeo = new THREE.BoxGeometry(1.0, 0.15, 1.0);
-    const cushion = new THREE.Mesh(cushionGeo, this.mats.cushion);
-    cushion.position.y = 0.48;
-    nook.add(cushion);
-
-    // Back rest
-    const backGeo = new THREE.BoxGeometry(1.2, 1.0, 0.2);
-    const backRest = new THREE.Mesh(backGeo, this.mats.lightWood);
-    backRest.position.set(0, 0.9, -0.5);
-    backRest.castShadow = true;
-    nook.add(backRest);
-
-    // Back cushion
-    const backCushionGeo = new THREE.BoxGeometry(1.0, 0.8, 0.15);
-    const backCushion = new THREE.Mesh(backCushionGeo, this.mats.cushion);
-    backCushion.position.set(0, 0.9, -0.35);
-    nook.add(backCushion);
-
-    // Armrests
-    const armGeo = new THREE.BoxGeometry(0.15, 0.5, 1.0);
-    const leftArm = new THREE.Mesh(armGeo, this.mats.lightWood);
-    leftArm.position.set(-0.525, 0.65, 0);
-    nook.add(leftArm);
-
-    const rightArm = new THREE.Mesh(armGeo, this.mats.lightWood);
-    rightArm.position.set(0.525, 0.65, 0);
-    nook.add(rightArm);
-
-    // Small side table
-    const tableLegGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 6);
-    const tableTopGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.05, 12);
-
-    const tableTop = new THREE.Mesh(tableTopGeo, this.mats.lightWood);
-    tableTop.position.set(1.0, 0.55, 0);
-    nook.add(tableTop);
-
-    const tableLeg = new THREE.Mesh(tableLegGeo, this.mats.lightWood);
-    tableLeg.position.set(1.0, 0.25, 0);
-    nook.add(tableLeg);
-
-    // Candle on table
-    const candleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.15, 8);
-    const candle = new THREE.Mesh(candleGeo, this.mats.candle);
-    candle.position.set(1.0, 0.65, 0);
-    nook.add(candle);
-
-    // Flame
-    const flameGeo = new THREE.ConeGeometry(0.025, 0.06, 6);
-    const flame = new THREE.Mesh(flameGeo, this.mats.flame);
-    flame.position.set(1.0, 0.76, 0);
-    nook.add(flame);
-
-    // Candle light
-    const candleLight = new THREE.PointLight(0xffaa44, 0.4, 5);
-    candleLight.position.set(1.0, 0.8, 0);
-    nook.add(candleLight);
-
-    return nook;
-  }
-
-  private static createStudyDesk(): THREE.Group {
-    const desk = new THREE.Group();
-
-    // Desk top
-    const topGeo = new THREE.BoxGeometry(2.0, 0.1, 1.0);
-    const top = new THREE.Mesh(topGeo, this.mats.wood);
-    top.position.y = 0.8;
-    top.castShadow = true;
-    desk.add(top);
-
-    // Legs
-    const legGeo = new THREE.BoxGeometry(0.1, 0.8, 0.1);
-    const legPositions = [
-      { x: -0.9, z: -0.4 },
-      { x: -0.9, z: 0.4 },
-      { x: 0.9, z: -0.4 },
-      { x: 0.9, z: 0.4 },
-    ];
-    for (const pos of legPositions) {
-      const leg = new THREE.Mesh(legGeo, this.mats.wood);
-      leg.position.set(pos.x, 0.4, pos.z);
-      leg.castShadow = true;
-      desk.add(leg);
-    }
-
-    // Open book on desk
-    const leftPage = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.02, 0.5), this.mats.paper);
-    leftPage.position.set(-0.25, 0.87, 0);
-    leftPage.rotation.z = 0.05;
-    desk.add(leftPage);
-
-    const rightPage = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.02, 0.5), this.mats.paper);
-    rightPage.position.set(0.25, 0.87, 0);
-    rightPage.rotation.z = -0.05;
-    desk.add(rightPage);
-
-    const spine = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.04, 0.52), this.mats.bookBrown);
-    spine.position.set(0, 0.86, 0);
-    desk.add(spine);
-
-    // Quill and inkwell
-    const inkwell = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.08, 8), this.mats.black);
-    inkwell.position.set(0.7, 0.89, -0.3);
-    desk.add(inkwell);
-
-    const quill = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.002, 0.25, 4), this.mats.white);
-    quill.position.set(0.72, 0.95, -0.28);
-    quill.rotation.z = 0.3;
-    quill.rotation.x = 0.2;
-    desk.add(quill);
-
-    // Desk candle holder
-    const holder = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.05, 8), this.mats.copper);
-    holder.position.set(-0.7, 0.87, -0.3);
-    desk.add(holder);
-
-    const deskCandle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 8), this.mats.candle);
-    deskCandle.position.set(-0.7, 0.95, -0.3);
-    desk.add(deskCandle);
-
-    const deskFlame = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.05, 6), this.mats.flame);
-    deskFlame.position.set(-0.7, 1.04, -0.3);
-    desk.add(deskFlame);
-
-    const deskLight = new THREE.PointLight(0xffaa44, 0.5, 6);
-    deskLight.position.set(-0.7, 1.1, -0.3);
-    desk.add(deskLight);
-
-    return desk;
-  }
-
-  private static createScrollRack(): THREE.Group {
-    const rack = new THREE.Group();
-
-    // Frame
-    const frameH = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.3), this.mats.lightWood);
-    frameH.position.y = 1.2;
-    rack.add(frameH);
-
-    const frameH2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.3), this.mats.lightWood);
-    frameH2.position.y = 0.1;
-    rack.add(frameH2);
-
-    const frameV1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.2, 0.3), this.mats.lightWood);
-    frameV1.position.set(-0.7, 0.65, 0);
-    rack.add(frameV1);
-
-    const frameV2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.2, 0.3), this.mats.lightWood);
-    frameV2.position.set(0.7, 0.65, 0);
-    rack.add(frameV2);
-
-    // Scrolls in cubbies
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 4; col++) {
-        if (Math.random() > 0.3) {
-          const scroll = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.06, 0.06, 0.25, 8),
-            this.mats.scroll
-          );
-          scroll.rotation.z = Math.PI / 2;
-          scroll.position.set(-0.5 + col * 0.35, 0.3 + row * 0.35, 0);
-          rack.add(scroll);
-        }
-      }
-    }
-
-    return rack;
-  }
-
   private static createLantern(): THREE.Group {
     const lantern = new THREE.Group();
 
@@ -1922,108 +1668,179 @@ export class Decorations {
       return Campus.create();
     }
 
-    // Story/Memoria planet - Ancient Library
+    // Story/Chronicle planet - Projector Slideshow (positioned to the side, not blocking portal)
     if (planetId === 'story') {
-      // Central study area
-      const studyDesk = this.createStudyDesk();
-      studyDesk.position.set(0, Terrain.getTerrainHeight(0, 0), 0);
-      studyDesk.rotation.y = Math.PI;
-      objects.push(studyDesk);
+      // Screen positioned to the right side, facing left toward center
+      const screenX = 15;
+      const screenZ = 0;
+      const screen = new THREE.Group();
+      const screenWidth = 20;
+      const screenHeight = 12;
 
-      // Bookshelves arranged in sections representing life chapters
+      // Screen frame (wooden)
+      const frameMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.8 });
+      const frameThickness = 0.4;
 
-      // Section 1: Early Life (behind spawn, to the left)
-      const earlyLifeShelves = [
-        { x: -12, z: -8, rot: 0.3 },
-        { x: -15, z: -6, rot: 0.2 },
-        { x: -18, z: -4, rot: 0.1 },
-      ];
-      for (const pos of earlyLifeShelves) {
-        const shelf = this.createBookshelf(2.5);
-        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
-        shelf.rotation.y = pos.rot;
-        objects.push(shelf);
+      const topFrame = new THREE.Mesh(new THREE.BoxGeometry(screenWidth + 0.8, frameThickness, frameThickness), frameMat);
+      topFrame.position.y = screenHeight / 2 + frameThickness / 2;
+      screen.add(topFrame);
+
+      const bottomFrame = new THREE.Mesh(new THREE.BoxGeometry(screenWidth + 0.8, frameThickness, frameThickness), frameMat);
+      bottomFrame.position.y = -screenHeight / 2 - frameThickness / 2;
+      screen.add(bottomFrame);
+
+      const leftFrame = new THREE.Mesh(new THREE.BoxGeometry(frameThickness, screenHeight + 0.8, frameThickness), frameMat);
+      leftFrame.position.x = -screenWidth / 2 - frameThickness / 2;
+      screen.add(leftFrame);
+
+      const rightFrame = new THREE.Mesh(new THREE.BoxGeometry(frameThickness, screenHeight + 0.8, frameThickness), frameMat);
+      rightFrame.position.x = screenWidth / 2 + frameThickness / 2;
+      screen.add(rightFrame);
+
+      // Screen surface (where slides display) - brighter emissive for better visibility
+      const screenMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, emissive: 0x666666 });
+      const screenSurface = new THREE.Mesh(new THREE.BoxGeometry(screenWidth, screenHeight, 0.1), screenMat);
+      screenSurface.userData.isProjectorScreen = true;
+      screen.add(screenSurface);
+
+      // Support posts (taller for bigger screen)
+      const postMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.6 });
+      const leftPost = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 6, 8), postMat);
+      leftPost.position.set(-screenWidth / 2 - 0.4, -screenHeight / 2 - 3, 0);
+      screen.add(leftPost);
+
+      const rightPost = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 6, 8), postMat);
+      rightPost.position.set(screenWidth / 2 + 0.4, -screenHeight / 2 - 3, 0);
+      screen.add(rightPost);
+
+      screen.position.set(screenX, Terrain.getTerrainHeight(screenX, screenZ) + screenHeight / 2 + 1.5, screenZ);
+      screen.rotation.y = -Math.PI / 2; // Face left toward center
+      screen.userData.isStoryScreen = true;
+      objects.push(screen);
+
+      // Projector on a stand - positioned left of screen, facing it
+      const projector = new THREE.Group();
+      const projectorBody = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.4, 0.6),
+        new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.3 })
+      );
+      projector.add(projectorBody);
+
+      // Lens (on the +X side, facing screen)
+      const lens = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.08, 0.12, 0.2, 12),
+        new THREE.MeshStandardMaterial({ color: 0x4488aa, metalness: 0.8, roughness: 0.2 })
+      );
+      lens.rotation.z = Math.PI / 2; // Horizontal cylinder
+      lens.position.x = 0.5; // Front of projector
+      projector.add(lens);
+
+      // Lens glow
+      const lensGlow = new THREE.Mesh(
+        new THREE.CircleGeometry(0.1, 16),
+        new THREE.MeshBasicMaterial({ color: 0xffffaa })
+      );
+      lensGlow.position.x = 0.61;
+      lensGlow.rotation.y = Math.PI / 2;
+      lensGlow.userData.isProjectorGlow = true;
+      projector.add(lensGlow);
+
+      // Projector flickering light (like a real projector)
+      const projectorLight = new THREE.SpotLight(0xffffee, 3, 20, Math.PI / 6, 0.5, 1);
+      projectorLight.position.x = 0.6;
+      projectorLight.target.position.set(14, 2, 0); // Aim at screen
+      projector.add(projectorLight);
+      projector.add(projectorLight.target);
+      projectorLight.userData.isProjectorLight = true;
+      projectorLight.userData.baseIntensity = 3;
+
+      // Dust particles in the light beam - short distance from projector
+      const dustCount = 80;
+      const dustPositions = new Float32Array(dustCount * 3);
+      const dustSpeeds = new Float32Array(dustCount);
+      const dustPhases = new Float32Array(dustCount);
+
+      // Create particles in a short cone near the projector
+      for (let i = 0; i < dustCount; i++) {
+        // Distance along the beam - only 3 units from projector
+        const t = Math.random();
+        const distance = 0.8 + t * 3; // From x=0.8 to x=3.8
+
+        // Cone radius increases with distance
+        const maxRadius = t * 1.2;
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * maxRadius;
+
+        dustPositions[i * 3] = distance;
+        dustPositions[i * 3 + 1] = Math.sin(angle) * radius;
+        dustPositions[i * 3 + 2] = Math.cos(angle) * radius;
+
+        dustSpeeds[i] = 0.2 + Math.random() * 0.3;
+        dustPhases[i] = Math.random() * Math.PI * 2;
       }
 
-      // Reading nook for Early Life section
-      const nook1 = this.createReadingNook();
-      nook1.position.set(-14, Terrain.getTerrainHeight(-14, -2), -2);
-      nook1.rotation.y = Math.PI * 0.3;
-      objects.push(nook1);
+      const dustGeometry = new THREE.BufferGeometry();
+      dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+      dustGeometry.setAttribute('speed', new THREE.BufferAttribute(dustSpeeds, 1));
+      dustGeometry.setAttribute('phase', new THREE.BufferAttribute(dustPhases, 1));
 
-      // Section 2: Education (to the right)
-      const educationShelves = [
-        { x: 12, z: -8, rot: -0.3 },
-        { x: 15, z: -6, rot: -0.2 },
-        { x: 18, z: -4, rot: -0.1 },
+      const dustMaterial = new THREE.PointsMaterial({
+        color: 0xffffee,
+        size: 0.08,
+        transparent: true,
+        opacity: 0.4,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+
+      const dustParticles = new THREE.Points(dustGeometry, dustMaterial);
+      dustParticles.userData.isProjectorDust = true;
+      dustParticles.userData.originalPositions = dustPositions.slice();
+      projector.add(dustParticles);
+
+      // Stand
+      const stand = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.1, 0.12, 1.2, 6),
+        postMat
+      );
+      stand.position.y = -0.8;
+      projector.add(stand);
+
+      const standBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.35, 0.4, 0.1, 8),
+        postMat
+      );
+      standBase.position.y = -1.4;
+      projector.add(standBase);
+
+      // Position projector further back from screen
+      const projX = 0;
+      const projZ = 0;
+      projector.position.set(projX, Terrain.getTerrainHeight(projX, projZ) + 1.6, projZ);
+      // No rotation needed - projector faces +X by default, screen is at +X
+      projector.userData.isProjector = true; // Mark as interactive
+      objects.push(projector);
+
+      // Seating - more benches arranged like a cinema
+      const benchPositions = [
+        // Front row
+        { x: 4, z: -4 }, { x: 4, z: -1.5 }, { x: 4, z: 1.5 }, { x: 4, z: 4 },
+        // Middle row
+        { x: 6, z: -5 }, { x: 6, z: -2.5 }, { x: 6, z: 0 }, { x: 6, z: 2.5 }, { x: 6, z: 5 },
+        // Back row
+        { x: 8, z: -4 }, { x: 8, z: -1.5 }, { x: 8, z: 1.5 }, { x: 8, z: 4 },
       ];
-      for (const pos of educationShelves) {
-        const shelf = this.createBookshelf(3);
-        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
-        shelf.rotation.y = pos.rot;
-        objects.push(shelf);
+      for (const pos of benchPositions) {
+        const bench = this.createBench();
+        bench.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        bench.rotation.y = Math.PI / 2; // Face the screen
+        objects.push(bench);
       }
 
-      // Scroll rack for education
-      const scrolls = this.createScrollRack();
-      scrolls.position.set(14, Terrain.getTerrainHeight(14, -2), -2);
-      scrolls.rotation.y = -Math.PI * 0.2;
-      objects.push(scrolls);
-
-      // Section 3: Career Start (front left)
-      const careerStartShelves = [
-        { x: -10, z: 10, rot: -0.4 },
-        { x: -14, z: 12, rot: -0.3 },
-      ];
-      for (const pos of careerStartShelves) {
-        const shelf = this.createBookshelf(3.5);
-        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
-        shelf.rotation.y = pos.rot;
-        objects.push(shelf);
-      }
-
-      const nook2 = this.createReadingNook();
-      nook2.position.set(-8, Terrain.getTerrainHeight(-8, 14), 14);
-      nook2.rotation.y = Math.PI * 0.8;
-      objects.push(nook2);
-
-      // Section 4: Growth & Experience (front right)
-      const growthShelves = [
-        { x: 10, z: 10, rot: 0.4 },
-        { x: 14, z: 12, rot: 0.3 },
-      ];
-      for (const pos of growthShelves) {
-        const shelf = this.createBookshelf(4);
-        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
-        shelf.rotation.y = pos.rot;
-        objects.push(shelf);
-      }
-
-      // Section 5: Present Day (directly ahead, taller shelves)
-      const presentShelves = [
-        { x: -4, z: 20, rot: 0.1 },
-        { x: 0, z: 22, rot: 0 },
-        { x: 4, z: 20, rot: -0.1 },
-      ];
-      for (const pos of presentShelves) {
-        const shelf = this.createBookshelf(4.5);
-        shelf.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
-        shelf.rotation.y = pos.rot;
-        objects.push(shelf);
-      }
-
-      // Grand reading nook at the end
-      const nook3 = this.createReadingNook();
-      nook3.position.set(0, Terrain.getTerrainHeight(0, 16), 16);
-      nook3.rotation.y = Math.PI;
-      objects.push(nook3);
-
-      // Ambient lanterns throughout
+      // Lanterns for ambient lighting - positioned wide to not block screen
       const lanternPositions = [
-        { x: -10, z: -5 }, { x: 10, z: -5 },
-        { x: -12, z: 8 }, { x: 12, z: 8 },
-        { x: -5, z: 18 }, { x: 5, z: 18 },
-        { x: 0, z: 8 }, { x: -6, z: 0 }, { x: 6, z: 0 },
+        { x: 2, z: -8 }, { x: 2, z: 8 },
+        { x: 12, z: -10 }, { x: 12, z: 10 },
       ];
       for (const pos of lanternPositions) {
         const lantern = this.createLantern();
@@ -2031,19 +1848,18 @@ export class Decorations {
         objects.push(lantern);
       }
 
-      // Scattered individual book stacks
-      for (let i = 0; i < 8; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 5 + Math.random() * 10;
+      // Surrounding trees for enclosed feeling (avoid portal area at z=-18)
+      for (let i = 0; i < 20; i++) {
+        const angle = (i / 20) * Math.PI * 2;
+        const dist = 20 + Math.random() * 4;
         const x = Math.cos(angle) * dist;
         const z = Math.sin(angle) * dist;
-
         if (this.isNearPortal(x, z)) continue;
-
-        const books = this.createBookStack();
-        books.position.set(x, Terrain.getTerrainHeight(x, z), z);
-        books.rotation.y = Math.random() * Math.PI;
-        objects.push(books);
+        const scale = 0.8 + Math.random() * 1.0;
+        const tree = this.createTree(scale, 0.6 + Math.random() * 0.4);
+        tree.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        tree.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(tree);
       }
 
       return objects;

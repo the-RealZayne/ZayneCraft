@@ -20,7 +20,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffffff,
     lightIntensity: 1,
     fogDensity: 0.008,
-    description: 'Your starting point. Explore the portals to learn more about me.',
+    description: 'Explore the portals.',
   },
   story: {
     name: 'Chronicle',
@@ -31,7 +31,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffccaa,
     lightIntensity: 0.8,
     fogDensity: 0.01,
-    description: 'The story of my journey...',
+    description: 'My journey.',
   },
   skills: {
     name: 'Grove',
@@ -42,7 +42,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0x80dfff,
     lightIntensity: 1.2,
     fogDensity: 0.006,
-    description: 'Technologies and abilities I have mastered.',
+    description: 'What I work with.',
   },
   education: {
     name: 'Haven',
@@ -53,7 +53,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffffee,
     lightIntensity: 1,
     fogDensity: 0.007,
-    description: 'My academic background and certifications.',
+    description: 'Where I studied.',
   },
   articles: {
     name: 'Inkwell',
@@ -64,7 +64,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xaaaaff,
     lightIntensity: 0.9,
     fogDensity: 0.012,
-    description: 'Writings and thoughts I have shared.',
+    description: 'What I write.',
   },
   projects: {
     name: 'Workshop',
@@ -75,15 +75,15 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffaa66,
     lightIntensity: 1.1,
     fogDensity: 0.009,
-    description: 'Things I have built.',
+    description: 'What I build.',
   },
 };
 
 export const portalConnections: Record<string, string[]> = {
   home: ['story', 'skills', 'education', 'articles', 'projects'],
-  story: ['home', 'education'],
+  story: ['home'],
   skills: ['home', 'projects'],
-  education: ['home', 'story'],
+  education: ['home'],
   articles: ['home'],
   projects: ['home', 'skills'],
 };

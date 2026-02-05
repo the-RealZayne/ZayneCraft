@@ -9,6 +9,7 @@ export class UIManager {
   public readonly hologramPanel: HTMLElement;
   public readonly dogPrompt: HTMLElement;
   public readonly dogQuote: HTMLElement;
+  public readonly slidePrompt: HTMLElement;
 
   constructor() {
     this.instructions = document.getElementById('instructions')!;
@@ -18,6 +19,7 @@ export class UIManager {
     this.hologramPanel = document.getElementById('hologram-panel')!;
     this.dogPrompt = document.getElementById('dog-prompt')!;
     this.dogQuote = document.getElementById('dog-quote')!;
+    this.slidePrompt = document.getElementById('slide-prompt')!;
 
     // Set profile image
     const avatarImg = this.hologramPanel.querySelector('.hologram-avatar img') as HTMLImageElement;
@@ -62,5 +64,13 @@ export class UIManager {
 
   public hideDogQuote(): void {
     this.dogQuote.classList.remove('visible');
+  }
+
+  public showSlidePrompt(): void {
+    this.slidePrompt.classList.add('visible');
+  }
+
+  public hideSlidePrompt(): void {
+    this.slidePrompt.classList.remove('visible');
   }
 }

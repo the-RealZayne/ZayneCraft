@@ -196,47 +196,74 @@ export class PlanetManager {
       });
     }
 
-    // Animate fireflies and lantern flames on home planet - skip every other frame for performance
-    if (this.currentPlanet === 'home' && this.animationFrame % 2 === 0) {
+    // Common animations for all planets (lanterns, etc.) - skip every other frame for performance
+    if (this.animationFrame % 2 === 0) {
       this.decorations.forEach((dec, decIndex) => {
-        if (dec.children) {
-          dec.children.forEach((child) => {
-            // Fireflies animation
-            if (child instanceof THREE.Points && child.userData.isFireflies) {
-              const positions = child.geometry.attributes.position.array as Float32Array;
-              const phases = child.geometry.attributes.phase.array as Float32Array;
-              const original = child.userData.originalPositions as Float32Array;
+        dec.traverse((child) => {
+          // Lantern flame animation (works on all planets)
+          if (child.userData.isLanternFlame) {
+            const flicker = Math.sin(time * 8 + decIndex) * 0.02 + Math.sin(time * 12 + decIndex * 2) * 0.01;
+            child.position.y = child.userData.baseY + flicker;
+            child.scale.setScalar(1 + Math.sin(time * 10 + decIndex) * 0.1);
+          }
+          if (child.userData.isLanternCore) {
+            child.position.y = child.userData.baseY + Math.sin(time * 10 + decIndex) * 0.015;
+            child.scale.setScalar(1 + Math.sin(time * 15 + decIndex) * 0.15);
+          }
+          if (child.userData.isLanternLight) {
+            const light = child as THREE.PointLight;
+            light.intensity = child.userData.baseIntensity + Math.sin(time * 6 + decIndex) * 0.3;
+          }
 
-              for (let i = 0; i < positions.length / 3; i++) {
-                const phase = phases[i];
-                // Gentle drifting motion
-                positions[i * 3] = original[i * 3] + Math.sin(time * 0.5 + phase) * 0.5;
-                positions[i * 3 + 1] = original[i * 3 + 1] + Math.sin(time * 0.7 + phase * 2) * 0.3;
-                positions[i * 3 + 2] = original[i * 3 + 2] + Math.cos(time * 0.4 + phase) * 0.5;
-              }
-              child.geometry.attributes.position.needsUpdate = true;
+          // Fireflies animation (home planet)
+          if (child instanceof THREE.Points && child.userData.isFireflies) {
+            const positions = child.geometry.attributes.position.array as Float32Array;
+            const phases = child.geometry.attributes.phase.array as Float32Array;
+            const original = child.userData.originalPositions as Float32Array;
 
-              // Pulsing glow
-              const material = child.material as THREE.PointsMaterial;
-              material.opacity = 0.5 + Math.sin(time * 3) * 0.3;
+            for (let i = 0; i < positions.length / 3; i++) {
+              const phase = phases[i];
+              positions[i * 3] = original[i * 3] + Math.sin(time * 0.5 + phase) * 0.5;
+              positions[i * 3 + 1] = original[i * 3 + 1] + Math.sin(time * 0.7 + phase * 2) * 0.3;
+              positions[i * 3 + 2] = original[i * 3 + 2] + Math.cos(time * 0.4 + phase) * 0.5;
             }
+            child.geometry.attributes.position.needsUpdate = true;
+            const material = child.material as THREE.PointsMaterial;
+            material.opacity = 0.5 + Math.sin(time * 3) * 0.3;
+          }
 
-            // Lantern flame animation
-            if (child.userData.isLanternFlame) {
-              const flicker = Math.sin(time * 8 + decIndex) * 0.02 + Math.sin(time * 12 + decIndex * 2) * 0.01;
-              child.position.y = child.userData.baseY + flicker;
-              child.scale.setScalar(1 + Math.sin(time * 10 + decIndex) * 0.1);
+          // Projector effects (story planet)
+          if (child.userData.isProjectorLight) {
+            const light = child as THREE.SpotLight;
+            const baseIntensity = child.userData.baseIntensity || 3;
+            const flicker = Math.random() * 0.4 - 0.2;
+            const pulse = Math.sin(time * 20) * 0.15;
+            light.intensity = baseIntensity + flicker + pulse;
+          }
+          if (child.userData.isProjectorGlow) {
+            const mesh = child as THREE.Mesh;
+            const mat = mesh.material as THREE.MeshBasicMaterial;
+            mat.opacity = 0.8 + Math.random() * 0.2;
+            mat.transparent = true;
+          }
+          if (child instanceof THREE.Points && child.userData.isProjectorDust) {
+            const positions = child.geometry.attributes.position.array as Float32Array;
+            const speeds = child.geometry.attributes.speed.array as Float32Array;
+            const phases = child.geometry.attributes.phase.array as Float32Array;
+            const original = child.userData.originalPositions as Float32Array;
+
+            for (let i = 0; i < positions.length / 3; i++) {
+              const speed = speeds[i];
+              const phase = phases[i];
+              positions[i * 3] = original[i * 3] + Math.sin(time * speed + phase) * 0.3;
+              positions[i * 3 + 1] = original[i * 3 + 1] + Math.sin(time * speed * 0.7 + phase * 2) * 0.2;
+              positions[i * 3 + 2] = original[i * 3 + 2] + Math.cos(time * speed * 0.5 + phase) * 0.2;
             }
-            if (child.userData.isLanternCore) {
-              child.position.y = child.userData.baseY + Math.sin(time * 10 + decIndex) * 0.015;
-              child.scale.setScalar(1 + Math.sin(time * 15 + decIndex) * 0.15);
-            }
-            if (child.userData.isLanternLight) {
-              const light = child as THREE.PointLight;
-              light.intensity = child.userData.baseIntensity + Math.sin(time * 6 + decIndex) * 0.3;
-            }
-          });
-        }
+            child.geometry.attributes.position.needsUpdate = true;
+            const mat = child.material as THREE.PointsMaterial;
+            mat.opacity = 0.3 + Math.sin(time * 3) * 0.1 + Math.random() * 0.05;
+          }
+        });
       });
     }
   }
