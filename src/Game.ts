@@ -17,6 +17,8 @@ import image2014 from './assets/2014.jpg';
 import image2016 from './assets/2016.png';
 import image2017 from './assets/2017.png';
 import image2019 from './assets/2019.jpg';
+import image2022 from './assets/2022.jpg';
+import image2025 from './assets/2025.jpeg';
 
 export class Game {
   private sceneManager: SceneManager;
@@ -98,6 +100,18 @@ export class Game {
       title: '2019',
       text: 'Joined Orka Technology Group as Software Engineer, later promoted to Senior Software Engineer.',
       image: image2019,
+      layout: 'image-top'
+    },
+    {
+      title: '2022',
+      text: 'Joined Papertrail as Technical Lead.',
+      image: image2022,
+      layout: 'image-top'
+    },
+    {
+      title: '2025',
+      text: 'Joined LocalStack as Senior Full-Stack Engineer.',
+      image: image2025,
       layout: 'image-top'
     },
     {
