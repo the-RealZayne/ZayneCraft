@@ -98,7 +98,7 @@ export class Game {
     },
     {
       title: '2019',
-      text: 'Joined Orka Technology Group as Software Engineer, later promoted to Senior Software Engineer.',
+      text: 'Completed my apprenticeship. Joined Orka Technology Group, later promoted to Senior Software Engineer.',
       image: image2019,
       layout: 'image-top'
     },
@@ -116,7 +116,7 @@ export class Game {
     },
     {
       title: 'The Journey Continues',
-      text: "There's so much more between the milestones. This is just the path that got me here.",
+      text: 'These are the highlights. The real story lives in the gaps.',
       layout: 'text-only'
     },
   ];
