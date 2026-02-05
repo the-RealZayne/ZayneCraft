@@ -12,7 +12,7 @@ export interface PlanetConfig {
 
 export const planets: Record<string, PlanetConfig> = {
   home: {
-    name: 'Terra',
+    name: 'Hearth',
     section: 'Welcome',
     groundColor: 0x3d5c3d,
     skyColor: 0x1a1a2e,
@@ -23,7 +23,7 @@ export const planets: Record<string, PlanetConfig> = {
     description: 'Your starting point. Explore the portals to learn more about me.',
   },
   story: {
-    name: 'Memoria',
+    name: 'Chronicle',
     section: 'My Story',
     groundColor: 0x4a3728,
     skyColor: 0x2d1b4e,
@@ -34,7 +34,7 @@ export const planets: Record<string, PlanetConfig> = {
     description: 'The story of my journey...',
   },
   skills: {
-    name: 'Nexus',
+    name: 'Grove',
     section: 'Skills',
     groundColor: 0x1a3a4a,
     skyColor: 0x0a1628,
@@ -45,7 +45,7 @@ export const planets: Record<string, PlanetConfig> = {
     description: 'Technologies and abilities I have mastered.',
   },
   education: {
-    name: 'Academia',
+    name: 'Haven',
     section: 'Education',
     groundColor: 0x4a4a3a,
     skyColor: 0x1e1e28,
@@ -56,7 +56,7 @@ export const planets: Record<string, PlanetConfig> = {
     description: 'My academic background and certifications.',
   },
   articles: {
-    name: 'Scriptorium',
+    name: 'Inkwell',
     section: 'Articles',
     groundColor: 0x2a2a3a,
     skyColor: 0x0f0f1a,
@@ -67,7 +67,7 @@ export const planets: Record<string, PlanetConfig> = {
     description: 'Writings and thoughts I have shared.',
   },
   projects: {
-    name: 'Forge',
+    name: 'Workshop',
     section: 'Projects',
     groundColor: 0x3a2020,
     skyColor: 0x1a0a0a,

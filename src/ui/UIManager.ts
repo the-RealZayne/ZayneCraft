@@ -1,4 +1,5 @@
 import { PlanetConfig } from '../config/planets';
+import profileImage from '../assets/profile.jpeg';
 
 export class UIManager {
   public readonly instructions: HTMLElement;
@@ -17,6 +18,12 @@ export class UIManager {
     this.hologramPanel = document.getElementById('hologram-panel')!;
     this.dogPrompt = document.getElementById('dog-prompt')!;
     this.dogQuote = document.getElementById('dog-quote')!;
+
+    // Set profile image
+    const avatarImg = this.hologramPanel.querySelector('.hologram-avatar img') as HTMLImageElement;
+    if (avatarImg) {
+      avatarImg.src = profileImage;
+    }
   }
 
   public updatePlanetInfo(config: PlanetConfig): void {
