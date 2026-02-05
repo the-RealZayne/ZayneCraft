@@ -16,6 +16,7 @@ import javaImage from './assets/java.svg';
 import image2014 from './assets/2014.jpg';
 import image2016 from './assets/2016.png';
 import image2017 from './assets/2017.png';
+import image2019 from './assets/2019.jpg';
 
 export class Game {
   private sceneManager: SceneManager;
@@ -91,6 +92,12 @@ export class Game {
       title: '2017',
       text: 'Started a Software Development Apprenticeship at 3PL.',
       image: image2017,
+      layout: 'image-top'
+    },
+    {
+      title: '2019',
+      text: 'Joined Orka Technology Group as Software Engineer, later promoted to Senior Software Engineer.',
+      image: image2019,
       layout: 'image-top'
     },
     {
