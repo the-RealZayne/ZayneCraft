@@ -215,6 +215,26 @@ export class PlanetManager {
             light.intensity = child.userData.baseIntensity + Math.sin(time * 6 + decIndex) * 0.3;
           }
 
+          // Campfire flame animation
+          if (child.userData.isCampfireFlame) {
+            const flicker = Math.sin(time * 10) * 0.03 + Math.sin(time * 15) * 0.02 + Math.random() * 0.01;
+            child.position.y = child.userData.baseY + flicker;
+            child.scale.set(
+              1 + Math.sin(time * 8) * 0.1,
+              1 + Math.sin(time * 12) * 0.15,
+              1 + Math.sin(time * 9) * 0.1
+            );
+          }
+          if (child.userData.isCampfireCore) {
+            child.position.y = child.userData.baseY + Math.sin(time * 12) * 0.02;
+            child.scale.setScalar(1 + Math.sin(time * 14) * 0.12);
+          }
+          if (child.userData.isCampfireLight) {
+            const light = child as THREE.PointLight;
+            const flicker = Math.sin(time * 8) * 0.4 + Math.sin(time * 13) * 0.2 + Math.random() * 0.2;
+            light.intensity = child.userData.baseIntensity + flicker;
+          }
+
           // Fireflies animation (home planet)
           if (child instanceof THREE.Points && child.userData.isFireflies) {
             const positions = child.geometry.attributes.position.array as Float32Array;

@@ -12,6 +12,7 @@ import { SlideRenderer, SlideContent } from './systems/SlideRenderer';
 
 // Slide images - add your images to src/assets/ and import them here
 import childhoodImage from './assets/childhood.png';
+import javaImage from './assets/java.svg';
 
 export class Game {
   private sceneManager: SceneManager;
@@ -29,6 +30,12 @@ export class Game {
   private isNearDog: boolean = false;
   private dogInteractionDistance: number = 3;
   private isShowingDogQuote: boolean = false;
+
+  // Credits sign interaction state
+  private isNearCreditsSign: boolean = false;
+  private creditsSignPosition = { x: 8, z: 0 };
+  private creditsSignInteractionDistance: number = 3;
+  private isShowingCredits: boolean = false;
 
   // FPS counter
   private fpsCounter: HTMLDivElement;
@@ -50,12 +57,19 @@ export class Game {
     {
       title: 'My Journey',
       text: 'Click the projector to start.',
-      layout: 'text-only'
+      layout: 'text-only',
+      isIntro: true
     },
     {
       title: '1999',
       text: 'This is where it all started.',
       image: childhoodImage,
+      layout: 'image-top'
+    },
+    {
+      title: '2012',
+      text: 'Wrote my first lines of code. Java, to build mods and addons for games.',
+      image: javaImage,
       layout: 'image-top'
     },
     {
@@ -203,10 +217,24 @@ export class Game {
 
   private setupDogInteraction(): void {
     this.playerController.setInteractCallback(() => {
-      if (this.isNearDog && !this.isShowingDogQuote) {
-        this.petDog();
-      } else if (this.isShowingDogQuote) {
+      // Credits panel takes priority if showing
+      if (this.isShowingCredits) {
+        this.hideCredits();
+        return;
+      }
+      // Dog quote takes priority if showing
+      if (this.isShowingDogQuote) {
         this.hideDogQuote();
+        return;
+      }
+      // Check credits sign interaction (only on home planet)
+      if (this.isNearCreditsSign && this.planetManager.getCurrentPlanet() === 'home') {
+        this.showCredits();
+        return;
+      }
+      // Dog interaction
+      if (this.isNearDog) {
+        this.petDog();
       }
     });
   }
@@ -221,6 +249,17 @@ export class Game {
   private hideDogQuote(): void {
     this.uiManager.hideDogQuote();
     this.isShowingDogQuote = false;
+  }
+
+  private showCredits(): void {
+    this.uiManager.hideCreditsPrompt();
+    this.uiManager.showCreditsPanel();
+    this.isShowingCredits = true;
+  }
+
+  private hideCredits(): void {
+    this.uiManager.hideCreditsPanel();
+    this.isShowingCredits = false;
   }
 
   private checkDogProximity(): void {
@@ -240,6 +279,37 @@ export class Game {
     // Hide quote if player walks away
     if (!this.isNearDog && this.isShowingDogQuote) {
       this.hideDogQuote();
+    }
+  }
+
+  private checkCreditsSignProximity(): void {
+    if (!this.sceneManager.controls.isLocked) return;
+    if (this.planetManager.getCurrentPlanet() !== 'home') {
+      if (this.isNearCreditsSign) {
+        this.uiManager.hideCreditsPrompt();
+        this.isNearCreditsSign = false;
+      }
+      return;
+    }
+
+    const playerPos = this.sceneManager.camera.position;
+    const dx = playerPos.x - this.creditsSignPosition.x;
+    const dz = playerPos.z - this.creditsSignPosition.z;
+    const distance = Math.sqrt(dx * dx + dz * dz);
+
+    const wasNearSign = this.isNearCreditsSign;
+    this.isNearCreditsSign = distance <= this.creditsSignInteractionDistance;
+
+    // Show/hide prompt based on proximity
+    if (this.isNearCreditsSign && !wasNearSign && !this.isShowingCredits) {
+      this.uiManager.showCreditsPrompt();
+    } else if (!this.isNearCreditsSign && wasNearSign && !this.isShowingCredits) {
+      this.uiManager.hideCreditsPrompt();
+    }
+
+    // Hide credits if player walks away
+    if (!this.isNearCreditsSign && this.isShowingCredits) {
+      this.hideCredits();
     }
   }
 
@@ -346,8 +416,10 @@ export class Game {
 
   private updateSlideDisplay(): void {
     const slide = this.slides[this.currentSlide];
+    // Count intro slides for adjusted numbering
+    const introCount = this.slides.filter(s => s.isIntro).length;
     // Render slide to the projector screen texture
-    this.slideRenderer.renderSlide(slide, this.currentSlide, this.slides.length);
+    this.slideRenderer.renderSlide(slide, this.currentSlide, this.slides.length, introCount);
   }
 
   public start(): void {
@@ -408,6 +480,9 @@ export class Game {
 
     // Check dog proximity for interaction prompt
     this.checkDogProximity();
+
+    // Check credits sign proximity
+    this.checkCreditsSignProximity();
 
     // Check screen proximity for slideshow
     this.checkScreenProximity();

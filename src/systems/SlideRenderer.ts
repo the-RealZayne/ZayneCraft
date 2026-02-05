@@ -5,6 +5,7 @@ export interface SlideContent {
   text?: string;
   image?: string; // URL or imported image path
   layout?: 'text-only' | 'image-only' | 'image-left' | 'image-right' | 'image-top';
+  isIntro?: boolean; // Intro slides don't show in slide count
 }
 
 export class SlideRenderer {
@@ -58,7 +59,7 @@ export class SlideRenderer {
     });
   }
 
-  public renderSlide(slide: SlideContent, slideIndex: number, totalSlides: number): void {
+  public renderSlide(slide: SlideContent, slideIndex: number, totalSlides: number, introCount: number = 0): void {
     const ctx = this.ctx;
     const w = this.width;
     const h = this.height;
@@ -98,11 +99,15 @@ export class SlideRenderer {
         break;
     }
 
-    // Slide counter at bottom - brighter
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.font = 'bold 24px "Segoe UI", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${slideIndex + 1} / ${totalSlides}`, w / 2, h - 30);
+    // Slide counter at bottom - only show for non-intro slides
+    if (!slide.isIntro) {
+      const adjustedIndex = slideIndex - introCount;
+      const adjustedTotal = totalSlides - introCount;
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = 'bold 24px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${adjustedIndex + 1} / ${adjustedTotal}`, w / 2, h - 30);
+    }
 
     // Update texture
     this.texture.needsUpdate = true;

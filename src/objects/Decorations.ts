@@ -1410,6 +1410,154 @@ export class Decorations {
     return lantern;
   }
 
+  private static createCampfire(): THREE.Group {
+    const campfire = new THREE.Group();
+
+    // Stone ring
+    const stoneCount = 10;
+    for (let i = 0; i < stoneCount; i++) {
+      const angle = (i / stoneCount) * Math.PI * 2;
+      const radius = 0.8;
+      const stoneGeo = new THREE.DodecahedronGeometry(0.15 + Math.random() * 0.1, 0);
+      const stone = new THREE.Mesh(stoneGeo, this.mats.darkStone);
+      stone.position.set(
+        Math.cos(angle) * radius,
+        0.08,
+        Math.sin(angle) * radius
+      );
+      stone.rotation.set(Math.random(), Math.random(), Math.random());
+      campfire.add(stone);
+    }
+
+    // Charred logs
+    for (let i = 0; i < 4; i++) {
+      const angle = (i / 4) * Math.PI * 2 + Math.random() * 0.3;
+      const logGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.7, 6);
+      const logMat = new THREE.MeshStandardMaterial({ color: 0x1a1008, roughness: 1 });
+      const log = new THREE.Mesh(logGeo, logMat);
+      log.position.set(
+        Math.cos(angle) * 0.25,
+        0.15,
+        Math.sin(angle) * 0.25
+      );
+      log.rotation.z = Math.PI / 2 + (Math.random() - 0.5) * 0.3;
+      log.rotation.y = angle;
+      campfire.add(log);
+    }
+
+    // Main flames
+    const flameMat = new THREE.MeshStandardMaterial({
+      color: 0xff6600,
+      emissive: 0xff4400,
+      emissiveIntensity: 2,
+      transparent: true,
+      opacity: 0.9
+    });
+    const flameGeo = new THREE.ConeGeometry(0.2, 0.6, 6);
+    const flame = new THREE.Mesh(flameGeo, flameMat);
+    flame.position.y = 0.4;
+    flame.userData.isCampfireFlame = true;
+    flame.userData.baseY = 0.4;
+    campfire.add(flame);
+
+    // Inner bright flame
+    const innerFlameMat = new THREE.MeshStandardMaterial({
+      color: 0xffaa00,
+      emissive: 0xffcc00,
+      emissiveIntensity: 3,
+      transparent: true,
+      opacity: 0.95
+    });
+    const innerFlameGeo = new THREE.ConeGeometry(0.12, 0.45, 5);
+    const innerFlame = new THREE.Mesh(innerFlameGeo, innerFlameMat);
+    innerFlame.position.y = 0.35;
+    innerFlame.userData.isCampfireCore = true;
+    innerFlame.userData.baseY = 0.35;
+    campfire.add(innerFlame);
+
+    // Embers / glowing coals
+    const emberCount = 12;
+    const emberPositions = new Float32Array(emberCount * 3);
+    const emberPhases = new Float32Array(emberCount);
+    for (let i = 0; i < emberCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * 0.35;
+      emberPositions[i * 3] = Math.cos(angle) * dist;
+      emberPositions[i * 3 + 1] = 0.1 + Math.random() * 0.15;
+      emberPositions[i * 3 + 2] = Math.sin(angle) * dist;
+      emberPhases[i] = Math.random() * Math.PI * 2;
+    }
+    const emberGeo = new THREE.BufferGeometry();
+    emberGeo.setAttribute('position', new THREE.BufferAttribute(emberPositions, 3));
+    emberGeo.setAttribute('phase', new THREE.BufferAttribute(emberPhases, 1));
+    const emberMat = new THREE.PointsMaterial({
+      color: 0xff4400,
+      size: 0.08,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending
+    });
+    const embers = new THREE.Points(emberGeo, emberMat);
+    embers.userData.isCampfireEmbers = true;
+    campfire.add(embers);
+
+    // Fire light
+    const fireLight = new THREE.PointLight(0xff6633, 2, 15);
+    fireLight.position.y = 0.5;
+    fireLight.userData.isCampfireLight = true;
+    fireLight.userData.baseIntensity = 2;
+    campfire.add(fireLight);
+
+    campfire.userData.isCampfire = true;
+    return campfire;
+  }
+
+  private static createCreditsSign(): THREE.Group {
+    const sign = new THREE.Group();
+
+    // Two posts
+    const postGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.4, 6);
+    const leftPost = new THREE.Mesh(postGeo, this.mats.darkWood);
+    leftPost.position.set(-0.6, 0.7, 0);
+    sign.add(leftPost);
+
+    const rightPost = new THREE.Mesh(postGeo, this.mats.darkWood);
+    rightPost.position.set(0.6, 0.7, 0);
+    sign.add(rightPost);
+
+    // Sign board
+    const boardGeo = new THREE.BoxGeometry(1.4, 0.8, 0.08);
+    const board = new THREE.Mesh(boardGeo, this.mats.wood);
+    board.position.y = 1.2;
+    sign.add(board);
+
+    // Create canvas texture with "Credits"
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d')!;
+
+    // Background (wood color)
+    ctx.fillStyle = '#5c4033';
+    ctx.fillRect(0, 0, 512, 256);
+
+    // "Credits" text - centered
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 72px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Credits', 256, 128);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const textMat = new THREE.MeshBasicMaterial({ map: texture });
+    const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.7), textMat);
+    textPlane.position.set(0, 1.2, 0.05);
+    sign.add(textPlane);
+
+    sign.userData.isCreditsSign = true;
+    return sign;
+  }
+
   private static createBirdHouse(): THREE.Group {
     const birdHouse = new THREE.Group();
 
@@ -1961,14 +2109,27 @@ export class Decorations {
       objects.push(cabin);
 
       // === ALL SMALL ITEMS ===
-      // Add a bench near the campfire (campfire is at 0, 0, -8)
+      // === CAMPFIRE ===
+      const campfireX = 0;
+      const campfireZ = -8;
+      const campfire = this.createCampfire();
+      campfire.position.set(campfireX, Terrain.getTerrainHeight(campfireX, campfireZ), campfireZ);
+      objects.push(campfire);
+
+      // === CREDITS SIGN (central location) ===
+      const creditsSign = this.createCreditsSign();
+      const signX = 8;
+      const signZ = 0;
+      creditsSign.position.set(signX, Terrain.getTerrainHeight(signX, signZ), signZ);
+      creditsSign.rotation.y = -Math.PI / 2; // Face toward spawn
+      objects.push(creditsSign);
+
+      // Add a bench near the campfire
       const bench = this.createBench();
       const benchX = 3;
       const benchZ = -6;
       bench.position.set(benchX, Terrain.getTerrainHeight(benchX, benchZ), benchZ);
       // Calculate angle to face the campfire
-      const campfireX = 0;
-      const campfireZ = -8;
       bench.rotation.y = Math.atan2(campfireX - benchX, campfireZ - benchZ);
       objects.push(bench);
 

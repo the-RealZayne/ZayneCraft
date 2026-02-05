@@ -10,6 +10,8 @@ export class UIManager {
   public readonly dogPrompt: HTMLElement;
   public readonly dogQuote: HTMLElement;
   public readonly slidePrompt: HTMLElement;
+  public readonly creditsPrompt: HTMLElement;
+  public readonly creditsPanel: HTMLElement;
 
   constructor() {
     this.instructions = document.getElementById('instructions')!;
@@ -20,6 +22,8 @@ export class UIManager {
     this.dogPrompt = document.getElementById('dog-prompt')!;
     this.dogQuote = document.getElementById('dog-quote')!;
     this.slidePrompt = document.getElementById('slide-prompt')!;
+    this.creditsPrompt = document.getElementById('credits-prompt')!;
+    this.creditsPanel = document.getElementById('credits-panel')!;
 
     // Set profile image
     const avatarImg = this.hologramPanel.querySelector('.hologram-avatar img') as HTMLImageElement;
@@ -72,5 +76,21 @@ export class UIManager {
 
   public hideSlidePrompt(): void {
     this.slidePrompt.classList.remove('visible');
+  }
+
+  public showCreditsPrompt(): void {
+    this.creditsPrompt.classList.add('visible');
+  }
+
+  public hideCreditsPrompt(): void {
+    this.creditsPrompt.classList.remove('visible');
+  }
+
+  public showCreditsPanel(): void {
+    this.creditsPanel.classList.add('visible');
+  }
+
+  public hideCreditsPanel(): void {
+    this.creditsPanel.classList.remove('visible');
   }
 }
