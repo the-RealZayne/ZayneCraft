@@ -115,23 +115,8 @@ export class Game {
       layout: 'image-top'
     },
     {
-      title: 'First Steps',
-      text: 'Taking the leap into software development. Learning, failing, and learning some more.',
-      layout: 'text-only'
-    },
-    {
-      title: 'Finding My Path',
-      text: 'Discovering what I love to build and the technologies that excite me most.',
-      layout: 'text-only'
-    },
-    {
-      title: 'Growth & Challenges',
-      text: 'Every bug fixed and feature shipped shaped who I am today.',
-      layout: 'text-only'
-    },
-    {
-      title: 'Where I Am Now',
-      text: 'Continuing to learn, build, and share. The journey never really ends.',
+      title: 'The Journey Continues',
+      text: "There's so much more between the milestones. This is just the path that got me here.",
       layout: 'text-only'
     },
   ];
