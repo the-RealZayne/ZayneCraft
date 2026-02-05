@@ -10,6 +10,9 @@ import { UIManager } from './ui/UIManager';
 import { Dog } from './objects/Dog';
 import { SlideRenderer, SlideContent } from './systems/SlideRenderer';
 
+// Slide images - add your images to src/assets/ and import them here
+import childhoodImage from './assets/childhood.png';
+
 export class Game {
   private sceneManager: SceneManager;
   private playerController: PlayerController;
@@ -34,7 +37,7 @@ export class Game {
 
   // Slideshow state
   private isNearScreen: boolean = false;
-  private screenInteractionDistance: number = 14;
+  private screenInteractionDistance: number = 20;
   private screenPosition = { x: 15, z: 0 }; // Match position from Decorations.ts
   private projectorPosition = { x: 0, z: 0 }; // Projector position
   private projectorInteractionDistance: number = 4;
@@ -45,28 +48,34 @@ export class Game {
   private raycaster: THREE.Raycaster;
   private slides: SlideContent[] = [
     {
-      title: 'The Beginning',
-      text: 'Every journey starts somewhere. Mine began with curiosity about how things work and a desire to create.',
+      title: 'My Journey',
+      text: 'Click the projector to start.',
       layout: 'text-only'
     },
     {
+      title: '1999',
+      text: 'This is where it all started.',
+      image: childhoodImage,
+      layout: 'image-top'
+    },
+    {
       title: 'First Steps',
-      text: 'Taking the leap into software development. Learning, failing, and learning some more. The early days were challenging but exciting.',
+      text: 'Taking the leap into software development. Learning, failing, and learning some more.',
       layout: 'text-only'
     },
     {
       title: 'Finding My Path',
-      text: 'Discovering what I love to build and the technologies that excite me most. Every project taught me something new.',
+      text: 'Discovering what I love to build and the technologies that excite me most.',
       layout: 'text-only'
     },
     {
       title: 'Growth & Challenges',
-      text: 'Every bug fixed and feature shipped shaped who I am today. The challenges made me stronger.',
+      text: 'Every bug fixed and feature shipped shaped who I am today.',
       layout: 'text-only'
     },
     {
       title: 'Where I Am Now',
-      text: 'Continuing to learn, build, and share. The journey never really ends - and that\'s the best part.',
+      text: 'Continuing to learn, build, and share. The journey never really ends.',
       layout: 'text-only'
     },
   ];
