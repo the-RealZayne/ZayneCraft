@@ -124,7 +124,8 @@ export class PlanetManager {
 
     connections.forEach((targetPlanet, index) => {
       const angle = angleStep * index - Math.PI / 2;
-      const portal = Portal.create(targetPlanet, angle, 18);
+      const portalDistance = planetId === 'skills' ? 30 : 18;
+      const portal = Portal.create(targetPlanet, angle, portalDistance);
       this.scene.add(portal);
       this.portals.push(portal);
 
@@ -150,10 +151,13 @@ export class PlanetManager {
       this.scene.add(this.terminal);
     }
 
-    // Reset player position (story planet spawns near portal, facing the sign)
+    // Reset player position
     if (planetId === 'story') {
       this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI);
       this.playerController.setMaxDistance(35); // Smaller boundary for cinema
+    } else if (planetId === 'skills') {
+      this.playerController.resetPosition(this.currentFlatRadius, 0, -20, Math.PI);
+      this.playerController.setMaxDistance(90);
     } else {
       this.playerController.setMaxDistance(90); // Default boundary
       this.playerController.resetPosition(this.currentFlatRadius);
@@ -193,14 +197,6 @@ export class PlanetManager {
 
   public animateDecorations(delta: number, time: number): void {
     this.animationFrame++;
-
-    // Animate floating decorations (crystals on skills planet)
-    if (this.currentPlanet === 'skills') {
-      this.decorations.forEach((dec, i) => {
-        dec.position.y = 3 + Math.sin(time + i) * 0.5;
-        dec.rotation.y += delta * 0.5;
-      });
-    }
 
     // Common animations for all planets (lanterns, etc.) - skip every other frame for performance
     if (this.animationFrame % 2 === 0) {
@@ -288,6 +284,13 @@ export class PlanetManager {
             child.geometry.attributes.position.needsUpdate = true;
             const mat = child.material as THREE.PointsMaterial;
             mat.opacity = 0.3 + Math.sin(time * 3) * 0.1 + Math.random() * 0.05;
+          }
+
+          // Floating skill icons animation (skills planet)
+          if (child.userData.isFloatingSkill) {
+            const baseY = child.userData.baseY || 3;
+            const phase = child.userData.phaseOffset || 0;
+            child.position.y = baseY + Math.sin(time * 1.5 + phase) * 0.15;
           }
         });
       });

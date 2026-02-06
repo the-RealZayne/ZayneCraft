@@ -82,7 +82,7 @@ export const planets: Record<string, PlanetConfig> = {
 export const portalConnections: Record<string, string[]> = {
   home: ['story', 'skills', 'education', 'articles', 'projects'],
   story: ['home'],
-  skills: ['home', 'projects'],
+  skills: ['home'],
   education: ['home'],
   articles: ['home'],
   projects: ['home', 'skills'],

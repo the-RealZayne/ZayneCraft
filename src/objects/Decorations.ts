@@ -3,6 +3,10 @@ import { planets } from '../config/planets';
 import { Campus } from './Campus';
 import { Terrain } from '../environment/Terrain';
 
+// Skill logos
+import phpLogo from '../assets/php.svg';
+import nodejsLogo from '../assets/nodejs.svg';
+
 export class Decorations {
   // ============================================
   // SHARED MATERIALS - Created once, reused everywhere for performance
@@ -3436,6 +3440,397 @@ export class Decorations {
         log.rotation.y = Math.random() * Math.PI * 2;
         objects.push(log);
       }
+      return objects;
+    }
+
+    // Skills planet - Flower Bed Garden with floating skill icons
+    if (planetId === 'skills') {
+      // Category colors
+      const colors = {
+        languages: 0x68a063,       // Green (code)
+        frameworks: 0x61dafb,      // Cyan (React-ish)
+        mobile: 0x8b5cf6,          // Purple (mobile)
+        cloud: 0x2496ed,           // Blue (cloud/sky)
+        data: 0x336791,            // Deep blue (database)
+        infrastructure: 0xf97316,  // Orange (tools)
+      };
+
+      // Create a large flower bed with floating skill icons above
+      const createFlowerBed = (
+        centerX: number,
+        centerZ: number,
+        width: number,
+        depth: number,
+        category: string,
+        skills: string[],
+        color: number
+      ) => {
+        const bed = new THREE.Group();
+
+        // Wooden border around the bed
+        const borderMat = this.mats.darkWood;
+        const borderHeight = 0.25;
+        const borderThickness = 0.15;
+
+        // Front border
+        const frontBorder = new THREE.Mesh(
+          new THREE.BoxGeometry(width + borderThickness * 2, borderHeight, borderThickness),
+          borderMat
+        );
+        frontBorder.position.set(0, borderHeight / 2, depth / 2 + borderThickness / 2);
+        bed.add(frontBorder);
+
+        // Back border
+        const backBorder = new THREE.Mesh(
+          new THREE.BoxGeometry(width + borderThickness * 2, borderHeight, borderThickness),
+          borderMat
+        );
+        backBorder.position.set(0, borderHeight / 2, -depth / 2 - borderThickness / 2);
+        bed.add(backBorder);
+
+        // Left border
+        const leftBorder = new THREE.Mesh(
+          new THREE.BoxGeometry(borderThickness, borderHeight, depth),
+          borderMat
+        );
+        leftBorder.position.set(-width / 2 - borderThickness / 2, borderHeight / 2, 0);
+        bed.add(leftBorder);
+
+        // Right border
+        const rightBorder = new THREE.Mesh(
+          new THREE.BoxGeometry(borderThickness, borderHeight, depth),
+          borderMat
+        );
+        rightBorder.position.set(width / 2 + borderThickness / 2, borderHeight / 2, 0);
+        bed.add(rightBorder);
+
+        // Soil/dirt inside the bed
+        const soilGeo = new THREE.BoxGeometry(width, 0.1, depth);
+        const soilMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 1 });
+        const soil = new THREE.Mesh(soilGeo, soilMat);
+        soil.position.y = 0.12;
+        bed.add(soil);
+
+        // Flowers filling the bed
+        const flowerCount = Math.floor(width * depth * 1.5);
+        for (let i = 0; i < flowerCount; i++) {
+          const fx = (Math.random() - 0.5) * (width - 0.3);
+          const fz = (Math.random() - 0.5) * (depth - 0.3);
+
+          // Flower stem
+          const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.3 + Math.random() * 0.2, 4);
+          const stemMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
+          const stem = new THREE.Mesh(stemGeo, stemMat);
+          stem.position.set(fx, 0.35, fz);
+          bed.add(stem);
+
+          // Flower head (colored based on category)
+          const petalGeo = new THREE.SphereGeometry(0.08 + Math.random() * 0.04, 6, 6);
+          const petalMat = new THREE.MeshStandardMaterial({
+            color: color,
+            emissive: color,
+            emissiveIntensity: 0.2
+          });
+          const petal = new THREE.Mesh(petalGeo, petalMat);
+          petal.position.set(fx, 0.5 + Math.random() * 0.1, fz);
+          bed.add(petal);
+        }
+
+        // Category sign at the front (wooden two-post style)
+        const signZ = depth / 2 + 0.5;
+        const postGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.4, 6);
+
+        const leftPost = new THREE.Mesh(postGeo, this.mats.darkWood);
+        leftPost.position.set(-0.8, 0.7, signZ);
+        bed.add(leftPost);
+
+        const rightPost = new THREE.Mesh(postGeo, this.mats.darkWood);
+        rightPost.position.set(0.8, 0.7, signZ);
+        bed.add(rightPost);
+
+        // Sign board
+        const boardGeo = new THREE.BoxGeometry(1.8, 0.8, 0.08);
+        const board = new THREE.Mesh(boardGeo, this.mats.wood);
+        board.position.set(0, 1.2, signZ);
+        bed.add(board);
+
+        // Sign text
+        const signCanvas = document.createElement('canvas');
+        signCanvas.width = 512;
+        signCanvas.height = 256;
+        const signCtx = signCanvas.getContext('2d')!;
+        signCtx.fillStyle = '#5c4033';
+        signCtx.fillRect(0, 0, 512, 256);
+        signCtx.fillStyle = '#fff';
+        signCtx.font = 'bold 64px Arial';
+        signCtx.textAlign = 'center';
+        signCtx.textBaseline = 'middle';
+        signCtx.fillText(category, 256, 128);
+
+        const signTexture = new THREE.CanvasTexture(signCanvas);
+        const signTextMat = new THREE.MeshBasicMaterial({ map: signTexture });
+        const signText = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.7), signTextMat);
+        signText.position.set(0, 1.2, signZ + 0.05);
+        bed.add(signText);
+
+        // Skill logos mapping
+        const skillLogos: Record<string, string> = {
+          'PHP': phpLogo,
+          'Node.js': nodejsLogo,
+        };
+
+        // Floating skill icons above the bed
+        const iconSpacing = width / (skills.length + 1);
+        skills.forEach((skill, i) => {
+          const iconX = -width / 2 + iconSpacing * (i + 1);
+          const iconGroup = new THREE.Group();
+
+          // Glowing orb base
+          const orbGeo = new THREE.SphereGeometry(0.3, 16, 16);
+          const orbMat = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            emissive: color,
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0.8
+          });
+          const orb = new THREE.Mesh(orbGeo, orbMat);
+          iconGroup.add(orb);
+
+          // Check if we have a logo for this skill
+          const logoUrl = skillLogos[skill];
+          if (logoUrl) {
+            // Use image texture for skills with logos
+            const textureLoader = new THREE.TextureLoader();
+            const logoTexture = textureLoader.load(logoUrl);
+            const logoMat = new THREE.MeshBasicMaterial({
+              map: logoTexture,
+              transparent: true,
+              side: THREE.DoubleSide
+            });
+            const logo = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), logoMat);
+            logo.position.y = 0.8;
+            iconGroup.add(logo);
+          } else {
+            // Skill label panel (text fallback)
+            const labelCanvas = document.createElement('canvas');
+            labelCanvas.width = 256;
+            labelCanvas.height = 128;
+            const labelCtx = labelCanvas.getContext('2d')!;
+
+            // Rounded rect background
+            labelCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            labelCtx.fillRect(0, 0, 256, 128);
+
+            // Border
+            labelCtx.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
+            labelCtx.lineWidth = 8;
+            labelCtx.strokeRect(4, 4, 248, 120);
+
+            // Skill name
+            labelCtx.fillStyle = '#333333';
+            labelCtx.font = 'bold 36px Arial';
+            labelCtx.textAlign = 'center';
+            labelCtx.textBaseline = 'middle';
+            labelCtx.fillText(skill, 128, 64);
+
+            const labelTexture = new THREE.CanvasTexture(labelCanvas);
+            const labelMat = new THREE.MeshBasicMaterial({
+              map: labelTexture,
+              transparent: true,
+              side: THREE.DoubleSide
+            });
+            const label = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), labelMat);
+            label.position.y = 0.6;
+            iconGroup.add(label);
+          }
+
+          // Light beam connecting to bed
+          const beamGeo = new THREE.CylinderGeometry(0.02, 0.08, 2, 8);
+          const beamMat = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.3
+          });
+          const beam = new THREE.Mesh(beamGeo, beamMat);
+          beam.position.y = -1.2;
+          iconGroup.add(beam);
+
+          iconGroup.position.set(iconX, 3, 0);
+          iconGroup.userData.isFloatingSkill = true;
+          iconGroup.userData.baseY = 3;
+          iconGroup.userData.phaseOffset = i * 0.5;
+          bed.add(iconGroup);
+        });
+
+        bed.position.set(centerX, Terrain.getTerrainHeight(centerX, centerZ), centerZ);
+        bed.rotation.y = Math.PI; // Face towards portal
+        return bed;
+      };
+
+      // Seven flower beds: 4 on top, 3 on bottom
+      const bedWidth = 9;
+      const bedDepth = 5;
+      const spacingZ = 12;
+
+      // Top row (4 beds)
+      const topSpacing = 12;
+      const topOffset = -1.5 * topSpacing;
+
+      // Languages
+      objects.push(createFlowerBed(
+        topOffset, -spacingZ / 2,
+        bedWidth, bedDepth,
+        'Languages',
+        ['PHP', 'Node.js', 'Python', 'Java', 'Go', 'C#', 'TypeScript', 'Dart'],
+        colors.languages
+      ));
+
+      // Frontend Frameworks
+      objects.push(createFlowerBed(
+        topOffset + topSpacing, -spacingZ / 2,
+        bedWidth, bedDepth,
+        'Frontend',
+        ['React', 'Angular', 'Next.js', 'Bootstrap'],
+        colors.frameworks
+      ));
+
+      // Backend Frameworks
+      objects.push(createFlowerBed(
+        topOffset + topSpacing * 2, -spacingZ / 2,
+        bedWidth, bedDepth,
+        'Backend',
+        ['Laravel', 'NestJS', 'Flask', 'FastAPI', '.NET'],
+        colors.frameworks
+      ));
+
+      // Mobile
+      objects.push(createFlowerBed(
+        topOffset + topSpacing * 3, -spacingZ / 2,
+        bedWidth, bedDepth,
+        'Mobile',
+        ['Flutter', 'Ionic', 'React Native'],
+        colors.mobile
+      ));
+
+      // Bottom row (3 beds)
+      const bottomSpacing = 14;
+
+      // Cloud
+      objects.push(createFlowerBed(
+        -bottomSpacing, spacingZ / 2,
+        bedWidth, bedDepth,
+        'Cloud',
+        ['AWS', 'GCP', 'DigitalOcean'],
+        colors.cloud
+      ));
+
+      // Data
+      objects.push(createFlowerBed(
+        0, spacingZ / 2,
+        bedWidth, bedDepth,
+        'Data',
+        ['Postgres', 'MySQL', 'MongoDB', 'Redis', 'DynamoDB'],
+        colors.data
+      ));
+
+      // Infrastructure
+      objects.push(createFlowerBed(
+        bottomSpacing, spacingZ / 2,
+        bedWidth, bedDepth,
+        'Infrastructure',
+        ['Docker', 'K8s', 'GitHub', 'GitLab', 'Linux', 'Git', 'Nginx', 'RabbitMQ'],
+        colors.infrastructure
+      ));
+
+      // Central gazebo/focal point
+      const gazebo = new THREE.Group();
+
+      // Base platform
+      const platformGeo = new THREE.CylinderGeometry(2.5, 2.8, 0.3, 8);
+      const platformMat = new THREE.MeshStandardMaterial({ color: 0x666666 });
+      const platform = new THREE.Mesh(platformGeo, platformMat);
+      platform.position.y = 0.15;
+      gazebo.add(platform);
+
+      // Central pillar
+      const pillarGeo = new THREE.CylinderGeometry(0.3, 0.4, 3, 8);
+      const pillar = new THREE.Mesh(pillarGeo, this.mats.stone);
+      pillar.position.y = 1.8;
+      gazebo.add(pillar);
+
+      // Top ornament
+      const topGeo = new THREE.OctahedronGeometry(0.5);
+      const topMat = new THREE.MeshStandardMaterial({
+        color: 0xffd700,
+        emissive: 0xffa500,
+        emissiveIntensity: 0.3,
+        metalness: 0.8
+      });
+      const top = new THREE.Mesh(topGeo, topMat);
+      top.position.y = 3.6;
+      top.rotation.y = Math.PI / 4;
+      gazebo.add(top);
+
+      gazebo.position.set(0, Terrain.getTerrainHeight(0, 0), 0);
+      objects.push(gazebo);
+
+      // Paths connecting the beds
+      const pathPositions = [
+        // Horizontal paths
+        ...Array.from({ length: 8 }, (_, i) => ({ x: -4 + i * 1.2, z: 0 })),
+        // Vertical paths
+        ...Array.from({ length: 8 }, (_, i) => ({ x: 0, z: -4 + i * 1.2 })),
+      ];
+      for (const pos of pathPositions) {
+        const stone = this.createSteppingStone();
+        stone.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z) + 0.02, pos.z);
+        objects.push(stone);
+      }
+
+      // Trees surrounding
+      for (let i = 0; i < 40; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 32 + Math.random() * 15;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+        if (this.isNearPortal(x, z)) continue;
+        const scale = 0.6 + Math.random() * 0.8;
+        const tree = this.createTree(scale, 0.5 + Math.random() * 0.5);
+        tree.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        tree.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(tree);
+      }
+
+      // Lanterns around the beds
+      const lanternPositions = [
+        { x: -24, z: -10 }, { x: -24, z: 10 },
+        { x: 24, z: -10 }, { x: 24, z: 10 },
+        { x: -10, z: 0 }, { x: 10, z: 0 },
+        { x: 0, z: -10 }, { x: 0, z: 10 },
+      ];
+      for (const pos of lanternPositions) {
+        const lantern = this.createLantern();
+        lantern.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        objects.push(lantern);
+      }
+
+      // Fireflies
+      objects.push(this.createFireflyCluster(0, 0, 45));
+      objects.push(this.createFireflyCluster(-22, -8, 15));
+      objects.push(this.createFireflyCluster(22, 8, 15));
+
+      // Benches to sit and admire
+      const bench1 = this.createBench();
+      bench1.position.set(-28, Terrain.getTerrainHeight(-28, 0), 0);
+      bench1.rotation.y = Math.PI / 2;
+      objects.push(bench1);
+
+      const bench2 = this.createBench();
+      bench2.position.set(28, Terrain.getTerrainHeight(28, 0), 0);
+      bench2.rotation.y = -Math.PI / 2;
+      objects.push(bench2);
+
       return objects;
     }
 

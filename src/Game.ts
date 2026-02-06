@@ -123,7 +123,7 @@ export class Game {
     },
     {
       title: '2026',
-      text: 'To be continued...',
+      text: '14 years of programming. 9 years in the industry. To be continued...',
       layout: 'text-only'
     },
   ];
