@@ -150,8 +150,14 @@ export class PlanetManager {
       this.scene.add(this.terminal);
     }
 
-    // Reset player position
-    this.playerController.resetPosition(this.currentFlatRadius);
+    // Reset player position (story planet spawns near portal, facing the sign)
+    if (planetId === 'story') {
+      this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI);
+      this.playerController.setMaxDistance(35); // Smaller boundary for cinema
+    } else {
+      this.playerController.setMaxDistance(90); // Default boundary
+      this.playerController.resetPosition(this.currentFlatRadius);
+    }
   }
 
   public checkPortalCollision(): void {

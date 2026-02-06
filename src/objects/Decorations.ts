@@ -2045,6 +2045,546 @@ export class Decorations {
         treesPlaced++;
       }
 
+      // === STRING LIGHTS ===
+      // Posts arranged in a horseshoe shape around the seating, avoiding screen
+      const stringLightRadius = 22;
+      const lightPostPositions: { x: number; z: number }[] = [];
+
+      // Create posts in a horseshoe - from one side of screen, around back, to other side
+      for (let i = 0; i < 14; i++) {
+        // Start at angle pointing toward +z side of screen, go around the back
+        const startAngle = Math.PI * 0.35; // Start near screen edge (+z side)
+        const endAngle = Math.PI * 2 - Math.PI * 0.35; // End near screen edge (-z side)
+        const angle = startAngle + (i / 13) * (endAngle - startAngle);
+
+        const x = Math.cos(angle) * stringLightRadius;
+        const z = Math.sin(angle) * stringLightRadius;
+
+        // Skip if near portal
+        if (this.isNearPortal(x, z)) continue;
+
+        lightPostPositions.push({ x, z });
+
+        // Post
+        const postGeo = new THREE.CylinderGeometry(0.06, 0.08, 3.5, 6);
+        const post = new THREE.Mesh(postGeo, this.mats.darkWood);
+        post.position.set(x, Terrain.getTerrainHeight(x, z) + 1.75, z);
+        objects.push(post);
+      }
+
+      // String lights between adjacent posts (glowing bulbs) - don't loop back
+      for (let i = 0; i < lightPostPositions.length - 1; i++) {
+        const start = lightPostPositions[i];
+        const end = lightPostPositions[i + 1];
+
+        const bulbCount = 6;
+        for (let j = 1; j < bulbCount; j++) {
+          const t = j / bulbCount;
+          const x = start.x + (end.x - start.x) * t;
+          const z = start.z + (end.z - start.z) * t;
+          const sag = Math.sin(t * Math.PI) * 0.4; // Slight sag in the middle
+          const y = 3.5 - sag;
+
+          const bulbGeo = new THREE.SphereGeometry(0.08, 8, 8);
+          const bulbMat = new THREE.MeshStandardMaterial({
+            color: 0xffffaa,
+            emissive: 0xffaa44,
+            emissiveIntensity: 1.5
+          });
+          const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+          bulb.position.set(x, Terrain.getTerrainHeight(x, z) + y, z);
+          objects.push(bulb);
+        }
+      }
+
+      // === "NOW SHOWING" SIGN ===
+      const nowShowingSign = new THREE.Group();
+
+      // Posts
+      const signPostGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.8, 6);
+      const leftSignPost = new THREE.Mesh(signPostGeo, this.mats.darkWood);
+      leftSignPost.position.set(-0.7, 0.9, 0);
+      nowShowingSign.add(leftSignPost);
+
+      const rightSignPost = new THREE.Mesh(signPostGeo, this.mats.darkWood);
+      rightSignPost.position.set(0.7, 0.9, 0);
+      nowShowingSign.add(rightSignPost);
+
+      // Sign board
+      const signBoardGeo = new THREE.BoxGeometry(1.6, 0.6, 0.08);
+      const signBoard = new THREE.Mesh(signBoardGeo, this.mats.wood);
+      signBoard.position.y = 1.6;
+      nowShowingSign.add(signBoard);
+
+      // Canvas texture for "Now Showing"
+      const signCanvas = document.createElement('canvas');
+      signCanvas.width = 512;
+      signCanvas.height = 192;
+      const signCtx = signCanvas.getContext('2d')!;
+      signCtx.fillStyle = '#5c4033';
+      signCtx.fillRect(0, 0, 512, 192);
+      signCtx.fillStyle = '#ffeeaa';
+      signCtx.font = 'bold 56px Arial';
+      signCtx.textAlign = 'center';
+      signCtx.textBaseline = 'middle';
+      signCtx.fillText('Now Showing', 256, 96);
+
+      const signTexture = new THREE.CanvasTexture(signCanvas);
+      const signTextMat = new THREE.MeshBasicMaterial({ map: signTexture });
+      const signTextPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.5), signTextMat);
+      signTextPlane.position.set(0, 1.6, 0.05);
+      nowShowingSign.add(signTextPlane);
+
+      const signX = 0;
+      const signZ = -6;
+      nowShowingSign.position.set(signX, Terrain.getTerrainHeight(signX, signZ), signZ);
+      nowShowingSign.rotation.y = Math.PI; // Face toward portal
+      objects.push(nowShowingSign);
+
+      // === SPEAKER STANDS ===
+      const createSpeaker = (x: number, z: number, rotY: number) => {
+        const speaker = new THREE.Group();
+
+        // Stand pole
+        const poleGeo = new THREE.CylinderGeometry(0.12, 0.15, 2.2, 8);
+        const pole = new THREE.Mesh(poleGeo, this.mats.darkMetal);
+        pole.position.y = 1.1;
+        speaker.add(pole);
+
+        // Base
+        const baseGeo = new THREE.CylinderGeometry(0.5, 0.55, 0.15, 8);
+        const base = new THREE.Mesh(baseGeo, this.mats.darkMetal);
+        base.position.y = 0.08;
+        speaker.add(base);
+
+        // Speaker box (bigger)
+        const boxGeo = new THREE.BoxGeometry(1.0, 1.2, 0.6);
+        const box = new THREE.Mesh(boxGeo, this.mats.black);
+        box.position.y = 2.8;
+        speaker.add(box);
+
+        // Speaker cones (two larger ones)
+        const coneGeo = new THREE.CircleGeometry(0.3, 16);
+        const coneMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+        const coneTop = new THREE.Mesh(coneGeo, coneMat);
+        coneTop.position.set(0, 3.1, 0.31);
+        speaker.add(coneTop);
+
+        const coneBottom = new THREE.Mesh(coneGeo, coneMat);
+        coneBottom.position.set(0, 2.5, 0.31);
+        speaker.add(coneBottom);
+
+        speaker.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        speaker.rotation.y = rotY;
+        return speaker;
+      };
+
+      objects.push(createSpeaker(10, -12, -0.3));
+      objects.push(createSpeaker(10, 12, 0.3));
+
+      // === FIREFLIES ===
+      const storyFireflies = this.createFireflyCluster(5, 0, 25);
+      objects.push(storyFireflies);
+
+      // Add another cluster near the trees
+      const treeFireflies = this.createFireflyCluster(-8, 5, 15);
+      objects.push(treeFireflies);
+
+      // More fireflies deeper in the trees
+      objects.push(this.createFireflyCluster(-18, -10, 20));
+      objects.push(this.createFireflyCluster(-15, 12, 18));
+      objects.push(this.createFireflyCluster(20, -15, 15));
+      objects.push(this.createFireflyCluster(18, 18, 12));
+
+      // === DIRECTOR'S CHAIR ===
+      const directorChair = new THREE.Group();
+
+      // Chair legs (X-frame)
+      const legMat = this.mats.darkWood;
+      const legGeo = new THREE.BoxGeometry(0.06, 1.0, 0.06);
+
+      // Front legs
+      const frontLeftLeg = new THREE.Mesh(legGeo, legMat);
+      frontLeftLeg.position.set(-0.25, 0.5, 0.2);
+      frontLeftLeg.rotation.x = 0.15;
+      directorChair.add(frontLeftLeg);
+
+      const frontRightLeg = new THREE.Mesh(legGeo, legMat);
+      frontRightLeg.position.set(0.25, 0.5, 0.2);
+      frontRightLeg.rotation.x = 0.15;
+      directorChair.add(frontRightLeg);
+
+      // Back legs
+      const backLeftLeg = new THREE.Mesh(legGeo, legMat);
+      backLeftLeg.position.set(-0.25, 0.5, -0.2);
+      backLeftLeg.rotation.x = -0.15;
+      directorChair.add(backLeftLeg);
+
+      const backRightLeg = new THREE.Mesh(legGeo, legMat);
+      backRightLeg.position.set(0.25, 0.5, -0.2);
+      backRightLeg.rotation.x = -0.15;
+      directorChair.add(backRightLeg);
+
+      // Seat (canvas)
+      const seatGeo = new THREE.BoxGeometry(0.5, 0.05, 0.4);
+      const seatMat = new THREE.MeshStandardMaterial({ color: 0x1a3d1a }); // Dark green canvas
+      const seat = new THREE.Mesh(seatGeo, seatMat);
+      seat.position.y = 0.9;
+      directorChair.add(seat);
+
+      // Backrest
+      const backGeo = new THREE.BoxGeometry(0.5, 0.4, 0.05);
+      const back = new THREE.Mesh(backGeo, seatMat);
+      back.position.set(0, 1.2, -0.2);
+      directorChair.add(back);
+
+      // Armrests
+      const armGeo = new THREE.BoxGeometry(0.06, 0.06, 0.5);
+      const leftArm = new THREE.Mesh(armGeo, legMat);
+      leftArm.position.set(-0.28, 1.0, 0);
+      directorChair.add(leftArm);
+
+      const rightArm = new THREE.Mesh(armGeo, legMat);
+      rightArm.position.set(0.28, 1.0, 0);
+      directorChair.add(rightArm);
+
+      const chairX = -3;
+      const chairZ = 2;
+      directorChair.position.set(chairX, Terrain.getTerrainHeight(chairX, chairZ), chairZ);
+      directorChair.rotation.y = Math.PI / 2; // Facing the screen
+      objects.push(directorChair);
+
+      // Clapperboard near director's chair
+      const clapperboard = new THREE.Group();
+
+      // Main board
+      const boardGeo = new THREE.BoxGeometry(0.5, 0.4, 0.03);
+      const boardMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+      const mainBoard = new THREE.Mesh(boardGeo, boardMat);
+      clapperboard.add(mainBoard);
+
+      // Clapper (top hinged part) - black and white stripes
+      const clapperGeo = new THREE.BoxGeometry(0.5, 0.1, 0.025);
+      const clapperMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+      const clapper = new THREE.Mesh(clapperGeo, clapperMat);
+      clapper.position.set(0, 0.22, 0.01);
+      clapper.rotation.x = -0.15; // Slightly open
+      clapperboard.add(clapper);
+
+      // White stripes on clapper
+      const stripeGeo = new THREE.BoxGeometry(0.08, 0.1, 0.005);
+      const stripeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+      for (let i = 0; i < 3; i++) {
+        const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+        stripe.position.set(-0.15 + i * 0.15, 0.22, 0.025);
+        stripe.rotation.x = -0.15;
+        clapperboard.add(stripe);
+      }
+
+      // White area on main board for text
+      const textAreaGeo = new THREE.BoxGeometry(0.44, 0.3, 0.005);
+      const textAreaMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee });
+      const textArea = new THREE.Mesh(textAreaGeo, textAreaMat);
+      textArea.position.set(0, -0.03, 0.02);
+      clapperboard.add(textArea);
+
+      // Lines on the text area
+      const lineGeo = new THREE.BoxGeometry(0.4, 0.008, 0.002);
+      const lineMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+      for (let i = 0; i < 4; i++) {
+        const line = new THREE.Mesh(lineGeo, lineMat);
+        line.position.set(0, 0.08 - i * 0.07, 0.025);
+        clapperboard.add(line);
+      }
+
+      const clapX = -3.5;
+      const clapZ = 2.5;
+      clapperboard.position.set(clapX, Terrain.getTerrainHeight(clapX, clapZ) + 0.25, clapZ);
+      clapperboard.rotation.x = -0.3; // Leaning back slightly
+      clapperboard.rotation.y = 0.5; // Angled
+      objects.push(clapperboard);
+
+      // === OLD FILM CAMERA ON STAND ===
+      const filmCamera = new THREE.Group();
+
+      // Single pole stand
+      const poleGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.4, 8);
+      const pole = new THREE.Mesh(poleGeo, this.mats.darkMetal);
+      pole.position.y = 0.7;
+      filmCamera.add(pole);
+
+      // Base
+      const baseGeo = new THREE.CylinderGeometry(0.25, 0.3, 0.1, 12);
+      const base = new THREE.Mesh(baseGeo, this.mats.darkMetal);
+      base.position.y = 0.05;
+      filmCamera.add(base);
+
+      // Stand head
+      const headGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.12, 8);
+      const head = new THREE.Mesh(headGeo, this.mats.darkMetal);
+      head.position.y = 1.45;
+      filmCamera.add(head);
+
+      // Camera body (boxy old-style)
+      const cameraBodyGeo = new THREE.BoxGeometry(0.4, 0.3, 0.5);
+      const cameraBody = new THREE.Mesh(cameraBodyGeo, this.mats.black);
+      cameraBody.position.y = 1.65;
+      filmCamera.add(cameraBody);
+
+      // Film reels on top (rotated on X axis to stand upright)
+      const reelGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.04, 20);
+      const reelMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.4 });
+      const leftReel = new THREE.Mesh(reelGeo, reelMat);
+      leftReel.position.set(-0.12, 1.95, 0);
+      leftReel.rotation.x = Math.PI / 2;
+      filmCamera.add(leftReel);
+
+      const rightReel = new THREE.Mesh(reelGeo, reelMat);
+      rightReel.position.set(0.12, 1.95, 0);
+      rightReel.rotation.x = Math.PI / 2;
+      filmCamera.add(rightReel);
+
+      // Reel spokes
+      const spokeGeo = new THREE.BoxGeometry(0.25, 0.02, 0.01);
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI;
+        const leftSpoke = new THREE.Mesh(spokeGeo, this.mats.darkMetal);
+        leftSpoke.position.set(-0.12, 1.95, 0);
+        leftSpoke.rotation.x = Math.PI / 2;
+        leftSpoke.rotation.z = angle;
+        filmCamera.add(leftSpoke);
+
+        const rightSpoke = new THREE.Mesh(spokeGeo, this.mats.darkMetal);
+        rightSpoke.position.set(0.12, 1.95, 0);
+        rightSpoke.rotation.x = Math.PI / 2;
+        rightSpoke.rotation.z = angle;
+        filmCamera.add(rightSpoke);
+      }
+
+      // Lens housing
+      const lensHousingGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.2, 12);
+      const lensHousing = new THREE.Mesh(lensHousingGeo, this.mats.black);
+      lensHousing.position.set(0, 1.6, 0.35);
+      lensHousing.rotation.x = Math.PI / 2;
+      filmCamera.add(lensHousing);
+
+      // Lens glass
+      const lensGlassGeo = new THREE.CircleGeometry(0.06, 16);
+      const lensGlassMat = new THREE.MeshStandardMaterial({ color: 0x4488aa, metalness: 0.9, roughness: 0.1 });
+      const lensGlass = new THREE.Mesh(lensGlassGeo, lensGlassMat);
+      lensGlass.position.set(0, 1.6, 0.46);
+      filmCamera.add(lensGlass);
+
+      // Hand crank
+      const crankArmGeo = new THREE.BoxGeometry(0.15, 0.02, 0.02);
+      const crankArm = new THREE.Mesh(crankArmGeo, this.mats.darkMetal);
+      crankArm.position.set(0.28, 1.65, 0);
+      filmCamera.add(crankArm);
+
+      const crankHandleGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.06, 8);
+      const crankHandle = new THREE.Mesh(crankHandleGeo, this.mats.wood);
+      crankHandle.position.set(0.35, 1.65, 0);
+      filmCamera.add(crankHandle);
+
+      const cameraX = -6;
+      const cameraZ = -3;
+      filmCamera.position.set(cameraX, Terrain.getTerrainHeight(cameraX, cameraZ), cameraZ);
+      filmCamera.rotation.y = Math.PI / 3; // Pointing toward screen
+      objects.push(filmCamera);
+
+      // === SNACK STAND ===
+      const snackStand = new THREE.Group();
+
+      // Cart base/counter
+      const counterGeo = new THREE.BoxGeometry(1.2, 0.1, 0.8);
+      const counter = new THREE.Mesh(counterGeo, this.mats.wood);
+      counter.position.y = 1.0;
+      snackStand.add(counter);
+
+      // Cart body
+      const bodyGeo = new THREE.BoxGeometry(1.2, 0.9, 0.8);
+      const body = new THREE.Mesh(bodyGeo, this.mats.lightWood);
+      body.position.y = 0.5;
+      snackStand.add(body);
+
+      // Wheels
+      const wheelGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.08, 12);
+      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+      const wheelPositions = [
+        { x: -0.5, z: 0.35 },
+        { x: 0.5, z: 0.35 },
+        { x: -0.5, z: -0.35 },
+        { x: 0.5, z: -0.35 },
+      ];
+      for (const pos of wheelPositions) {
+        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+        wheel.position.set(pos.x, 0.15, pos.z);
+        wheel.rotation.z = Math.PI / 2;
+        snackStand.add(wheel);
+      }
+
+      // Canopy poles
+      const canopyPoleGeo = new THREE.CylinderGeometry(0.03, 0.03, 1.0, 6);
+      const canopyPolePositions = [
+        { x: -0.55, z: 0.35 },
+        { x: 0.55, z: 0.35 },
+        { x: -0.55, z: -0.35 },
+        { x: 0.55, z: -0.35 },
+      ];
+      for (const pos of canopyPolePositions) {
+        const canopyPole = new THREE.Mesh(canopyPoleGeo, this.mats.darkMetal);
+        canopyPole.position.set(pos.x, 1.55, pos.z);
+        snackStand.add(canopyPole);
+      }
+
+      // Canopy top
+      const canopyGeo = new THREE.BoxGeometry(1.3, 0.08, 0.9);
+      const canopyMat = new THREE.MeshStandardMaterial({ color: 0xcc3333 }); // Red and white stripes vibe
+      const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+      canopy.position.y = 2.1;
+      snackStand.add(canopy);
+
+      // Popcorn container on counter
+      const popcornGeo = new THREE.CylinderGeometry(0.12, 0.1, 0.25, 8);
+      const popcornMat = new THREE.MeshStandardMaterial({ color: 0xffeecc });
+      const popcorn = new THREE.Mesh(popcornGeo, popcornMat);
+      popcorn.position.set(-0.3, 1.2, 0);
+      snackStand.add(popcorn);
+
+      // Another container
+      const popcorn2 = new THREE.Mesh(popcornGeo, popcornMat);
+      popcorn2.position.set(0.3, 1.2, 0);
+      snackStand.add(popcorn2);
+
+      const standX = -10;
+      const standZ = 5;
+      snackStand.position.set(standX, Terrain.getTerrainHeight(standX, standZ), standZ);
+      snackStand.rotation.y = Math.PI / 4;
+      objects.push(snackStand);
+
+      // === BACK AREA FILL (behind projector) ===
+      // Extra benches at the back - facing the screen
+      const backBench1 = this.createBench();
+      backBench1.position.set(-12, Terrain.getTerrainHeight(-12, -4), -4);
+      backBench1.rotation.y = Math.PI / 2; // Face screen
+      objects.push(backBench1);
+
+      const backBench2 = this.createBench();
+      backBench2.position.set(-10, Terrain.getTerrainHeight(-10, 8), 8);
+      backBench2.rotation.y = Math.PI / 2; // Face screen
+      objects.push(backBench2);
+
+      // Some book stacks for film/story vibe
+      const backBooks1 = this.createBookStack();
+      backBooks1.position.set(-7, Terrain.getTerrainHeight(-7, -5), -5);
+      objects.push(backBooks1);
+
+      const backBooks2 = this.createBookStack();
+      backBooks2.position.set(-11, Terrain.getTerrainHeight(-11, 1), 1);
+      objects.push(backBooks2);
+
+      // Lanterns at the back
+      const backLantern1 = this.createLantern();
+      backLantern1.position.set(-14, Terrain.getTerrainHeight(-14, 6), 6);
+      objects.push(backLantern1);
+
+      const backLantern2 = this.createLantern();
+      backLantern2.position.set(-13, Terrain.getTerrainHeight(-13, -5), -5);
+      objects.push(backLantern2);
+
+      // === FOLIAGE ===
+      // Bushes around the edges
+      const bushPositions = [
+        { x: -8, z: 10 }, { x: -12, z: 8 }, { x: -15, z: 3 },
+        { x: -15, z: -3 }, { x: -12, z: -8 }, { x: -8, z: -10 },
+        { x: 10, z: 14 }, { x: 10, z: -14 },
+      ];
+      for (const pos of bushPositions) {
+        const bush = this.createBush();
+        bush.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        objects.push(bush);
+      }
+
+      // Flowers scattered around
+      const flowerPositions = [
+        { x: -5, z: 8 }, { x: -7, z: 10 }, { x: -9, z: 7 },
+        { x: -6, z: -7 }, { x: -8, z: -9 }, { x: -4, z: -10 },
+        { x: 11, z: 10 }, { x: 12, z: 8 }, { x: 11, z: -10 }, { x: 12, z: -8 },
+      ];
+      for (const pos of flowerPositions) {
+        const flower = this.createFlower();
+        flower.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        flower.scale.setScalar(0.7 + Math.random() * 0.4);
+        objects.push(flower);
+      }
+
+      // Tall grass patches
+      const grassPositions = [
+        { x: -10, z: 12 }, { x: -14, z: 8 }, { x: -16, z: 0 },
+        { x: -14, z: -8 }, { x: -10, z: -12 },
+        { x: 8, z: 15 }, { x: 8, z: -15 },
+      ];
+      for (const pos of grassPositions) {
+        const grass = this.createTallGrass();
+        grass.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        grass.scale.setScalar(0.8 + Math.random() * 0.3);
+        objects.push(grass);
+      }
+
+      // Mushrooms near trees
+      const mushroomPositions = [
+        { x: -18, z: 5 }, { x: -17, z: -6 }, { x: -20, z: 0 },
+        { x: 22, z: 12 }, { x: 23, z: -10 },
+      ];
+      for (const pos of mushroomPositions) {
+        const mushroom = this.createMushroom();
+        mushroom.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        objects.push(mushroom);
+      }
+
+      // Rocks scattered around
+      const rockPositions = [
+        { x: -16, z: 10 }, { x: -18, z: -8 }, { x: -20, z: 2 },
+        { x: 20, z: 15 }, { x: 22, z: -12 },
+      ];
+      for (const pos of rockPositions) {
+        const rock = this.createRock(0.3 + Math.random() * 0.4);
+        rock.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z) + 0.15, pos.z);
+        objects.push(rock);
+      }
+
+      // === EXTRA CINEMA TOUCHES ===
+      // Picnic blanket on the ground
+      const blanketGeo = new THREE.PlaneGeometry(2.5, 2);
+      const blanketMat = new THREE.MeshStandardMaterial({
+        color: 0x994444,
+        roughness: 0.9,
+        side: THREE.DoubleSide
+      });
+      const blanket = new THREE.Mesh(blanketGeo, blanketMat);
+      blanket.rotation.x = -Math.PI / 2;
+      blanket.position.set(-8, Terrain.getTerrainHeight(-8, 0) + 0.02, 0);
+      blanket.rotation.z = 0.1;
+      objects.push(blanket);
+
+      // Cushions on the blanket
+      const cushionGeo = new THREE.BoxGeometry(0.4, 0.15, 0.4);
+      const cushionColors = [0x446688, 0x668844, 0x886644];
+      for (let i = 0; i < 3; i++) {
+        const cushionMat = new THREE.MeshStandardMaterial({ color: cushionColors[i], roughness: 0.9 });
+        const cushion = new THREE.Mesh(cushionGeo, cushionMat);
+        cushion.position.set(-8 + (i - 1) * 0.6, Terrain.getTerrainHeight(-8, 0) + 0.1, 0.3);
+        cushion.rotation.y = Math.random() * 0.3 - 0.15;
+        objects.push(cushion);
+      }
+
+      // Drink cooler near snack stand
+      const coolerGeo = new THREE.BoxGeometry(0.6, 0.4, 0.4);
+      const coolerMat = new THREE.MeshStandardMaterial({ color: 0x2244aa });
+      const cooler = new THREE.Mesh(coolerGeo, coolerMat);
+      cooler.position.set(-11, Terrain.getTerrainHeight(-11, 6) + 0.2, 6);
+      objects.push(cooler);
+
       return objects;
     }
 

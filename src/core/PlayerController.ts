@@ -29,6 +29,7 @@ export class PlayerController {
   public readonly playerHeight = 2;
 
   private isOnGround = true;
+  private maxDistance = 90;
 
   // Interaction callback
   private onInteract: (() => void) | null = null;
@@ -162,21 +163,25 @@ export class PlayerController {
     }
 
     // Keep player in bounds
-    const maxDistance = 90;
     const playerDist = Math.sqrt(
       this.camera.position.x * this.camera.position.x +
         this.camera.position.z * this.camera.position.z
     );
-    if (playerDist > maxDistance) {
-      const scale = maxDistance / playerDist;
+    if (playerDist > this.maxDistance) {
+      const scale = this.maxDistance / playerDist;
       this.camera.position.x *= scale;
       this.camera.position.z *= scale;
     }
   }
 
-  public resetPosition(flatRadius: number): void {
-    const spawnTerrainY = Terrain.getTerrainHeight(0, 0, flatRadius);
-    this.camera.position.set(0, spawnTerrainY + this.playerHeight, 0);
+  public setMaxDistance(distance: number): void {
+    this.maxDistance = distance;
+  }
+
+  public resetPosition(flatRadius: number, spawnX: number = 0, spawnZ: number = 0, facingAngle: number = 0): void {
+    const spawnTerrainY = Terrain.getTerrainHeight(spawnX, spawnZ, flatRadius);
+    this.camera.position.set(spawnX, spawnTerrainY + this.playerHeight, spawnZ);
+    this.camera.rotation.set(0, facingAngle, 0);
     this.velocity.set(0, 0, 0);
     this.isOnGround = true;
   }

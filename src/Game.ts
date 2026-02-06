@@ -15,7 +15,7 @@ import childhoodImage from './assets/childhood.png';
 import javaImage from './assets/java.svg';
 import image2014 from './assets/2014.jpg';
 import image2016 from './assets/2016.png';
-import image2017 from './assets/2017.png';
+import image2017 from './assets/2017.jpeg';
 import image2019 from './assets/2019.jpg';
 import image2020 from './assets/2020.svg';
 import image2022 from './assets/2022.jpg';
