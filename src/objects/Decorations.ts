@@ -3645,20 +3645,9 @@ export class Decorations {
             iconGroup.add(label);
           }
 
-          // Light beam connecting to bed
-          const beamGeo = new THREE.CylinderGeometry(0.02, 0.08, 2, 8);
-          const beamMat = new THREE.MeshBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: 0.3
-          });
-          const beam = new THREE.Mesh(beamGeo, beamMat);
-          beam.position.y = -1.2;
-          iconGroup.add(beam);
-
-          iconGroup.position.set(iconX, 3, 0);
+          iconGroup.position.set(iconX, 1.5, 0);
           iconGroup.userData.isFloatingSkill = true;
-          iconGroup.userData.baseY = 3;
+          iconGroup.userData.baseY = 1.5;
           iconGroup.userData.phaseOffset = i * 0.5;
           bed.add(iconGroup);
         });
@@ -3668,75 +3657,66 @@ export class Decorations {
         return bed;
       };
 
-      // Seven flower beds: 4 on top, 3 on bottom
-      const bedWidth = 9;
+      // Seven flower beds: 2 columns x 4 rows (last row has 1 centered)
+      const bedWidth = 12;
       const bedDepth = 5;
-      const spacingZ = 12;
+      const colSpacing = 14;  // horizontal spacing between columns
+      const rowSpacing = 9;   // vertical spacing between rows
 
-      // Top row (4 beds)
-      const topSpacing = 12;
-      const topOffset = -1.5 * topSpacing;
-
-      // Languages
+      // Row 1 (closest to player)
       objects.push(createFlowerBed(
-        topOffset, -spacingZ / 2,
+        -colSpacing / 2, -rowSpacing * 1.5,
         bedWidth, bedDepth,
         'Languages',
         ['PHP', 'Node.js', 'Python', 'Java', 'Go', 'C#', 'TypeScript', 'Dart'],
         colors.languages
       ));
 
-      // Frontend Frameworks
       objects.push(createFlowerBed(
-        topOffset + topSpacing, -spacingZ / 2,
+        colSpacing / 2, -rowSpacing * 1.5,
         bedWidth, bedDepth,
         'Frontend',
         ['React', 'Angular', 'Next.js', 'Bootstrap'],
         colors.frameworks
       ));
 
-      // Backend Frameworks
+      // Row 2
       objects.push(createFlowerBed(
-        topOffset + topSpacing * 2, -spacingZ / 2,
+        -colSpacing / 2, -rowSpacing * 0.5,
         bedWidth, bedDepth,
         'Backend',
         ['Laravel', 'NestJS', 'Flask', 'FastAPI', '.NET'],
         colors.frameworks
       ));
 
-      // Mobile
       objects.push(createFlowerBed(
-        topOffset + topSpacing * 3, -spacingZ / 2,
+        colSpacing / 2, -rowSpacing * 0.5,
         bedWidth, bedDepth,
         'Mobile',
         ['Flutter', 'Ionic', 'React Native'],
         colors.mobile
       ));
 
-      // Bottom row (3 beds)
-      const bottomSpacing = 14;
-
-      // Cloud
+      // Row 3
       objects.push(createFlowerBed(
-        -bottomSpacing, spacingZ / 2,
+        -colSpacing / 2, rowSpacing * 0.5,
         bedWidth, bedDepth,
         'Cloud',
         ['AWS', 'GCP', 'DigitalOcean'],
         colors.cloud
       ));
 
-      // Data
       objects.push(createFlowerBed(
-        0, spacingZ / 2,
+        colSpacing / 2, rowSpacing * 0.5,
         bedWidth, bedDepth,
         'Data',
         ['Postgres', 'MySQL', 'MongoDB', 'Redis', 'DynamoDB'],
         colors.data
       ));
 
-      // Infrastructure
+      // Row 4 (furthest from player, centered)
       objects.push(createFlowerBed(
-        bottomSpacing, spacingZ / 2,
+        0, rowSpacing * 1.5,
         bedWidth, bedDepth,
         'Infrastructure',
         ['Docker', 'K8s', 'GitHub', 'GitLab', 'Linux', 'Git', 'Nginx', 'RabbitMQ'],
@@ -3791,7 +3771,7 @@ export class Decorations {
       // Trees surrounding
       for (let i = 0; i < 40; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 32 + Math.random() * 15;
+        const distance = 24 + Math.random() * 15;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
         if (this.isNearPortal(x, z)) continue;
@@ -3804,9 +3784,9 @@ export class Decorations {
 
       // Lanterns around the beds
       const lanternPositions = [
-        { x: -24, z: -10 }, { x: -24, z: 10 },
-        { x: 24, z: -10 }, { x: 24, z: 10 },
-        { x: -10, z: 0 }, { x: 10, z: 0 },
+        { x: -16, z: -18 }, { x: 16, z: -18 },
+        { x: -16, z: 18 }, { x: 16, z: 18 },
+        { x: -16, z: 0 }, { x: 16, z: 0 },
         { x: 0, z: -10 }, { x: 0, z: 10 },
       ];
       for (const pos of lanternPositions) {
@@ -3816,18 +3796,18 @@ export class Decorations {
       }
 
       // Fireflies
-      objects.push(this.createFireflyCluster(0, 0, 45));
-      objects.push(this.createFireflyCluster(-22, -8, 15));
-      objects.push(this.createFireflyCluster(22, 8, 15));
+      objects.push(this.createFireflyCluster(0, 0, 40));
+      objects.push(this.createFireflyCluster(-12, -15, 15));
+      objects.push(this.createFireflyCluster(12, 15, 15));
 
       // Benches to sit and admire
       const bench1 = this.createBench();
-      bench1.position.set(-28, Terrain.getTerrainHeight(-28, 0), 0);
+      bench1.position.set(-18, Terrain.getTerrainHeight(-18, 0), 0);
       bench1.rotation.y = Math.PI / 2;
       objects.push(bench1);
 
       const bench2 = this.createBench();
-      bench2.position.set(28, Terrain.getTerrainHeight(28, 0), 0);
+      bench2.position.set(18, Terrain.getTerrainHeight(18, 0), 0);
       bench2.rotation.y = -Math.PI / 2;
       objects.push(bench2);
 
