@@ -53,7 +53,7 @@ export class Game {
   private isNearScreen: boolean = false;
   private screenInteractionDistance: number = 20;
   private screenPosition = { x: 15, z: 0 }; // Match position from Decorations.ts
-  private projectorPosition = { x: 0, z: 0 }; // Projector position
+  private projectorPosition = { x: -3, z: 0 }; // Projector position
   private projectorInteractionDistance: number = 4;
   private isNearProjector: boolean = false;
   private currentSlide: number = 0;
@@ -122,8 +122,8 @@ export class Game {
       layout: 'image-top'
     },
     {
-      title: 'The Journey Continues',
-      text: 'These are the highlights. The real story lives in the gaps.',
+      title: '2026',
+      text: 'To be continued...',
       layout: 'text-only'
     },
   ];

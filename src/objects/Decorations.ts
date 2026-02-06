@@ -1962,7 +1962,7 @@ export class Decorations {
       projector.add(standBase);
 
       // Position projector further back from screen
-      const projX = 0;
+      const projX = -3;
       const projZ = 0;
       projector.position.set(projX, Terrain.getTerrainHeight(projX, projZ) + 1.6, projZ);
       // No rotation needed - projector faces +X by default, screen is at +X
@@ -1996,18 +1996,53 @@ export class Decorations {
         objects.push(lantern);
       }
 
-      // Surrounding trees for enclosed feeling (avoid portal area at z=-18)
-      for (let i = 0; i < 20; i++) {
-        const angle = (i / 20) * Math.PI * 2;
-        const dist = 20 + Math.random() * 4;
-        const x = Math.cos(angle) * dist;
-        const z = Math.sin(angle) * dist;
+      // Helper to check if too close to screen (screen at x=15, z=0, 20 wide)
+      const isNearScreen = (x: number, z: number): boolean => {
+        return x > 10 && x < 25 && z > -12 && z < 12;
+      };
+
+      // Tree spacing like home world
+      const minTreeSpacing = 6;
+      const treePositions: { x: number; z: number }[] = [];
+
+      const isTooCloseToOtherTrees = (x: number, z: number): boolean => {
+        for (const pos of treePositions) {
+          const dx = x - pos.x;
+          const dz = z - pos.z;
+          if (dx * dx + dz * dz < minTreeSpacing * minTreeSpacing) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Trees surrounding the area (similar to home world approach)
+      let treesPlaced = 0;
+      let attempts = 0;
+      while (treesPlaced < 300 && attempts < 3000) {
+        attempts++;
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 24 + Math.random() * 15; // Start beyond portal distance
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        // Skip if too close to portal
         if (this.isNearPortal(x, z)) continue;
+
+        // Skip if too close to screen
+        if (isNearScreen(x, z)) continue;
+
+        // Skip if too close to another tree
+        if (isTooCloseToOtherTrees(x, z)) continue;
+
         const scale = 0.8 + Math.random() * 1.0;
         const tree = this.createTree(scale, 0.6 + Math.random() * 0.4);
         tree.position.set(x, Terrain.getTerrainHeight(x, z), z);
         tree.rotation.y = Math.random() * Math.PI * 2;
+        treePositions.push({ x, z });
         objects.push(tree);
+        treesPlaced++;
       }
 
       return objects;
