@@ -6,6 +6,12 @@ import { Terrain } from '../environment/Terrain';
 // Skill logos
 import phpLogo from '../assets/php.svg';
 import nodejsLogo from '../assets/nodejs.svg';
+import pythonLogo from '../assets/python.svg';
+import goLogo from '../assets/go.svg';
+import csharpLogo from '../assets/csharp.svg';
+import javaLogo from '../assets/java.svg';
+import typescriptLogo from '../assets/typescript.svg';
+import dartLogo from '../assets/dart.svg';
 
 export class Decorations {
   // ============================================
@@ -3577,6 +3583,12 @@ export class Decorations {
         const skillLogos: Record<string, string> = {
           'PHP': phpLogo,
           'Node.js': nodejsLogo,
+          'Python': pythonLogo,
+          'Go': goLogo,
+          'C#': csharpLogo,
+          'Java': javaLogo,
+          'TypeScript': typescriptLogo,
+          'Dart': dartLogo,
         };
 
         // Floating skill icons above the bed
@@ -3600,17 +3612,23 @@ export class Decorations {
           // Check if we have a logo for this skill
           const logoUrl = skillLogos[skill];
           if (logoUrl) {
-            // Use image texture for skills with logos
+            // Use image texture for skills with logos - load and use natural aspect ratio
             const textureLoader = new THREE.TextureLoader();
-            const logoTexture = textureLoader.load(logoUrl);
-            const logoMat = new THREE.MeshBasicMaterial({
-              map: logoTexture,
-              transparent: true,
-              side: THREE.DoubleSide
+            textureLoader.load(logoUrl, (logoTexture) => {
+              const img = logoTexture.image;
+              const aspect = img.width / img.height;
+              const height = 1.2;
+              const logoWidth = height * aspect;
+
+              const logoMat = new THREE.MeshBasicMaterial({
+                map: logoTexture,
+                transparent: true,
+                side: THREE.DoubleSide
+              });
+              const logo = new THREE.Mesh(new THREE.PlaneGeometry(logoWidth, height), logoMat);
+              logo.position.y = 0.8;
+              iconGroup.add(logo);
             });
-            const logo = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), logoMat);
-            logo.position.y = 0.8;
-            iconGroup.add(logo);
           } else {
             // Skill label panel (text fallback)
             const labelCanvas = document.createElement('canvas');
@@ -3658,10 +3676,10 @@ export class Decorations {
       };
 
       // Seven flower beds: 2 columns x 4 rows (last row has 1 centered)
-      const bedWidth = 12;
-      const bedDepth = 5;
-      const colSpacing = 14;  // horizontal spacing between columns
-      const rowSpacing = 9;   // vertical spacing between rows
+      const bedWidth = 28;
+      const bedDepth = 6;
+      const colSpacing = 32;  // horizontal spacing between columns
+      const rowSpacing = 14;  // vertical spacing between rows
 
       // Row 1 (closest to player)
       objects.push(createFlowerBed(
@@ -3676,7 +3694,7 @@ export class Decorations {
         colSpacing / 2, -rowSpacing * 1.5,
         bedWidth, bedDepth,
         'Frontend',
-        ['React', 'Angular', 'Next.js', 'Bootstrap'],
+        ['React', 'Angular', 'Next.js'],
         colors.frameworks
       ));
 
@@ -3723,24 +3741,24 @@ export class Decorations {
         colors.infrastructure
       ));
 
-      // Central gazebo/focal point
+      // Central gazebo/focal point (small)
       const gazebo = new THREE.Group();
 
       // Base platform
-      const platformGeo = new THREE.CylinderGeometry(2.5, 2.8, 0.3, 8);
+      const platformGeo = new THREE.CylinderGeometry(1.2, 1.4, 0.2, 8);
       const platformMat = new THREE.MeshStandardMaterial({ color: 0x666666 });
       const platform = new THREE.Mesh(platformGeo, platformMat);
-      platform.position.y = 0.15;
+      platform.position.y = 0.1;
       gazebo.add(platform);
 
       // Central pillar
-      const pillarGeo = new THREE.CylinderGeometry(0.3, 0.4, 3, 8);
+      const pillarGeo = new THREE.CylinderGeometry(0.15, 0.2, 1.8, 8);
       const pillar = new THREE.Mesh(pillarGeo, this.mats.stone);
-      pillar.position.y = 1.8;
+      pillar.position.y = 1;
       gazebo.add(pillar);
 
       // Top ornament
-      const topGeo = new THREE.OctahedronGeometry(0.5);
+      const topGeo = new THREE.OctahedronGeometry(0.3);
       const topMat = new THREE.MeshStandardMaterial({
         color: 0xffd700,
         emissive: 0xffa500,
@@ -3748,7 +3766,7 @@ export class Decorations {
         metalness: 0.8
       });
       const top = new THREE.Mesh(topGeo, topMat);
-      top.position.y = 3.6;
+      top.position.y = 2.1;
       top.rotation.y = Math.PI / 4;
       gazebo.add(top);
 
@@ -3771,7 +3789,7 @@ export class Decorations {
       // Trees surrounding
       for (let i = 0; i < 40; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 24 + Math.random() * 15;
+        const distance = 42 + Math.random() * 15;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
         if (this.isNearPortal(x, z)) continue;
@@ -3784,10 +3802,10 @@ export class Decorations {
 
       // Lanterns around the beds
       const lanternPositions = [
-        { x: -16, z: -18 }, { x: 16, z: -18 },
-        { x: -16, z: 18 }, { x: 16, z: 18 },
-        { x: -16, z: 0 }, { x: 16, z: 0 },
-        { x: 0, z: -10 }, { x: 0, z: 10 },
+        { x: -34, z: -26 }, { x: 34, z: -26 },
+        { x: -34, z: 26 }, { x: 34, z: 26 },
+        { x: -34, z: 0 }, { x: 34, z: 0 },
+        { x: 0, z: -14 }, { x: 0, z: 14 },
       ];
       for (const pos of lanternPositions) {
         const lantern = this.createLantern();
@@ -3796,18 +3814,18 @@ export class Decorations {
       }
 
       // Fireflies
-      objects.push(this.createFireflyCluster(0, 0, 40));
-      objects.push(this.createFireflyCluster(-12, -15, 15));
-      objects.push(this.createFireflyCluster(12, 15, 15));
+      objects.push(this.createFireflyCluster(0, 0, 50));
+      objects.push(this.createFireflyCluster(-28, -24, 15));
+      objects.push(this.createFireflyCluster(28, 24, 15));
 
       // Benches to sit and admire
       const bench1 = this.createBench();
-      bench1.position.set(-18, Terrain.getTerrainHeight(-18, 0), 0);
+      bench1.position.set(-38, Terrain.getTerrainHeight(-38, 0), 0);
       bench1.rotation.y = Math.PI / 2;
       objects.push(bench1);
 
       const bench2 = this.createBench();
-      bench2.position.set(18, Terrain.getTerrainHeight(18, 0), 0);
+      bench2.position.set(38, Terrain.getTerrainHeight(38, 0), 0);
       bench2.rotation.y = -Math.PI / 2;
       objects.push(bench2);
 

@@ -1,4 +1,10 @@
 https://commons.wikimedia.org/wiki/File:PHP-logo.svg
 https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_the_Open_University.svg
 https://commons.wikimedia.org/wiki/File:Node.js_logo.svg
+https://commons.wikimedia.org/wiki/File:Python-logo-notext.svg
+https://en.wikipedia.org/wiki/File:Java_programming_language_logo.svg
+https://commons.wikimedia.org/wiki/File:Go_Logo_Blue.svg
+https://commons.wikimedia.org/wiki/File:C_Sharp_Logo_2023.svg
+https://commons.wikimedia.org/wiki/File:Typescript.svg
+https://commons.wikimedia.org/wiki/File:Dart_programming_language_logo.svg
 
