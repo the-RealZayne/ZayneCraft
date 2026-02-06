@@ -17,6 +17,7 @@ import image2014 from './assets/2014.jpg';
 import image2016 from './assets/2016.png';
 import image2017 from './assets/2017.png';
 import image2019 from './assets/2019.jpg';
+import image2020 from './assets/2020.svg';
 import image2022 from './assets/2022.jpg';
 import image2025 from './assets/2025.jpeg';
 
@@ -100,6 +101,12 @@ export class Game {
       title: '2019',
       text: 'Completed my apprenticeship. Joined Orka Technology Group, later promoted to Senior Software Engineer.',
       image: image2019,
+      layout: 'image-top'
+    },
+    {
+      title: '2020',
+      text: 'Started a part-time BSc Computing + IT degree at The Open University.',
+      image: image2020,
       layout: 'image-top'
     },
     {
