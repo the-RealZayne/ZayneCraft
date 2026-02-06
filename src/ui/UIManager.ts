@@ -12,6 +12,9 @@ export class UIManager {
   public readonly slidePrompt: HTMLElement;
   public readonly creditsPrompt: HTMLElement;
   public readonly creditsPanel: HTMLElement;
+  public readonly screenFade: HTMLElement;
+
+  private isTransitioning = false;
 
   constructor() {
     this.instructions = document.getElementById('instructions')!;
@@ -24,6 +27,7 @@ export class UIManager {
     this.slidePrompt = document.getElementById('slide-prompt')!;
     this.creditsPrompt = document.getElementById('credits-prompt')!;
     this.creditsPanel = document.getElementById('credits-panel')!;
+    this.screenFade = document.getElementById('screen-fade')!;
 
     // Set profile image
     const avatarImg = this.hologramPanel.querySelector('.hologram-avatar img') as HTMLImageElement;
@@ -92,5 +96,33 @@ export class UIManager {
 
   public hideCreditsPanel(): void {
     this.creditsPanel.classList.remove('visible');
+  }
+
+  public isInTransition(): boolean {
+    return this.isTransitioning;
+  }
+
+  public fadeTransition(onMidpoint: () => void): void {
+    if (this.isTransitioning) return;
+
+    this.isTransitioning = true;
+
+    // Fade out
+    this.screenFade.classList.add('active');
+
+    // At midpoint (when fully black), execute callback and fade back in
+    setTimeout(() => {
+      onMidpoint();
+
+      // Fade back in
+      setTimeout(() => {
+        this.screenFade.classList.remove('active');
+
+        // Transition complete
+        setTimeout(() => {
+          this.isTransitioning = false;
+        }, 400);
+      }, 100);
+    }, 400);
   }
 }

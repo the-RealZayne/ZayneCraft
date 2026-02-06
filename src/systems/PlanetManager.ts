@@ -124,7 +124,7 @@ export class PlanetManager {
 
     connections.forEach((targetPlanet, index) => {
       const angle = angleStep * index - Math.PI / 2;
-      const portalDistance = planetId === 'skills' ? 30 : 18;
+      const portalDistance = planetId === 'skills' ? 35 : 18;
       const portal = Portal.create(targetPlanet, angle, portalDistance);
       this.scene.add(portal);
       this.portals.push(portal);
@@ -156,7 +156,7 @@ export class PlanetManager {
       this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI);
       this.playerController.setMaxDistance(35); // Smaller boundary for cinema
     } else if (planetId === 'skills') {
-      this.playerController.resetPosition(this.currentFlatRadius, 0, -20, Math.PI);
+      this.playerController.resetPosition(this.currentFlatRadius, 0, -25, Math.PI);
       this.playerController.setMaxDistance(90);
     } else {
       this.playerController.setMaxDistance(90); // Default boundary
@@ -165,6 +165,9 @@ export class PlanetManager {
   }
 
   public checkPortalCollision(): void {
+    // Don't check during transition
+    if (this.uiManager.isInTransition()) return;
+
     const playerPosition = this.camera.position.clone();
 
     for (const portal of this.portals) {
@@ -172,7 +175,9 @@ export class PlanetManager {
 
       if (distance < 7) {
         const targetPlanet = portal.userData.targetPlanet;
-        this.loadPlanet(targetPlanet);
+        this.uiManager.fadeTransition(() => {
+          this.loadPlanet(targetPlanet);
+        });
         break;
       }
     }
