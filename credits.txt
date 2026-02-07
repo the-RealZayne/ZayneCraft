@@ -7,4 +7,11 @@ https://commons.wikimedia.org/wiki/File:Go_Logo_Blue.svg
 https://commons.wikimedia.org/wiki/File:C_Sharp_Logo_2023.svg
 https://commons.wikimedia.org/wiki/File:Typescript.svg
 https://commons.wikimedia.org/wiki/File:Dart_programming_language_logo.svg
+https://commons.wikimedia.org/wiki/File:Next.js_wordmark.svg
+https://commons.wikimedia.org/wiki/File:Angular_logo_(2023).svg
+https://commons.wikimedia.org/wiki/File:React_Logo_SVG.svg
+https://commons.wikimedia.org/wiki/File:React-icon.svg
+https://commons.wikimedia.org/wiki/File:Google-flutter-logo.svg
+https://commons.wikimedia.org/wiki/File:Ionic-logo-landscape.svg
+https://commons.wikimedia.org/wiki/File:Laravel.svg
 

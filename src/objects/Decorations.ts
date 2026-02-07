@@ -12,6 +12,23 @@ import csharpLogo from '../assets/csharp.svg';
 import javaLogo from '../assets/java.svg';
 import typescriptLogo from '../assets/typescript.svg';
 import dartLogo from '../assets/dart.svg';
+import nextjsLogo from '../assets/nextjs.svg';
+import angularLogo from '../assets/angular.svg';
+import reactLogo from '../assets/react.svg';
+import reactNativeLogo from '../assets/react-native.svg';
+import flutterLogo from '../assets/flutter.svg';
+import ionicLogo from '../assets/ionic.svg';
+import laravelLogo from '../assets/laravel.svg';
+import nestjsLogo from '../assets/nestjs.svg';
+import flaskLogo from '../assets/flask.svg';
+import dotnetLogo from '../assets/dotnet.svg';
+import postgresLogo from '../assets/postgres.svg';
+import mysqlLogo from '../assets/mysql.svg';
+import mongodbLogo from '../assets/mongodb.svg';
+import redisLogo from '../assets/redis.svg';
+import awsLogo from '../assets/aws.svg';
+import gcpLogo from '../assets/gcp.svg';
+import digitaloceanLogo from '../assets/digitalocean.svg';
 
 export class Decorations {
   // ============================================
@@ -3589,6 +3606,23 @@ export class Decorations {
           'Java': javaLogo,
           'TypeScript': typescriptLogo,
           'Dart': dartLogo,
+          'Next.js': nextjsLogo,
+          'Angular': angularLogo,
+          'React': reactLogo,
+          'React Native': reactNativeLogo,
+          'Flutter': flutterLogo,
+          'Ionic': ionicLogo,
+          'Laravel': laravelLogo,
+          'NestJS': nestjsLogo,
+          'Flask': flaskLogo,
+          '.NET': dotnetLogo,
+          'Postgres': postgresLogo,
+          'MySQL': mysqlLogo,
+          'MongoDB': mongodbLogo,
+          'Redis': redisLogo,
+          'AWS': awsLogo,
+          'GCP': gcpLogo,
+          'DigitalOcean': digitaloceanLogo,
         };
 
         // Floating skill icons above the bed
@@ -3703,7 +3737,7 @@ export class Decorations {
         -colSpacing / 2, -rowSpacing * 0.5,
         bedWidth, bedDepth,
         'Backend',
-        ['Laravel', 'NestJS', 'Flask', 'FastAPI', '.NET'],
+        ['Laravel', 'NestJS', 'Flask', '.NET'],
         colors.frameworks
       ));
 
@@ -3728,7 +3762,7 @@ export class Decorations {
         colSpacing / 2, rowSpacing * 0.5,
         bedWidth, bedDepth,
         'Data',
-        ['Postgres', 'MySQL', 'MongoDB', 'Redis', 'DynamoDB'],
+        ['Postgres', 'MySQL', 'MongoDB', 'Redis'],
         colors.data
       ));
 
