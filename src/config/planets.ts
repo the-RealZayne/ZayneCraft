@@ -42,7 +42,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0x80dfff,
     lightIntensity: 1.2,
     fogDensity: 0.006,
-    description: 'What I work with.',
+    description: 'Technologies in my toolkit.',
   },
   education: {
     name: 'Haven',

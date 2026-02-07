@@ -29,6 +29,12 @@ import redisLogo from '../assets/redis.svg';
 import awsLogo from '../assets/aws.svg';
 import gcpLogo from '../assets/gcp.svg';
 import digitaloceanLogo from '../assets/digitalocean.svg';
+import k8sLogo from '../assets/k8s.svg';
+import dockerLogo from '../assets/docker.svg';
+import githubLogo from '../assets/github.svg';
+import gitlabLogo from '../assets/gitlab.svg';
+import nginxLogo from '../assets/nginx.svg';
+import terraformLogo from '../assets/terraform.svg';
 
 export class Decorations {
   // ============================================
@@ -1338,6 +1344,87 @@ export class Decorations {
     return stone;
   }
 
+  private static createAurora(): THREE.Group {
+    const aurora = new THREE.Group();
+    aurora.userData.isAurora = true;
+
+    // Create vertical curtain-like aurora using InstancedMesh for performance
+    const curtainCount = 3;
+
+    for (let c = 0; c < curtainCount; c++) {
+      const rayCount = 80 + c * 25;
+      const curtainWidth = 280;
+      const baseHeight = 60 + c * 20;
+      const baseZ = 80 + c * 30;
+
+      // Single geometry for all rays in this curtain
+      const rayGeo = new THREE.PlaneGeometry(1.4, 50, 1, 1);
+
+      // Shared material with vertex colors
+      const rayMat = new THREE.MeshBasicMaterial({
+        color: 0x00ff88,
+        transparent: true,
+        opacity: 0.18,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+
+      const instancedMesh = new THREE.InstancedMesh(rayGeo, rayMat, rayCount);
+      instancedMesh.userData.isAuroraInstanced = true;
+      instancedMesh.userData.curtainIndex = c;
+
+      // Store per-instance data for animation
+      const basePositions: { x: number; y: number; z: number; phase: number; scaleY: number }[] = [];
+
+      const dummy = new THREE.Object3D();
+      const color = new THREE.Color();
+
+      for (let i = 0; i < rayCount; i++) {
+        const t = i / (rayCount - 1);
+        const x = (t - 0.5) * curtainWidth;
+
+        // Wavy curtain shape
+        const waveOffset = Math.sin(t * Math.PI * 3) * 12 + Math.sin(t * Math.PI * 7) * 5;
+        const z = baseZ + waveOffset;
+
+        // Ray height varies
+        const scaleY = 0.9 + Math.sin(t * Math.PI * 5) * 0.3 + Math.random() * 0.2;
+        const rayHeight = 50 * scaleY;
+
+        dummy.position.set(x, baseHeight + rayHeight / 2, z);
+        dummy.scale.set(1 + Math.random() * 0.3, scaleY, 1);
+        dummy.updateMatrix();
+        instancedMesh.setMatrixAt(i, dummy.matrix);
+
+        // Color gradient - green to cyan
+        const hue = 0.4 - t * 0.2 + Math.random() * 0.08;
+        color.setHSL(hue, 1.0, 0.55);
+        instancedMesh.setColorAt(i, color);
+
+        // Store base data for animation
+        basePositions.push({
+          x,
+          y: baseHeight + rayHeight / 2,
+          z,
+          phase: t * Math.PI * 4 + c * 2,
+          scaleY,
+        });
+      }
+
+      instancedMesh.instanceMatrix.needsUpdate = true;
+      if (instancedMesh.instanceColor) instancedMesh.instanceColor.needsUpdate = true;
+
+      // Store animation data on the mesh
+      instancedMesh.userData.basePositions = basePositions;
+      instancedMesh.userData.dummy = new THREE.Object3D();
+
+      aurora.add(instancedMesh);
+    }
+
+    return aurora;
+  }
+
   private static createFireflyCluster(centerX: number, centerZ: number, count: number): THREE.Group {
     const group = new THREE.Group();
 
@@ -1840,7 +1927,366 @@ export class Decorations {
 
     // Education planet gets the full campus
     if (planetId === 'education') {
-      return Campus.create();
+      // Graduation ceremony scene
+
+      // Main stage platform
+      const stage = new THREE.Group();
+
+      const stagePlatformGeo = new THREE.BoxGeometry(20, 1.5, 12);
+      const stageMat = new THREE.MeshStandardMaterial({
+        color: 0x4a3728,
+        roughness: 0.8,
+      });
+      const stagePlatform = new THREE.Mesh(stagePlatformGeo, stageMat);
+      stagePlatform.position.y = 0.75;
+      stagePlatform.castShadow = true;
+      stagePlatform.receiveShadow = true;
+      stage.add(stagePlatform);
+
+      // Stage carpet (red runner)
+      const carpetGeo = new THREE.BoxGeometry(6, 0.05, 14);
+      const carpetMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
+      const carpet = new THREE.Mesh(carpetGeo, carpetMat);
+      carpet.position.y = 1.55;
+      stage.add(carpet);
+
+      // Podium
+      const podium = new THREE.Group();
+      const podiumBaseGeo = new THREE.BoxGeometry(2, 3, 1.5);
+      const podiumMat = new THREE.MeshStandardMaterial({ color: 0x3d2817 });
+      const podiumBase = new THREE.Mesh(podiumBaseGeo, podiumMat);
+      podiumBase.position.y = 1.5;
+      podium.add(podiumBase);
+
+      // Podium top (angled)
+      const podiumTopGeo = new THREE.BoxGeometry(2.2, 0.3, 1.8);
+      const podiumTop = new THREE.Mesh(podiumTopGeo, podiumMat);
+      podiumTop.position.y = 3.1;
+      podiumTop.rotation.x = -0.2;
+      podium.add(podiumTop);
+
+      podium.position.set(0, 1.5, -2);
+      stage.add(podium);
+
+      // Steps leading up to stage
+      for (let i = 0; i < 3; i++) {
+        const stepGeo = new THREE.BoxGeometry(4, 0.5, 1.2);
+        const step = new THREE.Mesh(stepGeo, stageMat);
+        step.position.set(0, 0.25 + i * 0.5, 7 + i * 1.2);
+        step.castShadow = true;
+        stage.add(step);
+      }
+
+      // Stage in front of portal (player faces this direction)
+      stage.position.set(0, Terrain.getTerrainHeight(0, 25), 25);
+      stage.rotation.y = Math.PI; // Face toward portal/player
+      objects.push(stage);
+
+      // Certificate display stands - COMPLETED CERTS
+
+      // Helper to create certificate frame
+      const createCertificateFrame = (
+        title: string,
+        subtitle: string,
+        color: number,
+        completed: boolean
+      ) => {
+        const frame = new THREE.Group();
+
+        // Stand pole
+        const poleGeo = new THREE.CylinderGeometry(0.1, 0.15, 4, 8);
+        const poleMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.7 });
+        const pole = new THREE.Mesh(poleGeo, poleMat);
+        pole.position.y = 2;
+        frame.add(pole);
+
+        // Stand base
+        const baseGeo = new THREE.CylinderGeometry(0.6, 0.7, 0.2, 8);
+        const base = new THREE.Mesh(baseGeo, poleMat);
+        base.position.y = 0.1;
+        frame.add(base);
+
+        // Certificate backing
+        const backingGeo = new THREE.BoxGeometry(3.5, 2.5, 0.15);
+        const backingMat = new THREE.MeshStandardMaterial({
+          color: completed ? 0x2a2a2a : 0x3a3a3a,
+          roughness: 0.3,
+        });
+        const backing = new THREE.Mesh(backingGeo, backingMat);
+        backing.position.y = 4.2;
+        frame.add(backing);
+
+        // Certificate paper
+        const paperGeo = new THREE.BoxGeometry(3, 2, 0.05);
+        const paperMat = new THREE.MeshStandardMaterial({
+          color: completed ? 0xf5f5dc : 0xcccccc,
+        });
+        const paper = new THREE.Mesh(paperGeo, paperMat);
+        paper.position.set(0, 4.2, 0.1);
+        frame.add(paper);
+
+        // Certificate text
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 340;
+        const ctx = canvas.getContext('2d')!;
+
+        // Background
+        ctx.fillStyle = completed ? '#f5f5dc' : '#cccccc';
+        ctx.fillRect(0, 0, 512, 340);
+
+        // Border
+        ctx.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
+        ctx.lineWidth = 12;
+        ctx.strokeRect(15, 15, 482, 310);
+
+        // Inner border
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(30, 30, 452, 280);
+
+        // Title
+        ctx.fillStyle = '#333333';
+        ctx.font = 'bold 36px Georgia';
+        ctx.textAlign = 'center';
+        ctx.fillText(title, 256, 100);
+
+        // Subtitle
+        ctx.font = '24px Georgia';
+        ctx.fillText(subtitle, 256, 150);
+
+        // Status
+        if (completed) {
+          ctx.fillStyle = '#228b22';
+          ctx.font = 'bold 28px Georgia';
+          ctx.fillText('CERTIFIED', 256, 220);
+
+          // Checkmark
+          ctx.font = '48px Arial';
+          ctx.fillText('✓', 256, 280);
+        } else {
+          ctx.fillStyle = '#b8860b';
+          ctx.font = 'bold 24px Georgia';
+          ctx.fillText('IN PROGRESS', 256, 220);
+
+          // Progress indicator
+          ctx.fillStyle = '#ddd';
+          ctx.fillRect(156, 250, 200, 20);
+          ctx.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+          ctx.fillRect(156, 250, 120, 20); // 60% progress
+        }
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const textMat = new THREE.MeshBasicMaterial({ map: texture });
+        const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(3, 2), textMat);
+        textPlane.position.set(0, 4.2, 0.13);
+        frame.add(textPlane);
+
+        // Glow for completed certs
+        if (completed) {
+          const glowLight = new THREE.PointLight(color, 0.5, 5);
+          glowLight.position.set(0, 4.2, 1);
+          frame.add(glowLight);
+        }
+
+        return frame;
+      };
+
+      // BCS Certificate (completed) - left of stage
+      const bcsCert = createCertificateFrame(
+        'BCS',
+        'British Computer Society',
+        0x1e4d8c,
+        true
+      );
+      bcsCert.position.set(-12, Terrain.getTerrainHeight(-12, 23), 23);
+      bcsCert.rotation.y = Math.PI + 0.3;
+      objects.push(bcsCert);
+
+      // AWS Certificate (completed) - right of stage
+      const awsCert = createCertificateFrame(
+        'AWS',
+        'Amazon Web Services',
+        0xff9900,
+        true
+      );
+      awsCert.position.set(12, Terrain.getTerrainHeight(12, 23), 23);
+      awsCert.rotation.y = Math.PI - 0.3;
+      objects.push(awsCert);
+
+      // Degree (in progress) - on stage behind podium
+      const degreeCert = createCertificateFrame(
+        'Degree',
+        'University',
+        0x6b4c9a,
+        false
+      );
+      degreeCert.position.set(0, Terrain.getTerrainHeight(0, 28) + 1.5, 28);
+      degreeCert.rotation.y = Math.PI;
+      objects.push(degreeCert);
+
+      // Graduation cap floating/tossed
+      const cap = new THREE.Group();
+      const capTopGeo = new THREE.BoxGeometry(1.8, 0.1, 1.8);
+      const capMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+      const capTop = new THREE.Mesh(capTopGeo, capMat);
+      cap.add(capTop);
+
+      const capBaseGeo = new THREE.CylinderGeometry(0.6, 0.7, 0.5, 8);
+      const capBase = new THREE.Mesh(capBaseGeo, capMat);
+      capBase.position.y = -0.3;
+      cap.add(capBase);
+
+      // Tassel
+      const tasselStringGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.8, 4);
+      const tasselMat = new THREE.MeshStandardMaterial({ color: 0xffd700 });
+      const tasselString = new THREE.Mesh(tasselStringGeo, tasselMat);
+      tasselString.position.set(0.5, -0.4, 0.5);
+      cap.add(tasselString);
+
+      const tasselEndGeo = new THREE.CylinderGeometry(0.06, 0.03, 0.3, 6);
+      const tasselEnd = new THREE.Mesh(tasselEndGeo, tasselMat);
+      tasselEnd.position.set(0.5, -0.85, 0.5);
+      cap.add(tasselEnd);
+
+      cap.position.set(3, 8, 23);
+      cap.rotation.set(0.3, 0.5, 0.2);
+      cap.userData.isFloatingCap = true;
+      cap.userData.baseY = 8;
+      objects.push(cap);
+
+      // Second cap
+      const cap2 = cap.clone();
+      cap2.position.set(-4, 9, 21);
+      cap2.rotation.set(-0.2, -0.3, 0.4);
+      cap2.userData.isFloatingCap = true;
+      cap2.userData.baseY = 9;
+      cap2.userData.phaseOffset = 2;
+      objects.push(cap2);
+
+      // Audience seating (benches) - facing the stage
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const bench = this.createBench();
+          const x = (col - 1) * 6;
+          const z = 8 + row * 4; // Between player and stage
+          bench.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          bench.rotation.y = 0; // Face toward stage
+          objects.push(bench);
+        }
+      }
+
+      // Decorative banners on poles
+      const createBanner = (color: number) => {
+        const banner = new THREE.Group();
+
+        const poleGeo = new THREE.CylinderGeometry(0.1, 0.1, 8, 6);
+        const poleMat = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
+        const pole = new THREE.Mesh(poleGeo, poleMat);
+        pole.position.y = 4;
+        banner.add(pole);
+
+        const flagGeo = new THREE.BoxGeometry(0.1, 3, 1.5);
+        const flagMat = new THREE.MeshStandardMaterial({ color: color });
+        const flag = new THREE.Mesh(flagGeo, flagMat);
+        flag.position.set(0, 6.5, 0.8);
+        banner.add(flag);
+
+        return banner;
+      };
+
+      // Banners along the sides
+      const banner1 = createBanner(0x1e4d8c);
+      banner1.position.set(-15, Terrain.getTerrainHeight(-15, 15), 15);
+      objects.push(banner1);
+
+      const banner2 = createBanner(0xff9900);
+      banner2.position.set(15, Terrain.getTerrainHeight(15, 15), 15);
+      objects.push(banner2);
+
+      const banner3 = createBanner(0x6b4c9a);
+      banner3.position.set(-15, Terrain.getTerrainHeight(-15, 28), 28);
+      objects.push(banner3);
+
+      const banner4 = createBanner(0x6b4c9a);
+      banner4.position.set(15, Terrain.getTerrainHeight(15, 28), 28);
+      objects.push(banner4);
+
+      // Confetti particles
+      const confettiCount = 150;
+      const confettiPositions = new Float32Array(confettiCount * 3);
+      const confettiColors = new Float32Array(confettiCount * 3);
+      const confettiPhases = new Float32Array(confettiCount);
+
+      const confettiColorOptions = [
+        new THREE.Color(0xff0000),
+        new THREE.Color(0x00ff00),
+        new THREE.Color(0x0000ff),
+        new THREE.Color(0xffff00),
+        new THREE.Color(0xff00ff),
+        new THREE.Color(0x00ffff),
+        new THREE.Color(0xffd700),
+      ];
+
+      for (let i = 0; i < confettiCount; i++) {
+        confettiPositions[i * 3] = (Math.random() - 0.5) * 30;
+        confettiPositions[i * 3 + 1] = 3 + Math.random() * 10;
+        confettiPositions[i * 3 + 2] = 18 + (Math.random() - 0.5) * 20; // Around stage area
+
+        const color = confettiColorOptions[Math.floor(Math.random() * confettiColorOptions.length)];
+        confettiColors[i * 3] = color.r;
+        confettiColors[i * 3 + 1] = color.g;
+        confettiColors[i * 3 + 2] = color.b;
+
+        confettiPhases[i] = Math.random() * Math.PI * 2;
+      }
+
+      const confettiGeo = new THREE.BufferGeometry();
+      confettiGeo.setAttribute('position', new THREE.BufferAttribute(confettiPositions, 3));
+      confettiGeo.setAttribute('color', new THREE.BufferAttribute(confettiColors, 3));
+      confettiGeo.setAttribute('phase', new THREE.BufferAttribute(confettiPhases, 1));
+
+      const confettiMat = new THREE.PointsMaterial({
+        size: 0.2,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.9,
+      });
+
+      const confetti = new THREE.Points(confettiGeo, confettiMat);
+      confetti.userData.isConfetti = true;
+      confetti.userData.originalPositions = new Float32Array(confettiPositions);
+      objects.push(confetti);
+
+      // Lanterns for ambiance
+      const lanternPositions = [
+        { x: -10, z: 5 },
+        { x: 10, z: 5 },
+        { x: -18, z: 20 },
+        { x: 18, z: 20 },
+      ];
+      lanternPositions.forEach((pos) => {
+        const lantern = this.createLantern();
+        lantern.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        objects.push(lantern);
+      });
+
+      // Trees around perimeter (avoid blocking stage view)
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 30 + Math.random() * 12;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance + 15; // Offset to center around stage area
+        if (this.isNearPortal(x, z)) continue;
+        if (Math.abs(x) < 15 && z > 0 && z < 35) continue; // Don't block center view
+
+        const tree = this.createTree(0.5 + Math.random() * 0.4, 0.4 + Math.random() * 0.3);
+        tree.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        tree.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(tree);
+      }
+
+      return objects;
     }
 
     // Story/Chronicle planet - Projector Slideshow (positioned to the side, not blocking portal)
@@ -3534,29 +3980,29 @@ export class Decorations {
         soil.position.y = 0.12;
         bed.add(soil);
 
-        // Flowers filling the bed
+        // Flowers filling the bed (low poly)
         const flowerCount = Math.floor(width * depth * 1.5);
+        const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 3);
+        const headGeo = new THREE.IcosahedronGeometry(0.08, 0);
+        const petalMat = new THREE.MeshStandardMaterial({
+          color: color,
+          emissive: color,
+          emissiveIntensity: 0.2
+        });
+
         for (let i = 0; i < flowerCount; i++) {
           const fx = (Math.random() - 0.5) * (width - 0.3);
           const fz = (Math.random() - 0.5) * (depth - 0.3);
 
           // Flower stem
-          const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.3 + Math.random() * 0.2, 4);
-          const stemMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
-          const stem = new THREE.Mesh(stemGeo, stemMat);
-          stem.position.set(fx, 0.35, fz);
+          const stem = new THREE.Mesh(stemGeo, this.stemMaterial);
+          stem.position.set(fx, 0.2, fz);
           bed.add(stem);
 
-          // Flower head (colored based on category)
-          const petalGeo = new THREE.SphereGeometry(0.08 + Math.random() * 0.04, 6, 6);
-          const petalMat = new THREE.MeshStandardMaterial({
-            color: color,
-            emissive: color,
-            emissiveIntensity: 0.2
-          });
-          const petal = new THREE.Mesh(petalGeo, petalMat);
-          petal.position.set(fx, 0.5 + Math.random() * 0.1, fz);
-          bed.add(petal);
+          // Flower head (low poly icosahedron)
+          const head = new THREE.Mesh(headGeo, petalMat);
+          head.position.set(fx, 0.4, fz);
+          bed.add(head);
         }
 
         // Category sign at the front (wooden two-post style)
@@ -3623,6 +4069,12 @@ export class Decorations {
           'AWS': awsLogo,
           'GCP': gcpLogo,
           'DigitalOcean': digitaloceanLogo,
+          'K8s': k8sLogo,
+          'Docker': dockerLogo,
+          'GitHub Actions': githubLogo,
+          'GitLab CI': gitlabLogo,
+          'NGINX': nginxLogo,
+          'Terraform': terraformLogo,
         };
 
         // Floating skill icons above the bed
@@ -3630,18 +4082,6 @@ export class Decorations {
         skills.forEach((skill, i) => {
           const iconX = -width / 2 + iconSpacing * (i + 1);
           const iconGroup = new THREE.Group();
-
-          // Glowing orb base
-          const orbGeo = new THREE.SphereGeometry(0.3, 16, 16);
-          const orbMat = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: color,
-            emissiveIntensity: 0.5,
-            transparent: true,
-            opacity: 0.8
-          });
-          const orb = new THREE.Mesh(orbGeo, orbMat);
-          iconGroup.add(orb);
 
           // Check if we have a logo for this skill
           const logoUrl = skillLogos[skill];
@@ -3766,12 +4206,12 @@ export class Decorations {
         colors.data
       ));
 
-      // Row 4 (furthest from player, centered)
+      // Row 4 (furthest from player, centered) - wider bed for infra logos
       objects.push(createFlowerBed(
         0, rowSpacing * 1.5,
-        bedWidth, bedDepth,
+        bedWidth + 22, bedDepth,
         'Infrastructure',
-        ['Docker', 'K8s', 'GitHub', 'GitLab', 'Linux', 'Git', 'Nginx', 'RabbitMQ'],
+        ['Docker', 'K8s', 'GitHub Actions', 'GitLab CI', 'NGINX', 'Terraform'],
         colors.infrastructure
       ));
 
@@ -3820,10 +4260,10 @@ export class Decorations {
         objects.push(stone);
       }
 
-      // Trees surrounding
-      for (let i = 0; i < 40; i++) {
+      // Trees surrounding (dense forest like story world)
+      for (let i = 0; i < 150; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 42 + Math.random() * 15;
+        const distance = 45 + Math.random() * 20;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
         if (this.isNearPortal(x, z)) continue;
@@ -3862,6 +4302,79 @@ export class Decorations {
       bench2.position.set(38, Terrain.getTerrainHeight(38, 0), 0);
       bench2.rotation.y = -Math.PI / 2;
       objects.push(bench2);
+
+      // Ferns and bushes around the edges
+      for (let i = 0; i < 30; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 38 + Math.random() * 10;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+        if (this.isNearPortal(x, z)) continue;
+
+        if (Math.random() < 0.5) {
+          const fern = this.createFern();
+          fern.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          fern.rotation.y = Math.random() * Math.PI * 2;
+          fern.scale.setScalar(0.7 + Math.random() * 0.4);
+          objects.push(fern);
+        } else {
+          const bush = this.createBush();
+          bush.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          objects.push(bush);
+        }
+      }
+
+      // Mushrooms around the edges near trees
+      for (let i = 0; i < 15; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 42 + Math.random() * 8;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+        if (this.isNearPortal(x, z)) continue;
+
+        const mushroom = this.createMushroom();
+        mushroom.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        objects.push(mushroom);
+      }
+
+      // Garden tools (placed safely away from flower beds)
+      const gardenTools1 = this.createGardenTools();
+      gardenTools1.position.set(-30, Terrain.getTerrainHeight(-30, -20), -20);
+      gardenTools1.rotation.y = 0.5;
+      objects.push(gardenTools1);
+
+      const gardenTools2 = this.createGardenTools();
+      gardenTools2.position.set(32, Terrain.getTerrainHeight(32, 18), 18);
+      gardenTools2.rotation.y = -0.8;
+      objects.push(gardenTools2);
+
+      const gardenTools3 = this.createGardenTools();
+      gardenTools3.position.set(-28, Terrain.getTerrainHeight(-28, 22), 22);
+      gardenTools3.rotation.y = 1.2;
+      objects.push(gardenTools3);
+
+      const gardenTools4 = this.createGardenTools();
+      gardenTools4.position.set(30, Terrain.getTerrainHeight(30, -18), -18);
+      gardenTools4.rotation.y = 2.5;
+      objects.push(gardenTools4);
+
+      // Flowers around the edges
+      for (let i = 0; i < 150; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 36 + Math.random() * 12;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+        if (this.isNearPortal(x, z)) continue;
+
+        const flower = this.createFlower();
+        flower.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        flower.scale.setScalar(0.6 + Math.random() * 0.4);
+        objects.push(flower);
+      }
+
+      // Aurora in the sky
+      const aurora = this.createAurora();
+      objects.push(aurora);
 
       return objects;
     }

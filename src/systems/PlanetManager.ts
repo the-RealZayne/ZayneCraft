@@ -113,8 +113,8 @@ export class PlanetManager {
     this.directionalLight.shadow.camera.bottom = -100;
     this.scene.add(this.directionalLight);
 
-    // Create ground - education planet gets larger flat area for campus
-    this.currentFlatRadius = planetId === 'education' ? 120 : 40;
+    // Create ground - skills planet gets larger flat area for flower beds
+    this.currentFlatRadius = planetId === 'skills' ? 60 : 40;
     this.ground = Terrain.createGround(config.groundColor, this.currentFlatRadius);
     this.scene.add(this.ground);
 
@@ -124,7 +124,7 @@ export class PlanetManager {
 
     connections.forEach((targetPlanet, index) => {
       const angle = angleStep * index - Math.PI / 2;
-      const portalDistance = planetId === 'skills' ? 35 : 18;
+      const portalDistance = planetId === 'skills' ? 40 : 18;
       const portal = Portal.create(targetPlanet, angle, portalDistance);
       this.scene.add(portal);
       this.portals.push(portal);
@@ -156,8 +156,8 @@ export class PlanetManager {
       this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI);
       this.playerController.setMaxDistance(35); // Smaller boundary for cinema
     } else if (planetId === 'skills') {
-      this.playerController.resetPosition(this.currentFlatRadius, 0, -25, Math.PI);
-      this.playerController.setMaxDistance(90);
+      this.playerController.resetPosition(this.currentFlatRadius, 0, -30, Math.PI);
+      this.playerController.setMaxDistance(50);
     } else {
       this.playerController.setMaxDistance(90); // Default boundary
       this.playerController.resetPosition(this.currentFlatRadius);
@@ -296,6 +296,58 @@ export class PlanetManager {
             const baseY = child.userData.baseY || 3;
             const phase = child.userData.phaseOffset || 0;
             child.position.y = baseY + Math.sin(time * 1.5 + phase) * 0.15;
+          }
+
+          // Aurora instanced mesh animation (skills planet)
+          if (child.userData.isAuroraInstanced) {
+            const mesh = child as THREE.InstancedMesh;
+            const basePositions = child.userData.basePositions as { x: number; y: number; z: number; phase: number; scaleY: number }[];
+            const dummy = child.userData.dummy as THREE.Object3D;
+
+            for (let i = 0; i < basePositions.length; i++) {
+              const { x, y, z, phase, scaleY } = basePositions[i];
+
+              // Sway the rays like curtains in wind
+              const sway = Math.sin(time * 0.4 + phase) * 2 + Math.sin(time * 0.7 + phase * 1.3) * 1;
+              dummy.position.set(x + sway, y, z + Math.cos(time * 0.3 + phase) * 1.5);
+              dummy.scale.set(1, scaleY, 1);
+              dummy.updateMatrix();
+              mesh.setMatrixAt(i, dummy.matrix);
+            }
+            mesh.instanceMatrix.needsUpdate = true;
+
+            // Shimmer effect - pulse opacity on shared material
+            const mat = mesh.material as THREE.MeshBasicMaterial;
+            mat.opacity = 0.18 + Math.sin(time * 2) * 0.04;
+          }
+
+          // Floating graduation caps (education planet)
+          if (child.userData.isFloatingCap) {
+            const baseY = child.userData.baseY || 8;
+            const phase = child.userData.phaseOffset || 0;
+            child.position.y = baseY + Math.sin(time * 0.8 + phase) * 0.5;
+            child.rotation.y += delta * 0.3;
+            child.rotation.z = 0.2 + Math.sin(time * 1.2 + phase) * 0.1;
+          }
+
+          // Confetti animation (education planet)
+          if (child instanceof THREE.Points && child.userData.isConfetti) {
+            const positions = child.geometry.attributes.position.array as Float32Array;
+            const phases = child.geometry.attributes.phase.array as Float32Array;
+            const original = child.userData.originalPositions as Float32Array;
+
+            for (let i = 0; i < positions.length / 3; i++) {
+              const phase = phases[i];
+              // Gentle falling and swaying motion
+              const fallSpeed = 0.5 + (phase / Math.PI) * 0.3;
+              let y = original[i * 3 + 1] - ((time * fallSpeed + phase) % 12);
+              if (y < 0) y += 12; // Reset to top
+
+              positions[i * 3] = original[i * 3] + Math.sin(time * 2 + phase) * 0.5;
+              positions[i * 3 + 1] = y;
+              positions[i * 3 + 2] = original[i * 3 + 2] + Math.cos(time * 1.5 + phase) * 0.3;
+            }
+            child.geometry.attributes.position.needsUpdate = true;
           }
         });
       });
