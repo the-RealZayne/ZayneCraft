@@ -2439,28 +2439,28 @@ export class Decorations {
 
       // Flower arrangements along the sides (avoiding the stage area)
       const flowerClusterPositions = [
-        { x: -12, z: -6 }, // Left side near benches
-        { x: 12, z: -6 },  // Right side near benches
-        { x: -12, z: 0 },  // Left side
-        { x: 12, z: 0 },   // Right side
-        { x: -14, z: -3 }, // Far left
-        { x: 14, z: -3 },  // Far right
-        { x: -5, z: -6 },  // Near benches left
-        { x: 5, z: -6 },   // Near benches right
-        { x: 0, z: -9 },   // Center near spawn
-        { x: -14, z: 5 },  // Far left mid
-        { x: 14, z: 5 },   // Far right mid
-        { x: -13, z: -8 }, // Far left back
-        { x: 13, z: -8 },  // Far right back
-        { x: -8, z: -10 }, // Left near spawn
-        { x: 8, z: -10 },  // Right near spawn
+        { x: -12, z: -6 }, { x: 12, z: -6 },
+        { x: -12, z: 0 }, { x: 12, z: 0 },
+        { x: -14, z: -3 }, { x: 14, z: -3 },
+        { x: -5, z: -6 }, { x: 5, z: -6 },
+        { x: 0, z: -9 }, { x: -3, z: -11 }, { x: 3, z: -11 },
+        { x: -14, z: 5 }, { x: 14, z: 5 },
+        { x: -13, z: -8 }, { x: 13, z: -8 },
+        { x: -8, z: -10 }, { x: 8, z: -10 },
+        { x: -15, z: -1 }, { x: 15, z: -1 },
+        { x: -16, z: 3 }, { x: 16, z: 3 },
+        { x: -10, z: -12 }, { x: 10, z: -12 },
+        { x: -6, z: -9 }, { x: 6, z: -9 },
+        { x: -17, z: -5 }, { x: 17, z: -5 },
+        { x: -15, z: 8 }, { x: 15, z: 8 },
+        { x: -18, z: 1 }, { x: 18, z: 1 },
       ];
       flowerClusterPositions.forEach((pos) => {
         // Create a cluster of flowers
-        for (let j = 0; j < 8; j++) {
+        for (let j = 0; j < 10; j++) {
           const flower = this.createFlower();
-          const ox = pos.x + (Math.random() - 0.5) * 3;
-          const oz = pos.z + (Math.random() - 0.5) * 3;
+          const ox = pos.x + (Math.random() - 0.5) * 3.5;
+          const oz = pos.z + (Math.random() - 0.5) * 3.5;
           flower.position.set(ox, Terrain.getTerrainHeight(ox, oz), oz);
           flower.scale.setScalar(0.6 + Math.random() * 0.5);
           flower.rotation.y = Math.random() * Math.PI * 2;
@@ -4559,6 +4559,385 @@ export class Decorations {
       // Aurora in the sky
       const aurora = this.createAurora();
       objects.push(aurora);
+
+      return objects;
+    }
+
+    // Articles/Inkwell planet - Library Gallery
+    if (planetId === 'articles') {
+      // Helper to create a bookshelf with books
+      const createBookshelf = (category: string, bookCount: number, shelfColor: number) => {
+        const shelf = new THREE.Group();
+
+        // Shelf frame (dark wood)
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.8 });
+        const backMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.9 });
+
+        // Back panel
+        const backGeo = new THREE.BoxGeometry(4, 5, 0.1);
+        const back = new THREE.Mesh(backGeo, backMat);
+        back.position.set(0, 2.5, -0.3);
+        shelf.add(back);
+
+        // Side panels
+        const sideGeo = new THREE.BoxGeometry(0.15, 5, 0.7);
+        const leftSide = new THREE.Mesh(sideGeo, frameMat);
+        leftSide.position.set(-2, 2.5, 0);
+        shelf.add(leftSide);
+        const rightSide = new THREE.Mesh(sideGeo, frameMat);
+        rightSide.position.set(2, 2.5, 0);
+        shelf.add(rightSide);
+
+        // Top
+        const topGeo = new THREE.BoxGeometry(4.3, 0.15, 0.7);
+        const top = new THREE.Mesh(topGeo, frameMat);
+        top.position.set(0, 5, 0);
+        shelf.add(top);
+
+        // Shelves (4 levels)
+        const shelfGeo = new THREE.BoxGeometry(3.8, 0.1, 0.6);
+        for (let i = 0; i < 4; i++) {
+          const shelfBoard = new THREE.Mesh(shelfGeo, frameMat);
+          shelfBoard.position.set(0, 0.5 + i * 1.2, 0);
+          shelf.add(shelfBoard);
+
+          // Books on each shelf
+          const booksOnShelf = Math.min(bookCount - i * 4, 4);
+          for (let b = 0; b < booksOnShelf && b < 6; b++) {
+            const bookHeight = 0.7 + Math.random() * 0.3;
+            const bookWidth = 0.15 + Math.random() * 0.1;
+            const bookGeo = new THREE.BoxGeometry(bookWidth, bookHeight, 0.4);
+            const bookColors = [0x8b0000, 0x00008b, 0x006400, 0x4b0082, 0x8b4513, 0x2f4f4f, shelfColor];
+            const bookMat = new THREE.MeshStandardMaterial({
+              color: bookColors[Math.floor(Math.random() * bookColors.length)],
+              roughness: 0.7
+            });
+            const book = new THREE.Mesh(bookGeo, bookMat);
+            book.position.set(-1.5 + b * 0.55 + Math.random() * 0.1, 0.55 + i * 1.2 + bookHeight / 2, 0.05);
+            book.rotation.z = (Math.random() - 0.5) * 0.1;
+            shelf.add(book);
+          }
+        }
+
+        // Category label
+        const labelCanvas = document.createElement('canvas');
+        labelCanvas.width = 256;
+        labelCanvas.height = 64;
+        const ctx = labelCanvas.getContext('2d')!;
+        ctx.fillStyle = '#2a1a0a';
+        ctx.fillRect(0, 0, 256, 64);
+        ctx.fillStyle = '#d4af37';
+        ctx.font = 'bold 28px "Segoe UI", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(category, 128, 32);
+
+        const labelTexture = new THREE.CanvasTexture(labelCanvas);
+        const labelMat = new THREE.MeshBasicMaterial({ map: labelTexture });
+        const labelGeo = new THREE.PlaneGeometry(2, 0.5);
+        const label = new THREE.Mesh(labelGeo, labelMat);
+        label.position.set(0, 5.4, 0.1);
+        shelf.add(label);
+
+        return shelf;
+      };
+
+      // Categories with book counts
+      const categories = [
+        { name: 'Tech & Code', count: 8, color: 0x4a90d9 },
+        { name: 'Career', count: 5, color: 0xd4af37 },
+        { name: 'Tutorials', count: 6, color: 0x50c878 },
+        { name: 'Thoughts', count: 4, color: 0x9966cc },
+        { name: 'Misc', count: 7, color: 0xcd853f },
+      ];
+
+      // Arrange bookshelves in a semi-circle
+      const shelfRadius = 18;
+      categories.forEach((cat, index) => {
+        const angle = -Math.PI / 3 + (index / (categories.length - 1)) * (2 * Math.PI / 3);
+        const x = Math.sin(angle) * shelfRadius;
+        const z = Math.cos(angle) * shelfRadius;
+
+        const bookshelf = createBookshelf(cat.name, cat.count, cat.color);
+        bookshelf.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        bookshelf.rotation.y = -angle; // Face center
+        objects.push(bookshelf);
+      });
+
+      // Central desk with inkwell
+      const deskGroup = new THREE.Group();
+
+      // Desk top
+      const deskMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.6 });
+      const deskTopGeo = new THREE.BoxGeometry(3, 0.15, 1.8);
+      const deskTop = new THREE.Mesh(deskTopGeo, deskMat);
+      deskTop.position.y = 1;
+      deskGroup.add(deskTop);
+
+      // Desk legs
+      const legGeo = new THREE.BoxGeometry(0.15, 1, 0.15);
+      const legPositions = [[-1.3, 0.5, -0.7], [1.3, 0.5, -0.7], [-1.3, 0.5, 0.7], [1.3, 0.5, 0.7]];
+      legPositions.forEach(pos => {
+        const leg = new THREE.Mesh(legGeo, deskMat);
+        leg.position.set(pos[0], pos[1], pos[2]);
+        deskGroup.add(leg);
+      });
+
+      // Inkwell
+      const inkwellGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.15, 8);
+      const inkwellMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, metalness: 0.3 });
+      const inkwell = new THREE.Mesh(inkwellGeo, inkwellMat);
+      inkwell.position.set(-0.8, 1.15, 0);
+      deskGroup.add(inkwell);
+
+      // Ink inside
+      const inkGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.05, 8);
+      const inkMat = new THREE.MeshStandardMaterial({ color: 0x000033 });
+      const ink = new THREE.Mesh(inkGeo, inkMat);
+      ink.position.set(-0.8, 1.1, 0);
+      deskGroup.add(ink);
+
+      // Quill
+      const quillGroup = new THREE.Group();
+      const quillShaftGeo = new THREE.CylinderGeometry(0.01, 0.015, 0.4, 6);
+      const quillMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc });
+      const quillShaft = new THREE.Mesh(quillShaftGeo, quillMat);
+      quillGroup.add(quillShaft);
+      const quillTipGeo = new THREE.ConeGeometry(0.015, 0.08, 4);
+      const quillTipMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.5 });
+      const quillTip = new THREE.Mesh(quillTipGeo, quillTipMat);
+      quillTip.position.y = -0.24;
+      quillGroup.add(quillTip);
+      quillGroup.position.set(-0.7, 1.3, 0.1);
+      quillGroup.rotation.z = 0.3;
+      quillGroup.rotation.x = -0.2;
+      deskGroup.add(quillGroup);
+
+      // Open book on desk
+      const openBookGroup = new THREE.Group();
+      const pageMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc });
+      const leftPageGeo = new THREE.BoxGeometry(0.4, 0.02, 0.5);
+      const leftPage = new THREE.Mesh(leftPageGeo, pageMat);
+      leftPage.position.set(-0.21, 0, 0);
+      leftPage.rotation.z = 0.05;
+      openBookGroup.add(leftPage);
+      const rightPage = new THREE.Mesh(leftPageGeo, pageMat);
+      rightPage.position.set(0.21, 0, 0);
+      rightPage.rotation.z = -0.05;
+      openBookGroup.add(rightPage);
+      openBookGroup.position.set(0.5, 1.12, 0);
+      deskGroup.add(openBookGroup);
+
+      // Stack of papers
+      const paperStackGeo = new THREE.BoxGeometry(0.35, 0.08, 0.45);
+      const paperMat = new THREE.MeshStandardMaterial({ color: 0xfffaf0 });
+      const paperStack = new THREE.Mesh(paperStackGeo, paperMat);
+      paperStack.position.set(1.1, 1.12, 0.3);
+      paperStack.rotation.y = 0.15;
+      deskGroup.add(paperStack);
+
+      deskGroup.position.set(0, Terrain.getTerrainHeight(0, 0), 0);
+      objects.push(deskGroup);
+
+      // Reading chair
+      const createReadingChair = () => {
+        const chair = new THREE.Group();
+        const chairMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.7 });
+        const cushionMat = new THREE.MeshStandardMaterial({ color: 0x800020, roughness: 0.8 });
+
+        // Seat
+        const seatGeo = new THREE.BoxGeometry(0.8, 0.1, 0.7);
+        const seat = new THREE.Mesh(seatGeo, cushionMat);
+        seat.position.y = 0.5;
+        chair.add(seat);
+
+        // Back
+        const backGeo = new THREE.BoxGeometry(0.8, 0.8, 0.1);
+        const back = new THREE.Mesh(backGeo, cushionMat);
+        back.position.set(0, 0.95, -0.3);
+        chair.add(back);
+
+        // Legs
+        const chairLegGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.45, 6);
+        const chairLegPositions = [[-0.3, 0.22, -0.25], [0.3, 0.22, -0.25], [-0.3, 0.22, 0.25], [0.3, 0.22, 0.25]];
+        chairLegPositions.forEach(pos => {
+          const leg = new THREE.Mesh(chairLegGeo, chairMat);
+          leg.position.set(pos[0], pos[1], pos[2]);
+          chair.add(leg);
+        });
+
+        // Armrests
+        const armGeo = new THREE.BoxGeometry(0.08, 0.08, 0.5);
+        const leftArm = new THREE.Mesh(armGeo, chairMat);
+        leftArm.position.set(-0.4, 0.7, 0);
+        chair.add(leftArm);
+        const rightArm = new THREE.Mesh(armGeo, chairMat);
+        rightArm.position.set(0.4, 0.7, 0);
+        chair.add(rightArm);
+
+        return chair;
+      };
+
+      // Place reading chairs
+      const chair1 = createReadingChair();
+      chair1.position.set(-3, Terrain.getTerrainHeight(-3, 2), 2);
+      chair1.rotation.y = 0.5;
+      objects.push(chair1);
+
+      const chair2 = createReadingChair();
+      chair2.position.set(3, Terrain.getTerrainHeight(3, 2), 2);
+      chair2.rotation.y = -0.5;
+      objects.push(chair2);
+
+      // Reading lamps (floor lamps)
+      const createFloorLamp = () => {
+        const lamp = new THREE.Group();
+
+        const poleMat = new THREE.MeshStandardMaterial({ color: 0x8b7355 });
+        const poleGeo = new THREE.CylinderGeometry(0.05, 0.06, 1.8, 8);
+        const pole = new THREE.Mesh(poleGeo, poleMat);
+        pole.position.y = 0.9;
+        lamp.add(pole);
+
+        const baseGeo = new THREE.CylinderGeometry(0.25, 0.3, 0.1, 8);
+        const base = new THREE.Mesh(baseGeo, poleMat);
+        base.position.y = 0.05;
+        lamp.add(base);
+
+        const shadeGeo = new THREE.ConeGeometry(0.3, 0.4, 8, 1, true);
+        const shadeMat = new THREE.MeshStandardMaterial({
+          color: 0xf5deb3,
+          side: THREE.DoubleSide,
+          emissive: 0xffa500,
+          emissiveIntensity: 0.2
+        });
+        const shade = new THREE.Mesh(shadeGeo, shadeMat);
+        shade.position.y = 2;
+        shade.rotation.x = Math.PI;
+        lamp.add(shade);
+
+        const light = new THREE.PointLight(0xffa500, 0.6, 8);
+        light.position.y = 1.9;
+        lamp.add(light);
+
+        return lamp;
+      };
+
+      const lamp1 = createFloorLamp();
+      lamp1.position.set(-4.5, Terrain.getTerrainHeight(-4.5, 1), 1);
+      objects.push(lamp1);
+
+      const lamp2 = createFloorLamp();
+      lamp2.position.set(4.5, Terrain.getTerrainHeight(4.5, 1), 1);
+      objects.push(lamp2);
+
+      // Lanterns around the library
+      const lanternPositions = [
+        { x: -12, z: 8 }, { x: 12, z: 8 },
+        { x: -18, z: -5 }, { x: 18, z: -5 },
+        { x: 0, z: -10 },
+      ];
+      lanternPositions.forEach(pos => {
+        const lantern = this.createLantern();
+        lantern.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        objects.push(lantern);
+      });
+
+      // Decorative rug under the desk
+      const rugGeo = new THREE.CircleGeometry(4, 32);
+      const rugMat = new THREE.MeshStandardMaterial({ color: 0x800020, roughness: 0.9 });
+      const rug = new THREE.Mesh(rugGeo, rugMat);
+      rug.rotation.x = -Math.PI / 2;
+      rug.position.set(0, Terrain.getTerrainHeight(0, 0) + 0.02, 0);
+      objects.push(rug);
+
+      // Book stacks scattered around
+      const bookStackPositions = [
+        { x: -6, z: -3 }, { x: 6, z: -3 },
+        { x: -2, z: 5 }, { x: 2, z: 5 },
+        { x: -8, z: 4 }, { x: 8, z: 4 },
+      ];
+      bookStackPositions.forEach(pos => {
+        const books = this.createBookStack();
+        books.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        books.rotation.y = Math.random() * Math.PI;
+        objects.push(books);
+      });
+
+      // Trees surrounding (like other worlds)
+      const minTreeSpacing = 6;
+      const treePositions: { x: number; z: number }[] = [];
+
+      const isTooCloseToOtherTrees = (x: number, z: number): boolean => {
+        for (const pos of treePositions) {
+          const dx = x - pos.x;
+          const dz = z - pos.z;
+          if (dx * dx + dz * dz < minTreeSpacing * minTreeSpacing) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Check if near library area
+      const isNearLibrary = (x: number, z: number): boolean => {
+        const dist = Math.sqrt(x * x + z * z);
+        return dist < 22;
+      };
+
+      let treesPlaced = 0;
+      let attempts = 0;
+      while (treesPlaced < 120 && attempts < 1200) {
+        attempts++;
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 24 + Math.random() * 15;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearLibrary(x, z)) continue;
+        if (isTooCloseToOtherTrees(x, z)) continue;
+
+        const scale = 0.7 + Math.random() * 0.8;
+        const tree = this.createTree(scale, 0.5 + Math.random() * 0.4);
+        tree.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        tree.rotation.y = Math.random() * Math.PI * 2;
+        treePositions.push({ x, z });
+        objects.push(tree);
+        treesPlaced++;
+      }
+
+      // Ferns and bushes
+      for (let i = 0; i < 25; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 20 + Math.random() * 15;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearLibrary(x, z)) continue;
+
+        const fern = this.createFern();
+        fern.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        fern.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(fern);
+      }
+
+      // Some flowers
+      for (let i = 0; i < 40; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 18 + Math.random() * 18;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearLibrary(x, z)) continue;
+
+        const flower = this.createFlower();
+        flower.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        flower.scale.setScalar(0.6 + Math.random() * 0.4);
+        objects.push(flower);
+      }
 
       return objects;
     }
