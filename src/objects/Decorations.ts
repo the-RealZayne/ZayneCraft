@@ -1990,7 +1990,7 @@ export class Decorations {
       // Big display screen showing all qualifications (same width as stage)
       const displayScreen = new THREE.Group();
       const screenWidth = 19; // Slightly less than stage width of 20
-      const screenHeight = 11;
+      const screenHeight = 10; // Adjusted for new layout
 
       // Screen frame
       const frameGeo = new THREE.BoxGeometry(screenWidth + 1, screenHeight + 1, 0.3);
@@ -2006,89 +2006,145 @@ export class Decorations {
       // Screen content
       const screenCanvas = document.createElement('canvas');
       screenCanvas.width = 1024;
-      screenCanvas.height = 600;
+      screenCanvas.height = 512;
       const ctx = screenCanvas.getContext('2d')!;
 
       // Background gradient
-      const gradient = ctx.createLinearGradient(0, 0, 0, 600);
+      const gradient = ctx.createLinearGradient(0, 0, 0, 512);
       gradient.addColorStop(0, '#1a1a2e');
       gradient.addColorStop(1, '#16213e');
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 1024, 600);
+      ctx.fillRect(0, 0, 1024, 512);
 
       // Title
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 48px Georgia';
+      ctx.font = 'bold 48px "Segoe UI", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Qualifications', 512, 70);
+      ctx.fillText('Qualifications', 512, 50);
 
       // Divider line
       ctx.strokeStyle = '#4a4a6a';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(100, 100);
-      ctx.lineTo(924, 100);
+      ctx.moveTo(50, 75);
+      ctx.lineTo(974, 75);
       ctx.stroke();
 
-      // Certifications section
-      ctx.fillStyle = '#88ccff';
-      ctx.font = 'bold 32px Georgia';
+      // === Bachelors Section (Top) ===
       ctx.textAlign = 'left';
-      ctx.fillText('Certifications', 80, 160);
-
-      // BCS
-      ctx.fillStyle = '#1e4d8c';
-      ctx.fillRect(80, 180, 400, 80);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 28px Arial';
-      ctx.fillText('BCS', 100, 220);
-      ctx.font = '20px Arial';
-      ctx.fillText('British Computer Society', 100, 248);
-      ctx.fillStyle = '#44ff44';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'right';
-      ctx.fillText('✓ CERTIFIED', 460, 230);
-
-      // AWS
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#ff9900';
-      ctx.fillRect(80, 280, 400, 80);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 28px Arial';
-      ctx.fillText('AWS', 100, 320);
-      ctx.font = '20px Arial';
-      ctx.fillText('Amazon Web Services', 100, 348);
-      ctx.fillStyle = '#44ff44';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'right';
-      ctx.fillText('✓ CERTIFIED', 460, 330);
-
-      // Degree section
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffcc88';
-      ctx.font = 'bold 32px Georgia';
-      ctx.fillText('Degree', 540, 160);
-
-      // Degree in progress
       ctx.fillStyle = '#6b4c9a';
-      ctx.fillRect(540, 180, 400, 120);
+      ctx.font = 'bold 28px "Segoe UI", sans-serif';
+      ctx.fillText('Bachelors', 50, 115);
+
+      // Bachelors card
+      ctx.fillStyle = '#2d1f4e';
+      ctx.fillRect(50, 130, 924, 80);
+      ctx.fillStyle = '#6b4c9a';
+      ctx.fillRect(50, 130, 6, 80);
+
+      // University logo area
+      ctx.fillStyle = '#3d2f5e';
+      ctx.fillRect(70, 140, 60, 60);
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 28px Arial';
-      ctx.fillText('University Degree', 560, 220);
-      ctx.font = '20px Arial';
+      ctx.font = 'bold 22px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('OU', 100, 178);
+
+      // Degree details
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px "Segoe UI", sans-serif';
+      ctx.fillText('BSc Computing + IT', 150, 165);
+      ctx.font = '18px "Segoe UI", sans-serif';
       ctx.fillStyle = '#cccccc';
-      ctx.fillText('Currently in progress...', 560, 250);
+      ctx.fillText('The Open University', 150, 190);
+
+      // Status badge
+      ctx.fillStyle = '#ffa500';
+      ctx.font = 'bold 18px "Segoe UI", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('IN PROGRESS', 959, 160);
 
       // Progress bar
-      ctx.fillStyle = '#333333';
-      ctx.fillRect(560, 270, 360, 16);
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fillRect(700, 175, 260, 16);
       ctx.fillStyle = '#9966cc';
-      ctx.fillRect(560, 270, 216, 16); // 60% progress
+      ctx.fillRect(700, 175, 156, 16); // 60% progress
+      ctx.strokeStyle = '#6b4c9a';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(700, 175, 260, 16);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = '14px Arial';
-      ctx.textAlign = 'right';
-      ctx.fillText('60%', 910, 283);
+      ctx.font = 'bold 14px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('60%', 830, 188);
+
+      // === AWS Certifications (Left side) ===
+      ctx.fillStyle = '#ff9900';
+      ctx.font = 'bold 28px "Segoe UI", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('AWS Certifications', 50, 260);
+
+      // AWS Cert 1 - Developer Associate
+      ctx.fillStyle = '#232f3e';
+      ctx.fillRect(50, 275, 450, 55);
+      ctx.fillStyle = '#ff9900';
+      ctx.fillRect(50, 275, 6, 55);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px "Segoe UI", sans-serif';
+      ctx.fillText('Certified Developer - Associate', 70, 300);
+      ctx.font = '14px "Segoe UI", sans-serif';
+      ctx.fillStyle = '#aaaaaa';
+      ctx.fillText('Issued Aug 2025 · Expires Aug 2028', 70, 320);
+
+      // AWS Cert 2 - AI Practitioner
+      ctx.fillStyle = '#232f3e';
+      ctx.fillRect(50, 340, 450, 55);
+      ctx.fillStyle = '#ff9900';
+      ctx.fillRect(50, 340, 6, 55);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px "Segoe UI", sans-serif';
+      ctx.fillText('Certified AI Practitioner', 70, 365);
+      ctx.font = '14px "Segoe UI", sans-serif';
+      ctx.fillStyle = '#aaaaaa';
+      ctx.fillText('Issued Apr 2025 · Expires Apr 2028', 70, 385);
+
+      // AWS Cert 3 - Cloud Practitioner
+      ctx.fillStyle = '#232f3e';
+      ctx.fillRect(50, 405, 450, 55);
+      ctx.fillStyle = '#ff9900';
+      ctx.fillRect(50, 405, 6, 55);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px "Segoe UI", sans-serif';
+      ctx.fillText('Certified Cloud Practitioner', 70, 430);
+      ctx.font = '14px "Segoe UI", sans-serif';
+      ctx.fillStyle = '#aaaaaa';
+      ctx.fillText('Issued Jun 2024 · Expires Aug 2028', 70, 450);
+
+      // === BCS Certifications (Right side) ===
+      ctx.fillStyle = '#1e4d8c';
+      ctx.font = 'bold 28px "Segoe UI", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('BCS Certifications', 524, 260);
+
+      // BCS Cert 1 - Software Development
+      ctx.fillStyle = '#0a2351';
+      ctx.fillRect(524, 275, 450, 55);
+      ctx.fillStyle = '#1e4d8c';
+      ctx.fillRect(524, 275, 6, 55);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px "Segoe UI", sans-serif';
+      ctx.fillText('Level 3 Certificate in Software', 544, 297);
+      ctx.fillText('Development Context & Methodologies', 544, 317);
+
+      // BCS Cert 2 - Programming
+      ctx.fillStyle = '#0a2351';
+      ctx.fillRect(524, 340, 450, 55);
+      ctx.fillStyle = '#1e4d8c';
+      ctx.fillRect(524, 340, 6, 55);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px "Segoe UI", sans-serif';
+      ctx.fillText('Level 3 Certificate in Programming', 544, 375);
 
       const screenTexture = new THREE.CanvasTexture(screenCanvas);
       const screenMat = new THREE.MeshBasicMaterial({ map: screenTexture });
@@ -2105,45 +2161,6 @@ export class Decorations {
       displayScreen.position.set(0, stageHeight, stageZ + 6);
       displayScreen.rotation.y = Math.PI; // Face the player
       objects.push(displayScreen);
-
-      // Graduation cap floating/tossed
-      const cap = new THREE.Group();
-      const capTopGeo = new THREE.BoxGeometry(1.8, 0.1, 1.8);
-      const capMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
-      const capTop = new THREE.Mesh(capTopGeo, capMat);
-      cap.add(capTop);
-
-      const capBaseGeo = new THREE.CylinderGeometry(0.6, 0.7, 0.5, 8);
-      const capBase = new THREE.Mesh(capBaseGeo, capMat);
-      capBase.position.y = -0.3;
-      cap.add(capBase);
-
-      // Tassel
-      const tasselStringGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.8, 4);
-      const tasselMat = new THREE.MeshStandardMaterial({ color: 0xffd700 });
-      const tasselString = new THREE.Mesh(tasselStringGeo, tasselMat);
-      tasselString.position.set(0.5, -0.4, 0.5);
-      cap.add(tasselString);
-
-      const tasselEndGeo = new THREE.CylinderGeometry(0.06, 0.03, 0.3, 6);
-      const tasselEnd = new THREE.Mesh(tasselEndGeo, tasselMat);
-      tasselEnd.position.set(0.5, -0.85, 0.5);
-      cap.add(tasselEnd);
-
-      cap.position.set(3, 8, 23);
-      cap.rotation.set(0.3, 0.5, 0.2);
-      cap.userData.isFloatingCap = true;
-      cap.userData.baseY = 8;
-      objects.push(cap);
-
-      // Second cap
-      const cap2 = cap.clone();
-      cap2.position.set(-4, 9, 21);
-      cap2.rotation.set(-0.2, -0.3, 0.4);
-      cap2.userData.isFloatingCap = true;
-      cap2.userData.baseY = 9;
-      cap2.userData.phaseOffset = 2;
-      objects.push(cap2);
 
       // Audience seating (benches) - facing the stage
       for (let row = 0; row < 3; row++) {
