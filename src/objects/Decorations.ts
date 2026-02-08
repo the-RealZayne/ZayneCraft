@@ -1969,9 +1969,9 @@ export class Decorations {
       podium.position.set(0, stageHeight, 2);
       stage.add(podium);
 
-      // Stage position
+      // Stage position (closer to portal)
       const stageX = 0;
-      const stageZ = 25;
+      const stageZ = 7;
       stage.position.set(stageX, Terrain.getTerrainHeight(stageX, stageZ), stageZ);
       stage.rotation.y = Math.PI; // Face toward portal/player
       objects.push(stage);
@@ -2167,7 +2167,7 @@ export class Decorations {
         for (let col = 0; col < 3; col++) {
           const bench = this.createBench();
           const x = (col - 1) * 6;
-          const z = 8 + row * 4; // Between player and stage
+          const z = -8 + row * 2; // Between portal and stage
           bench.position.set(x, Terrain.getTerrainHeight(x, z), z);
           bench.rotation.y = 0; // Face toward stage
           objects.push(bench);
@@ -2195,19 +2195,19 @@ export class Decorations {
 
       // Banners along the sides
       const banner1 = createBanner(0x1e4d8c);
-      banner1.position.set(-15, Terrain.getTerrainHeight(-15, 15), 15);
+      banner1.position.set(-12, Terrain.getTerrainHeight(-12, 0), 0);
       objects.push(banner1);
 
       const banner2 = createBanner(0xff9900);
-      banner2.position.set(15, Terrain.getTerrainHeight(15, 15), 15);
+      banner2.position.set(12, Terrain.getTerrainHeight(12, 0), 0);
       objects.push(banner2);
 
       const banner3 = createBanner(0x6b4c9a);
-      banner3.position.set(-15, Terrain.getTerrainHeight(-15, 28), 28);
+      banner3.position.set(-12, Terrain.getTerrainHeight(-12, 10), 10);
       objects.push(banner3);
 
       const banner4 = createBanner(0x6b4c9a);
-      banner4.position.set(15, Terrain.getTerrainHeight(15, 28), 28);
+      banner4.position.set(12, Terrain.getTerrainHeight(12, 10), 10);
       objects.push(banner4);
 
       // Confetti particles
@@ -2227,9 +2227,9 @@ export class Decorations {
       ];
 
       for (let i = 0; i < confettiCount; i++) {
-        confettiPositions[i * 3] = (Math.random() - 0.5) * 30;
+        confettiPositions[i * 3] = (Math.random() - 0.5) * 25;
         confettiPositions[i * 3 + 1] = 3 + Math.random() * 10;
-        confettiPositions[i * 3 + 2] = 18 + (Math.random() - 0.5) * 20; // Around stage area
+        confettiPositions[i * 3 + 2] = 3 + (Math.random() - 0.5) * 10; // Around stage area (closer)
 
         const color = confettiColorOptions[Math.floor(Math.random() * confettiColorOptions.length)];
         confettiColors[i * 3] = color.r;
@@ -2258,10 +2258,12 @@ export class Decorations {
 
       // Lanterns for ambiance
       const lanternPositions = [
-        { x: -10, z: 5 },
-        { x: 10, z: 5 },
-        { x: -18, z: 20 },
-        { x: 18, z: 20 },
+        { x: -10, z: -5 },
+        { x: 10, z: -5 },
+        { x: -12, z: 4 },
+        { x: 12, z: 4 },
+        { x: -14, z: 14 },
+        { x: 14, z: 14 },
       ];
       lanternPositions.forEach((pos) => {
         const lantern = this.createLantern();
@@ -2269,19 +2271,85 @@ export class Decorations {
         objects.push(lantern);
       });
 
-      // Trees around perimeter (avoid blocking stage view)
-      for (let i = 0; i < 20; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 30 + Math.random() * 12;
-        const x = Math.cos(angle) * distance;
-        const z = Math.sin(angle) * distance + 15; // Offset to center around stage area
-        if (this.isNearPortal(x, z)) continue;
-        if (Math.abs(x) < 15 && z > 0 && z < 35) continue; // Don't block center view
+      // Check if too close to stage area (stage at z=7, 20 wide, 12 deep)
+      const isNearStage = (x: number, z: number): boolean => {
+        return Math.abs(x) < 14 && z > -3 && z < 20;
+      };
 
-        const tree = this.createTree(0.5 + Math.random() * 0.4, 0.4 + Math.random() * 0.3);
+      // Tree spacing like story world
+      const minTreeSpacing = 6;
+      const treePositions: { x: number; z: number }[] = [];
+
+      const isTooCloseToOtherTrees = (x: number, z: number): boolean => {
+        for (const pos of treePositions) {
+          const dx = x - pos.x;
+          const dz = z - pos.z;
+          if (dx * dx + dz * dz < minTreeSpacing * minTreeSpacing) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Trees surrounding the area (similar to story world)
+      let treesPlaced = 0;
+      let attempts = 0;
+      while (treesPlaced < 250 && attempts < 2500) {
+        attempts++;
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 24 + Math.random() * 15; // Start beyond portal distance
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        // Skip if too close to portal
+        if (this.isNearPortal(x, z)) continue;
+
+        // Skip if too close to stage
+        if (isNearStage(x, z)) continue;
+
+        // Skip if too close to another tree
+        if (isTooCloseToOtherTrees(x, z)) continue;
+
+        const scale = 0.7 + Math.random() * 0.8;
+        const tree = this.createTree(scale, 0.5 + Math.random() * 0.4);
         tree.position.set(x, Terrain.getTerrainHeight(x, z), z);
         tree.rotation.y = Math.random() * Math.PI * 2;
+        treePositions.push({ x, z });
         objects.push(tree);
+        treesPlaced++;
+      }
+
+      // Ferns scattered around the edges
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 22 + Math.random() * 12;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearStage(x, z)) continue;
+
+        const fern = this.createFern();
+        fern.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        fern.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(fern);
+      }
+
+      // A few bushes for variety
+      for (let i = 0; i < 10; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 20 + Math.random() * 14;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearStage(x, z)) continue;
+
+        const bush = this.createBush();
+        bush.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        bush.scale.setScalar(0.6 + Math.random() * 0.4);
+        objects.push(bush);
       }
 
       return objects;
