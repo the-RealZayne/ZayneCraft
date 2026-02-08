@@ -81,6 +81,7 @@ export class PlanetManager {
 
   public loadPlanet(planetId: string): void {
     this.clearPlanet();
+    Terrain.clearPlatforms();
 
     const config = planets[planetId];
     this.currentPlanet = planetId;

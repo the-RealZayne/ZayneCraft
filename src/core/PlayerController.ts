@@ -138,11 +138,25 @@ export class PlayerController {
     this.controls.moveForward(-this.velocity.z * delta);
     this.camera.position.y += this.velocity.y * delta;
 
+    // Platform collision check - block player from walking into platforms they can't access
+    const currentGroundHeight = this.camera.position.y - this.playerHeight;
+    const collision = Terrain.checkPlatformCollision(
+      this.camera.position.x,
+      this.camera.position.z,
+      currentGroundHeight
+    );
+    if (collision.blocked) {
+      this.camera.position.x += collision.pushX;
+      this.camera.position.z += collision.pushZ;
+    }
+
     // Ground collision - sample terrain height at player position
+    // Pass current ground-relative height for platform access checks
     const terrainY = Terrain.getTerrainHeight(
       this.camera.position.x,
       this.camera.position.z,
-      currentFlatRadius
+      currentFlatRadius,
+      currentGroundHeight
     );
     const groundLevel = terrainY + this.playerHeight;
 

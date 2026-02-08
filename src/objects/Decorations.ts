@@ -1931,199 +1931,180 @@ export class Decorations {
 
       // Main stage platform
       const stage = new THREE.Group();
+      const stageHeight = 1.5;
 
-      const stagePlatformGeo = new THREE.BoxGeometry(20, 1.5, 12);
+      const stagePlatformGeo = new THREE.BoxGeometry(20, stageHeight, 12);
       const stageMat = new THREE.MeshStandardMaterial({
         color: 0x4a3728,
         roughness: 0.8,
       });
       const stagePlatform = new THREE.Mesh(stagePlatformGeo, stageMat);
-      stagePlatform.position.y = 0.75;
+      stagePlatform.position.y = stageHeight / 2;
       stagePlatform.castShadow = true;
       stagePlatform.receiveShadow = true;
       stage.add(stagePlatform);
 
-      // Stage carpet (red runner)
-      const carpetGeo = new THREE.BoxGeometry(6, 0.05, 14);
+      // Stage carpet (red runner) - on top of stage surface
+      const carpetGeo = new THREE.BoxGeometry(6, 0.02, 11);
       const carpetMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
       const carpet = new THREE.Mesh(carpetGeo, carpetMat);
-      carpet.position.y = 1.55;
+      carpet.position.y = stageHeight + 0.02;
       stage.add(carpet);
 
-      // Podium
+      // Podium (smaller lectern)
       const podium = new THREE.Group();
-      const podiumBaseGeo = new THREE.BoxGeometry(2, 3, 1.5);
+      const podiumBaseGeo = new THREE.BoxGeometry(1.2, 2, 0.8);
       const podiumMat = new THREE.MeshStandardMaterial({ color: 0x3d2817 });
       const podiumBase = new THREE.Mesh(podiumBaseGeo, podiumMat);
-      podiumBase.position.y = 1.5;
+      podiumBase.position.y = 1;
       podium.add(podiumBase);
 
       // Podium top (angled)
-      const podiumTopGeo = new THREE.BoxGeometry(2.2, 0.3, 1.8);
+      const podiumTopGeo = new THREE.BoxGeometry(1.4, 0.2, 1);
       const podiumTop = new THREE.Mesh(podiumTopGeo, podiumMat);
-      podiumTop.position.y = 3.1;
-      podiumTop.rotation.x = -0.2;
+      podiumTop.position.y = 2.1;
+      podiumTop.rotation.x = -0.25;
       podium.add(podiumTop);
 
-      podium.position.set(0, 1.5, -2);
+      podium.position.set(0, stageHeight, 2);
       stage.add(podium);
 
-      // Steps leading up to stage
-      for (let i = 0; i < 3; i++) {
-        const stepGeo = new THREE.BoxGeometry(4, 0.5, 1.2);
-        const step = new THREE.Mesh(stepGeo, stageMat);
-        step.position.set(0, 0.25 + i * 0.5, 7 + i * 1.2);
-        step.castShadow = true;
-        stage.add(step);
-      }
-
-      // Stage in front of portal (player faces this direction)
-      stage.position.set(0, Terrain.getTerrainHeight(0, 25), 25);
+      // Stage position
+      const stageX = 0;
+      const stageZ = 25;
+      stage.position.set(stageX, Terrain.getTerrainHeight(stageX, stageZ), stageZ);
       stage.rotation.y = Math.PI; // Face toward portal/player
       objects.push(stage);
 
-      // Certificate display stands - COMPLETED CERTS
+      // Register stage as walkable platform
+      Terrain.addWalkablePlatform({
+        x: stageX,
+        z: stageZ,
+        width: 20,
+        depth: 12,
+        height: stageHeight,
+        rotation: Math.PI
+      });
 
-      // Helper to create certificate frame
-      const createCertificateFrame = (
-        title: string,
-        subtitle: string,
-        color: number,
-        completed: boolean
-      ) => {
-        const frame = new THREE.Group();
 
-        // Stand pole
-        const poleGeo = new THREE.CylinderGeometry(0.1, 0.15, 4, 8);
-        const poleMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.7 });
-        const pole = new THREE.Mesh(poleGeo, poleMat);
-        pole.position.y = 2;
-        frame.add(pole);
+      // Big display screen showing all qualifications (same width as stage)
+      const displayScreen = new THREE.Group();
+      const screenWidth = 19; // Slightly less than stage width of 20
+      const screenHeight = 11;
 
-        // Stand base
-        const baseGeo = new THREE.CylinderGeometry(0.6, 0.7, 0.2, 8);
-        const base = new THREE.Mesh(baseGeo, poleMat);
-        base.position.y = 0.1;
-        frame.add(base);
+      // Screen frame
+      const frameGeo = new THREE.BoxGeometry(screenWidth + 1, screenHeight + 1, 0.3);
+      const frameMat = new THREE.MeshStandardMaterial({
+        color: 0x2a2a2a,
+        metalness: 0.5,
+        roughness: 0.3,
+      });
+      const frame = new THREE.Mesh(frameGeo, frameMat);
+      frame.position.y = screenHeight / 2 + 0.5;
+      displayScreen.add(frame);
 
-        // Certificate backing
-        const backingGeo = new THREE.BoxGeometry(3.5, 2.5, 0.15);
-        const backingMat = new THREE.MeshStandardMaterial({
-          color: completed ? 0x2a2a2a : 0x3a3a3a,
-          roughness: 0.3,
-        });
-        const backing = new THREE.Mesh(backingGeo, backingMat);
-        backing.position.y = 4.2;
-        frame.add(backing);
+      // Screen content
+      const screenCanvas = document.createElement('canvas');
+      screenCanvas.width = 1024;
+      screenCanvas.height = 600;
+      const ctx = screenCanvas.getContext('2d')!;
 
-        // Certificate paper
-        const paperGeo = new THREE.BoxGeometry(3, 2, 0.05);
-        const paperMat = new THREE.MeshStandardMaterial({
-          color: completed ? 0xf5f5dc : 0xcccccc,
-        });
-        const paper = new THREE.Mesh(paperGeo, paperMat);
-        paper.position.set(0, 4.2, 0.1);
-        frame.add(paper);
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, 600);
+      gradient.addColorStop(0, '#1a1a2e');
+      gradient.addColorStop(1, '#16213e');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 600);
 
-        // Certificate text
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 340;
-        const ctx = canvas.getContext('2d')!;
+      // Title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Qualifications', 512, 70);
 
-        // Background
-        ctx.fillStyle = completed ? '#f5f5dc' : '#cccccc';
-        ctx.fillRect(0, 0, 512, 340);
+      // Divider line
+      ctx.strokeStyle = '#4a4a6a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(100, 100);
+      ctx.lineTo(924, 100);
+      ctx.stroke();
 
-        // Border
-        ctx.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
-        ctx.lineWidth = 12;
-        ctx.strokeRect(15, 15, 482, 310);
+      // Certifications section
+      ctx.fillStyle = '#88ccff';
+      ctx.font = 'bold 32px Georgia';
+      ctx.textAlign = 'left';
+      ctx.fillText('Certifications', 80, 160);
 
-        // Inner border
-        ctx.strokeStyle = '#333333';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(30, 30, 452, 280);
+      // BCS
+      ctx.fillStyle = '#1e4d8c';
+      ctx.fillRect(80, 180, 400, 80);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px Arial';
+      ctx.fillText('BCS', 100, 220);
+      ctx.font = '20px Arial';
+      ctx.fillText('British Computer Society', 100, 248);
+      ctx.fillStyle = '#44ff44';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText('✓ CERTIFIED', 460, 230);
 
-        // Title
-        ctx.fillStyle = '#333333';
-        ctx.font = 'bold 36px Georgia';
-        ctx.textAlign = 'center';
-        ctx.fillText(title, 256, 100);
+      // AWS
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#ff9900';
+      ctx.fillRect(80, 280, 400, 80);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px Arial';
+      ctx.fillText('AWS', 100, 320);
+      ctx.font = '20px Arial';
+      ctx.fillText('Amazon Web Services', 100, 348);
+      ctx.fillStyle = '#44ff44';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText('✓ CERTIFIED', 460, 330);
 
-        // Subtitle
-        ctx.font = '24px Georgia';
-        ctx.fillText(subtitle, 256, 150);
+      // Degree section
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#ffcc88';
+      ctx.font = 'bold 32px Georgia';
+      ctx.fillText('Degree', 540, 160);
 
-        // Status
-        if (completed) {
-          ctx.fillStyle = '#228b22';
-          ctx.font = 'bold 28px Georgia';
-          ctx.fillText('CERTIFIED', 256, 220);
+      // Degree in progress
+      ctx.fillStyle = '#6b4c9a';
+      ctx.fillRect(540, 180, 400, 120);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px Arial';
+      ctx.fillText('University Degree', 560, 220);
+      ctx.font = '20px Arial';
+      ctx.fillStyle = '#cccccc';
+      ctx.fillText('Currently in progress...', 560, 250);
 
-          // Checkmark
-          ctx.font = '48px Arial';
-          ctx.fillText('✓', 256, 280);
-        } else {
-          ctx.fillStyle = '#b8860b';
-          ctx.font = 'bold 24px Georgia';
-          ctx.fillText('IN PROGRESS', 256, 220);
+      // Progress bar
+      ctx.fillStyle = '#333333';
+      ctx.fillRect(560, 270, 360, 16);
+      ctx.fillStyle = '#9966cc';
+      ctx.fillRect(560, 270, 216, 16); // 60% progress
 
-          // Progress indicator
-          ctx.fillStyle = '#ddd';
-          ctx.fillRect(156, 250, 200, 20);
-          ctx.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
-          ctx.fillRect(156, 250, 120, 20); // 60% progress
-        }
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText('60%', 910, 283);
 
-        const texture = new THREE.CanvasTexture(canvas);
-        const textMat = new THREE.MeshBasicMaterial({ map: texture });
-        const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(3, 2), textMat);
-        textPlane.position.set(0, 4.2, 0.13);
-        frame.add(textPlane);
+      const screenTexture = new THREE.CanvasTexture(screenCanvas);
+      const screenMat = new THREE.MeshBasicMaterial({ map: screenTexture });
+      const screenPlane = new THREE.Mesh(new THREE.PlaneGeometry(screenWidth, screenHeight), screenMat);
+      screenPlane.position.set(0, screenHeight / 2 + 0.5, 0.2);
+      displayScreen.add(screenPlane);
 
-        // Glow for completed certs
-        if (completed) {
-          const glowLight = new THREE.PointLight(color, 0.5, 5);
-          glowLight.position.set(0, 4.2, 1);
-          frame.add(glowLight);
-        }
+      // Screen glow
+      const screenLight = new THREE.PointLight(0x4488ff, 0.4, 8);
+      screenLight.position.set(0, screenHeight / 2, 1);
+      displayScreen.add(screenLight);
 
-        return frame;
-      };
-
-      // BCS Certificate (completed) - left of stage
-      const bcsCert = createCertificateFrame(
-        'BCS',
-        'British Computer Society',
-        0x1e4d8c,
-        true
-      );
-      bcsCert.position.set(-12, Terrain.getTerrainHeight(-12, 23), 23);
-      bcsCert.rotation.y = Math.PI + 0.3;
-      objects.push(bcsCert);
-
-      // AWS Certificate (completed) - right of stage
-      const awsCert = createCertificateFrame(
-        'AWS',
-        'Amazon Web Services',
-        0xff9900,
-        true
-      );
-      awsCert.position.set(12, Terrain.getTerrainHeight(12, 23), 23);
-      awsCert.rotation.y = Math.PI - 0.3;
-      objects.push(awsCert);
-
-      // Degree (in progress) - on stage behind podium
-      const degreeCert = createCertificateFrame(
-        'Degree',
-        'University',
-        0x6b4c9a,
-        false
-      );
-      degreeCert.position.set(0, Terrain.getTerrainHeight(0, 28) + 1.5, 28);
-      degreeCert.rotation.y = Math.PI;
-      objects.push(degreeCert);
+      // Position screen on stage - back of stage is at z: 31 (stageZ + 6 due to 180 rotation)
+      displayScreen.position.set(0, stageHeight, stageZ + 6);
+      displayScreen.rotation.y = Math.PI; // Face the player
+      objects.push(displayScreen);
 
       // Graduation cap floating/tossed
       const cap = new THREE.Group();

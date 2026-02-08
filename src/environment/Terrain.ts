@@ -1,6 +1,124 @@
 import * as THREE from 'three';
 
+interface WalkablePlatform {
+  x: number;
+  z: number;
+  width: number;
+  depth: number;
+  height: number;
+  rotation?: number;
+  minApproachHeight?: number; // Player must be at least this height to get on
+}
+
 export class Terrain {
+  // Registry of walkable platforms (cleared when loading new planet)
+  private static walkablePlatforms: WalkablePlatform[] = [];
+
+  public static clearPlatforms(): void {
+    this.walkablePlatforms = [];
+  }
+
+  public static addWalkablePlatform(platform: WalkablePlatform): void {
+    this.walkablePlatforms.push(platform);
+  }
+
+  // Check if moving to a position would collide with a platform the player can't access
+  public static checkPlatformCollision(
+    worldX: number,
+    worldZ: number,
+    currentHeight: number
+  ): { blocked: boolean; pushX: number; pushZ: number } {
+    // First check if player can access ANY platform at this position
+    // If so, don't block them (they're on valid stairs/platform)
+    const accessibleHeight = this.getPlatformHeight(worldX, worldZ, currentHeight);
+    if (accessibleHeight !== null) {
+      return { blocked: false, pushX: 0, pushZ: 0 };
+    }
+
+    for (const platform of this.walkablePlatforms) {
+      const rotation = platform.rotation || 0;
+
+      // Transform point to platform's local space
+      const dx = worldX - platform.x;
+      const dz = worldZ - platform.z;
+      const cos = Math.cos(-rotation);
+      const sin = Math.sin(-rotation);
+      const localX = dx * cos - dz * sin;
+      const localZ = dx * sin + dz * cos;
+
+      // Check if within platform bounds
+      const halfWidth = platform.width / 2;
+      const halfDepth = platform.depth / 2;
+
+      if (localX >= -halfWidth && localX <= halfWidth &&
+          localZ >= -halfDepth && localZ <= halfDepth) {
+        // Player is within platform bounds - check if they can access it
+        const minHeight = platform.minApproachHeight ?? 0;
+
+        // If player is below the required height, they should be blocked
+        if (currentHeight < minHeight - 0.3) {
+          // Calculate push direction to get player out of the platform
+          const overlapLeft = localX + halfWidth;
+          const overlapRight = halfWidth - localX;
+          const overlapFront = localZ + halfDepth;
+          const overlapBack = halfDepth - localZ;
+
+          // Find smallest overlap to determine push direction
+          const minOverlap = Math.min(overlapLeft, overlapRight, overlapFront, overlapBack);
+
+          let pushLocalX = 0;
+          let pushLocalZ = 0;
+
+          if (minOverlap === overlapLeft) pushLocalX = -overlapLeft - 0.1;
+          else if (minOverlap === overlapRight) pushLocalX = overlapRight + 0.1;
+          else if (minOverlap === overlapFront) pushLocalZ = -overlapFront - 0.1;
+          else pushLocalZ = overlapBack + 0.1;
+
+          // Transform push back to world space
+          const pushX = pushLocalX * Math.cos(rotation) - pushLocalZ * Math.sin(rotation);
+          const pushZ = pushLocalX * Math.sin(rotation) + pushLocalZ * Math.cos(rotation);
+
+          return { blocked: true, pushX, pushZ };
+        }
+      }
+    }
+    return { blocked: false, pushX: 0, pushZ: 0 };
+  }
+
+  // Check if position is on a walkable platform
+  private static getPlatformHeight(worldX: number, worldZ: number, currentHeight: number): number | null {
+    let highestPlatform: number | null = null;
+
+    for (const platform of this.walkablePlatforms) {
+      const rotation = platform.rotation || 0;
+
+      // Transform point to platform's local space
+      const dx = worldX - platform.x;
+      const dz = worldZ - platform.z;
+      const cos = Math.cos(-rotation);
+      const sin = Math.sin(-rotation);
+      const localX = dx * cos - dz * sin;
+      const localZ = dx * sin + dz * cos;
+
+      // Check if within platform bounds
+      const halfWidth = platform.width / 2;
+      const halfDepth = platform.depth / 2;
+
+      if (localX >= -halfWidth && localX <= halfWidth &&
+          localZ >= -halfDepth && localZ <= halfDepth) {
+        // Check if player meets minimum approach height requirement
+        const minHeight = platform.minApproachHeight ?? 0;
+        if (currentHeight >= minHeight - 0.5) {
+          // Return the highest valid platform
+          if (highestPlatform === null || platform.height > highestPlatform) {
+            highestPlatform = platform.height;
+          }
+        }
+      }
+    }
+    return highestPlatform;
+  }
+
   // Simplex-like noise function for terrain
   public static noise(x: number, y: number): number {
     const n =
@@ -12,8 +130,15 @@ export class Terrain {
 
   // Get terrain height at world coordinates (x, z)
   // flatRadius: area to keep completely flat (default 40)
+  // currentPlayerHeight: used to check if player can access elevated platforms
   // Note: The terrain plane is rotated -90 around X, so plane localY = -worldZ
-  public static getTerrainHeight(worldX: number, worldZ: number, flatRadius = 40): number {
+  public static getTerrainHeight(worldX: number, worldZ: number, flatRadius = 40, currentPlayerHeight = 0): number {
+    // Check for walkable platforms first
+    const platformHeight = this.getPlatformHeight(worldX, worldZ, currentPlayerHeight);
+    if (platformHeight !== null) {
+      return platformHeight;
+    }
+
     const distance = Math.sqrt(worldX * worldX + worldZ * worldZ);
 
     if (distance <= flatRadius) {
