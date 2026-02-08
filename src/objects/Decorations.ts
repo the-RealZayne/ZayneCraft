@@ -2057,7 +2057,7 @@ export class Decorations {
       ctx.fillText('BSc Computing + IT', 150, 165);
       ctx.font = '18px "Segoe UI", sans-serif';
       ctx.fillStyle = '#cccccc';
-      ctx.fillText('The Open University', 150, 190);
+      ctx.fillText('The Open University (Expected 2027)', 150, 190);
 
       // Status badge
       ctx.fillStyle = '#ffa500';
@@ -2351,6 +2351,122 @@ export class Decorations {
         bush.scale.setScalar(0.6 + Math.random() * 0.4);
         objects.push(bush);
       }
+
+      // Book stacks on the left side of benches
+      const bookStackPositions = [
+        { x: -10, z: -7 },
+        { x: -11, z: -4 },
+        { x: -10, z: -1 },
+      ];
+      bookStackPositions.forEach((pos) => {
+        const books = this.createBookStack();
+        books.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        books.rotation.y = Math.random() * Math.PI;
+        objects.push(books);
+      });
+
+      // Guest book stand on the right side of benches
+      const guestBookStand = new THREE.Group();
+
+      // Pedestal
+      const pedestalGeo = new THREE.CylinderGeometry(0.3, 0.4, 1, 8);
+      const pedestalMat = new THREE.MeshStandardMaterial({ color: 0x4a3728 });
+      const pedestal = new THREE.Mesh(pedestalGeo, pedestalMat);
+      pedestal.position.y = 0.5;
+      pedestal.castShadow = true;
+      guestBookStand.add(pedestal);
+
+      // Top plate
+      const plateMat = new THREE.MeshStandardMaterial({ color: 0x5c4033 });
+      const plateGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.05, 8);
+      const plate = new THREE.Mesh(plateGeo, plateMat);
+      plate.position.y = 1.02;
+      guestBookStand.add(plate);
+
+      // Open book
+      const bookGroup = new THREE.Group();
+      const pageMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc });
+      const coverMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+
+      // Left page
+      const leftPageGeo = new THREE.BoxGeometry(0.25, 0.02, 0.35);
+      const leftPage = new THREE.Mesh(leftPageGeo, pageMat);
+      leftPage.position.set(-0.13, 0, 0);
+      leftPage.rotation.z = 0.1;
+      bookGroup.add(leftPage);
+
+      // Right page
+      const rightPage = new THREE.Mesh(leftPageGeo, pageMat);
+      rightPage.position.set(0.13, 0, 0);
+      rightPage.rotation.z = -0.1;
+      bookGroup.add(rightPage);
+
+      // Spine
+      const spineGeo = new THREE.BoxGeometry(0.04, 0.03, 0.35);
+      const spine = new THREE.Mesh(spineGeo, coverMat);
+      spine.position.y = -0.01;
+      bookGroup.add(spine);
+
+      bookGroup.position.y = 1.08;
+      bookGroup.rotation.y = 0.3;
+      guestBookStand.add(bookGroup);
+
+      // Pen
+      const penGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.15, 6);
+      const penMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+      const pen = new THREE.Mesh(penGeo, penMat);
+      pen.position.set(0.2, 1.1, 0.1);
+      pen.rotation.z = Math.PI / 2;
+      pen.rotation.y = 0.5;
+      guestBookStand.add(pen);
+
+      const standX = 9;
+      const standZ = -3;
+      guestBookStand.position.set(standX, Terrain.getTerrainHeight(standX, standZ), standZ);
+      objects.push(guestBookStand);
+
+      // More book stacks on the right side too
+      const rightBookPositions = [
+        { x: 11, z: -8 },
+        { x: 10, z: -2 },
+      ];
+      rightBookPositions.forEach((pos) => {
+        const books = this.createBookStack();
+        books.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        books.rotation.y = Math.random() * Math.PI;
+        objects.push(books);
+      });
+
+      // Flower arrangements along the sides (avoiding the stage area)
+      const flowerClusterPositions = [
+        { x: -12, z: -6 }, // Left side near benches
+        { x: 12, z: -6 },  // Right side near benches
+        { x: -12, z: 0 },  // Left side
+        { x: 12, z: 0 },   // Right side
+        { x: -14, z: -3 }, // Far left
+        { x: 14, z: -3 },  // Far right
+        { x: -5, z: -6 },  // Near benches left
+        { x: 5, z: -6 },   // Near benches right
+        { x: 0, z: -9 },   // Center near spawn
+        { x: -14, z: 5 },  // Far left mid
+        { x: 14, z: 5 },   // Far right mid
+        { x: -13, z: -8 }, // Far left back
+        { x: 13, z: -8 },  // Far right back
+        { x: -8, z: -10 }, // Left near spawn
+        { x: 8, z: -10 },  // Right near spawn
+      ];
+      flowerClusterPositions.forEach((pos) => {
+        // Create a cluster of flowers
+        for (let j = 0; j < 8; j++) {
+          const flower = this.createFlower();
+          const ox = pos.x + (Math.random() - 0.5) * 3;
+          const oz = pos.z + (Math.random() - 0.5) * 3;
+          flower.position.set(ox, Terrain.getTerrainHeight(ox, oz), oz);
+          flower.scale.setScalar(0.6 + Math.random() * 0.5);
+          flower.rotation.y = Math.random() * Math.PI * 2;
+          objects.push(flower);
+        }
+      });
 
       return objects;
     }
@@ -4327,6 +4443,8 @@ export class Decorations {
       }
 
       // Trees surrounding (dense forest like story world)
+      // Skills world uses flatRadius 60
+      const skillsFlatRadius = 60;
       for (let i = 0; i < 150; i++) {
         const angle = Math.random() * Math.PI * 2;
         const distance = 45 + Math.random() * 20;
@@ -4335,7 +4453,7 @@ export class Decorations {
         if (this.isNearPortal(x, z)) continue;
         const scale = 0.6 + Math.random() * 0.8;
         const tree = this.createTree(scale, 0.5 + Math.random() * 0.5);
-        tree.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        tree.position.set(x, Terrain.getTerrainHeight(x, z, skillsFlatRadius), z);
         tree.rotation.y = Math.random() * Math.PI * 2;
         objects.push(tree);
       }
@@ -4349,7 +4467,7 @@ export class Decorations {
       ];
       for (const pos of lanternPositions) {
         const lantern = this.createLantern();
-        lantern.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z), pos.z);
+        lantern.position.set(pos.x, Terrain.getTerrainHeight(pos.x, pos.z, skillsFlatRadius), pos.z);
         objects.push(lantern);
       }
 
@@ -4360,12 +4478,12 @@ export class Decorations {
 
       // Benches to sit and admire
       const bench1 = this.createBench();
-      bench1.position.set(-38, Terrain.getTerrainHeight(-38, 0), 0);
+      bench1.position.set(-38, Terrain.getTerrainHeight(-38, 0, skillsFlatRadius), 0);
       bench1.rotation.y = Math.PI / 2;
       objects.push(bench1);
 
       const bench2 = this.createBench();
-      bench2.position.set(38, Terrain.getTerrainHeight(38, 0), 0);
+      bench2.position.set(38, Terrain.getTerrainHeight(38, 0, skillsFlatRadius), 0);
       bench2.rotation.y = -Math.PI / 2;
       objects.push(bench2);
 
@@ -4379,13 +4497,13 @@ export class Decorations {
 
         if (Math.random() < 0.5) {
           const fern = this.createFern();
-          fern.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          fern.position.set(x, Terrain.getTerrainHeight(x, z, skillsFlatRadius), z);
           fern.rotation.y = Math.random() * Math.PI * 2;
           fern.scale.setScalar(0.7 + Math.random() * 0.4);
           objects.push(fern);
         } else {
           const bush = this.createBush();
-          bush.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          bush.position.set(x, Terrain.getTerrainHeight(x, z, skillsFlatRadius), z);
           objects.push(bush);
         }
       }
@@ -4399,28 +4517,28 @@ export class Decorations {
         if (this.isNearPortal(x, z)) continue;
 
         const mushroom = this.createMushroom();
-        mushroom.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        mushroom.position.set(x, Terrain.getTerrainHeight(x, z, skillsFlatRadius), z);
         objects.push(mushroom);
       }
 
       // Garden tools (placed safely away from flower beds)
       const gardenTools1 = this.createGardenTools();
-      gardenTools1.position.set(-30, Terrain.getTerrainHeight(-30, -20), -20);
+      gardenTools1.position.set(-30, Terrain.getTerrainHeight(-30, -20, skillsFlatRadius), -20);
       gardenTools1.rotation.y = 0.5;
       objects.push(gardenTools1);
 
       const gardenTools2 = this.createGardenTools();
-      gardenTools2.position.set(32, Terrain.getTerrainHeight(32, 18), 18);
+      gardenTools2.position.set(32, Terrain.getTerrainHeight(32, 18, skillsFlatRadius), 18);
       gardenTools2.rotation.y = -0.8;
       objects.push(gardenTools2);
 
       const gardenTools3 = this.createGardenTools();
-      gardenTools3.position.set(-28, Terrain.getTerrainHeight(-28, 22), 22);
+      gardenTools3.position.set(-28, Terrain.getTerrainHeight(-28, 22, skillsFlatRadius), 22);
       gardenTools3.rotation.y = 1.2;
       objects.push(gardenTools3);
 
       const gardenTools4 = this.createGardenTools();
-      gardenTools4.position.set(30, Terrain.getTerrainHeight(30, -18), -18);
+      gardenTools4.position.set(30, Terrain.getTerrainHeight(30, -18, skillsFlatRadius), -18);
       gardenTools4.rotation.y = 2.5;
       objects.push(gardenTools4);
 
@@ -4433,7 +4551,7 @@ export class Decorations {
         if (this.isNearPortal(x, z)) continue;
 
         const flower = this.createFlower();
-        flower.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        flower.position.set(x, Terrain.getTerrainHeight(x, z, skillsFlatRadius), z);
         flower.scale.setScalar(0.6 + Math.random() * 0.4);
         objects.push(flower);
       }
