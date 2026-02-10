@@ -4866,6 +4866,39 @@ export class Decorations {
         objects.push(lantern);
       });
 
+      // Flowers between portal and bookshelves (z from -14 to -2)
+      for (let i = 0; i < 50; i++) {
+        const x = (Math.random() - 0.5) * 24; // -12 to 12
+        const z = -14 + Math.random() * 12; // -14 to -2
+
+        if (this.isNearPortal(x, z)) continue;
+
+        const flower = this.createFlower();
+        flower.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        flower.scale.setScalar(0.6 + Math.random() * 0.4);
+        objects.push(flower);
+      }
+
+      // Some ferns and grass in the path area too
+      for (let i = 0; i < 20; i++) {
+        const x = (Math.random() - 0.5) * 20;
+        const z = -12 + Math.random() * 10;
+
+        if (this.isNearPortal(x, z)) continue;
+
+        if (Math.random() > 0.5) {
+          const fern = this.createFern();
+          fern.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          fern.rotation.y = Math.random() * Math.PI * 2;
+          objects.push(fern);
+        } else {
+          const grass = this.createTallGrass();
+          grass.position.set(x, Terrain.getTerrainHeight(x, z), z);
+          grass.rotation.y = Math.random() * Math.PI * 2;
+          objects.push(grass);
+        }
+      }
+
       // Decorative rug under the desk
       const rugGeo = new THREE.CircleGeometry(3, 32);
       const rugMat = new THREE.MeshStandardMaterial({ color: 0x800020, roughness: 0.9 });
@@ -4910,10 +4943,10 @@ export class Decorations {
 
       let treesPlaced = 0;
       let attempts = 0;
-      while (treesPlaced < 180 && attempts < 1800) {
+      while (treesPlaced < 300 && attempts < 3000) {
         attempts++;
         const angle = Math.random() * Math.PI * 2;
-        const distance = 20 + Math.random() * 18;
+        const distance = 18 + Math.random() * 45;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -4930,10 +4963,10 @@ export class Decorations {
         treesPlaced++;
       }
 
-      // Ferns and bushes
-      for (let i = 0; i < 25; i++) {
+      // Ferns
+      for (let i = 0; i < 60; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 20 + Math.random() * 15;
+        const distance = 18 + Math.random() * 40;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -4946,10 +4979,26 @@ export class Decorations {
         objects.push(fern);
       }
 
-      // Some flowers
+      // Bushes
       for (let i = 0; i < 40; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = 18 + Math.random() * 18;
+        const distance = 20 + Math.random() * 40;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearLibrary(x, z)) continue;
+
+        const bush = this.createBush();
+        bush.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        bush.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(bush);
+      }
+
+      // Flowers
+      for (let i = 0; i < 120; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 16 + Math.random() * 45;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
@@ -4960,6 +5009,54 @@ export class Decorations {
         flower.position.set(x, Terrain.getTerrainHeight(x, z), z);
         flower.scale.setScalar(0.6 + Math.random() * 0.4);
         objects.push(flower);
+      }
+
+      // Tall grass
+      for (let i = 0; i < 50; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 18 + Math.random() * 40;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearLibrary(x, z)) continue;
+
+        const grass = this.createTallGrass();
+        grass.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        grass.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(grass);
+      }
+
+      // Mushrooms
+      for (let i = 0; i < 25; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 20 + Math.random() * 35;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearLibrary(x, z)) continue;
+
+        const mushroom = this.createMushroom();
+        mushroom.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        mushroom.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(mushroom);
+      }
+
+      // Rocks
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 22 + Math.random() * 40;
+        const x = Math.cos(angle) * distance;
+        const z = Math.sin(angle) * distance;
+
+        if (this.isNearPortal(x, z)) continue;
+        if (isNearLibrary(x, z)) continue;
+
+        const rock = this.createRock(0.3 + Math.random() * 0.5);
+        rock.position.set(x, Terrain.getTerrainHeight(x, z), z);
+        rock.rotation.y = Math.random() * Math.PI * 2;
+        objects.push(rock);
       }
 
       return objects;
