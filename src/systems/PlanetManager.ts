@@ -155,15 +155,18 @@ export class PlanetManager {
     // Reset player position
     if (planetId === 'story') {
       this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI);
-      this.playerController.setMaxDistance(35); // Smaller boundary for cinema
+      this.playerController.setMaxDistance(35);
     } else if (planetId === 'skills') {
       this.playerController.resetPosition(this.currentFlatRadius, 0, -30, Math.PI);
       this.playerController.setMaxDistance(50);
     } else if (planetId === 'education') {
-      this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI); // Spawn centered, face the stage
-      this.playerController.setMaxDistance(35); // Smaller boundary
+      this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI);
+      this.playerController.setMaxDistance(35);
+    } else if (planetId === 'articles') {
+      this.playerController.resetPosition(this.currentFlatRadius, 0, -10, Math.PI);
+      this.playerController.setMaxDistance(40);
     } else {
-      this.playerController.setMaxDistance(90); // Default boundary
+      this.playerController.setMaxDistance(90);
       this.playerController.resetPosition(this.currentFlatRadius);
     }
   }

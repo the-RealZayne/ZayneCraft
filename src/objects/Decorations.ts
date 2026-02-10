@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { planets } from '../config/planets';
-import { Campus } from './Campus';
 import { Terrain } from '../environment/Terrain';
 
 // Skill logos
@@ -4634,9 +4633,9 @@ export class Decorations {
 
         const labelTexture = new THREE.CanvasTexture(labelCanvas);
         const labelMat = new THREE.MeshBasicMaterial({ map: labelTexture });
-        const labelGeo = new THREE.PlaneGeometry(2, 0.5);
+        const labelGeo = new THREE.PlaneGeometry(2.5, 0.6);
         const label = new THREE.Mesh(labelGeo, labelMat);
-        label.position.set(0, 5.4, 0.1);
+        label.position.set(0, 5.4, 0.8); // Brought forward for easier reading
         shelf.add(label);
 
         return shelf;
@@ -4651,20 +4650,26 @@ export class Decorations {
         { name: 'Misc', count: 7, color: 0xcd853f },
       ];
 
+      // Offset everything forward from the portal (portal is at z=-18)
+      const centerZ = 8; // Push the whole library area forward
+
       // Arrange bookshelves in a circle surrounding the desk
-      // Portal is at angle -PI/2 (negative X direction), leave gap there
+      // Portal is at (0, -18) in the -Z direction, leave a gap there
+      // 5 shelves equally spaced (72 degrees apart) but rotated to avoid portal
       const shelfRadius = 10;
+      const numShelves = categories.length;
+      const angleStep = (Math.PI * 2) / numShelves; // 72 degrees each
+      const offsetAngle = Math.PI / 2; // Rotate whole arrangement so gap is at -Z (portal)
+
       categories.forEach((cat, index) => {
-        // Start after the portal gap and go around most of the circle
-        const startAngle = 0; // Start at +Z
-        const angleSpan = Math.PI * 1.5; // Go around to avoid portal at -PI/2
-        const angle = startAngle + (index / (categories.length - 1)) * angleSpan;
-        const x = Math.sin(angle) * shelfRadius;
-        const z = Math.cos(angle) * shelfRadius;
+        const angle = offsetAngle + index * angleStep;
+        const x = Math.cos(angle) * shelfRadius;
+        const z = Math.sin(angle) * shelfRadius + centerZ;
 
         const bookshelf = createBookshelf(cat.name, cat.count, cat.color);
         bookshelf.position.set(x, Terrain.getTerrainHeight(x, z), z);
-        bookshelf.rotation.y = Math.atan2(-x, -z); // Face center (books toward desk)
+        // Face inward toward the desk (add PI to flip)
+        bookshelf.rotation.y = Math.atan2(x, z - centerZ) + Math.PI;
         objects.push(bookshelf);
       });
 
@@ -4701,20 +4706,21 @@ export class Decorations {
       ink.position.set(-0.8, 1.1, 0);
       deskGroup.add(ink);
 
-      // Quill
+      // Quill resting in inkwell
       const quillGroup = new THREE.Group();
-      const quillShaftGeo = new THREE.CylinderGeometry(0.01, 0.015, 0.4, 6);
+      const quillShaftGeo = new THREE.CylinderGeometry(0.01, 0.02, 0.35, 6);
       const quillMat = new THREE.MeshStandardMaterial({ color: 0xf5f5dc });
       const quillShaft = new THREE.Mesh(quillShaftGeo, quillMat);
+      quillShaft.position.y = 0.1; // Offset so tip is at bottom
       quillGroup.add(quillShaft);
-      const quillTipGeo = new THREE.ConeGeometry(0.015, 0.08, 4);
+      const quillTipGeo = new THREE.ConeGeometry(0.012, 0.06, 4);
       const quillTipMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.5 });
       const quillTip = new THREE.Mesh(quillTipGeo, quillTipMat);
-      quillTip.position.y = -0.24;
+      quillTip.position.y = -0.1;
       quillGroup.add(quillTip);
-      quillGroup.position.set(-0.7, 1.3, 0.1);
-      quillGroup.rotation.z = 0.3;
-      quillGroup.rotation.x = -0.2;
+      // Position so tip dips into inkwell (inkwell at -0.8, ink surface at ~1.12)
+      quillGroup.position.set(-0.8, 1.25, 0);
+      quillGroup.rotation.z = 0.4; // Lean to the side
       deskGroup.add(quillGroup);
 
       // Open book on desk
@@ -4740,7 +4746,7 @@ export class Decorations {
       paperStack.rotation.y = 0.15;
       deskGroup.add(paperStack);
 
-      deskGroup.position.set(0, Terrain.getTerrainHeight(0, 0), 0);
+      deskGroup.position.set(0, Terrain.getTerrainHeight(0, centerZ), centerZ);
       objects.push(deskGroup);
 
       // Reading chair
@@ -4782,15 +4788,17 @@ export class Decorations {
         return chair;
       };
 
-      // Place reading chairs
+      // Place reading chairs (facing the desk at centerZ)
       const chair1 = createReadingChair();
-      chair1.position.set(-2.5, Terrain.getTerrainHeight(-2.5, 1.5), 1.5);
-      chair1.rotation.y = 0.5;
+      const chair1X = -2.5, chair1Z = centerZ + 2;
+      chair1.position.set(chair1X, Terrain.getTerrainHeight(chair1X, chair1Z), chair1Z);
+      chair1.rotation.y = Math.atan2(-chair1X, -(chair1Z - centerZ)); // Face desk center
       objects.push(chair1);
 
       const chair2 = createReadingChair();
-      chair2.position.set(2.5, Terrain.getTerrainHeight(2.5, 1.5), 1.5);
-      chair2.rotation.y = -0.5;
+      const chair2X = 2.5, chair2Z = centerZ + 2;
+      chair2.position.set(chair2X, Terrain.getTerrainHeight(chair2X, chair2Z), chair2Z);
+      chair2.rotation.y = Math.atan2(-chair2X, -(chair2Z - centerZ)); // Face desk center
       objects.push(chair2);
 
       // Reading lamps (floor lamps)
@@ -4810,17 +4818,28 @@ export class Decorations {
 
         const shadeGeo = new THREE.ConeGeometry(0.3, 0.4, 8, 1, true);
         const shadeMat = new THREE.MeshStandardMaterial({
-          color: 0xf5deb3,
+          color: 0xfff8dc,
           side: THREE.DoubleSide,
           emissive: 0xffa500,
-          emissiveIntensity: 0.2
+          emissiveIntensity: 0.8
         });
         const shade = new THREE.Mesh(shadeGeo, shadeMat);
         shade.position.y = 2;
         shade.rotation.x = Math.PI;
         lamp.add(shade);
 
-        const light = new THREE.PointLight(0xffa500, 0.6, 8);
+        // Glowing bulb inside
+        const bulbGeo = new THREE.SphereGeometry(0.08, 8, 8);
+        const bulbMat = new THREE.MeshStandardMaterial({
+          color: 0xffffaa,
+          emissive: 0xffaa00,
+          emissiveIntensity: 2
+        });
+        const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+        bulb.position.y = 1.85;
+        lamp.add(bulb);
+
+        const light = new THREE.PointLight(0xffa500, 1.5, 12);
         light.position.y = 1.9;
         lamp.add(light);
 
@@ -4828,18 +4847,18 @@ export class Decorations {
       };
 
       const lamp1 = createFloorLamp();
-      lamp1.position.set(-4, Terrain.getTerrainHeight(-4, 0), 0);
+      lamp1.position.set(-4, Terrain.getTerrainHeight(-4, centerZ), centerZ);
       objects.push(lamp1);
 
       const lamp2 = createFloorLamp();
-      lamp2.position.set(4, Terrain.getTerrainHeight(4, 0), 0);
+      lamp2.position.set(4, Terrain.getTerrainHeight(4, centerZ), centerZ);
       objects.push(lamp2);
 
-      // Lanterns around the library (outside the bookshelves)
+      // Lanterns around the library (outside the bookshelves, avoiding portal at z=-18)
       const lanternPositions = [
-        { x: -14, z: 8 }, { x: 14, z: 8 },
-        { x: -16, z: -5 }, { x: 16, z: -5 },
-        { x: 0, z: -14 },
+        { x: -14, z: centerZ }, { x: 14, z: centerZ },
+        { x: -16, z: centerZ - 6 }, { x: 16, z: centerZ - 6 },
+        { x: -12, z: centerZ + 8 }, { x: 12, z: centerZ + 8 },
       ];
       lanternPositions.forEach(pos => {
         const lantern = this.createLantern();
@@ -4852,14 +4871,14 @@ export class Decorations {
       const rugMat = new THREE.MeshStandardMaterial({ color: 0x800020, roughness: 0.9 });
       const rug = new THREE.Mesh(rugGeo, rugMat);
       rug.rotation.x = -Math.PI / 2;
-      rug.position.set(0, Terrain.getTerrainHeight(0, 0) + 0.02, 0);
+      rug.position.set(0, Terrain.getTerrainHeight(0, centerZ) + 0.02, centerZ);
       objects.push(rug);
 
       // Book stacks scattered around (inside the bookshelf circle)
       const bookStackPositions = [
-        { x: -3, z: -2 }, { x: 3, z: -2 },
-        { x: -1.5, z: 3 }, { x: 1.5, z: 3 },
-        { x: -5, z: 2 }, { x: 5, z: 2 },
+        { x: -3, z: centerZ - 2 }, { x: 3, z: centerZ - 2 },
+        { x: -1.5, z: centerZ + 3 }, { x: 1.5, z: centerZ + 3 },
+        { x: -5, z: centerZ + 2 }, { x: 5, z: centerZ + 2 },
       ];
       bookStackPositions.forEach(pos => {
         const books = this.createBookStack();
@@ -4883,18 +4902,18 @@ export class Decorations {
         return false;
       };
 
-      // Check if near library area
+      // Check if near library area (now centered at z=centerZ)
       const isNearLibrary = (x: number, z: number): boolean => {
-        const dist = Math.sqrt(x * x + z * z);
+        const dist = Math.sqrt(x * x + (z - centerZ) * (z - centerZ));
         return dist < 14;
       };
 
       let treesPlaced = 0;
       let attempts = 0;
-      while (treesPlaced < 120 && attempts < 1200) {
+      while (treesPlaced < 180 && attempts < 1800) {
         attempts++;
         const angle = Math.random() * Math.PI * 2;
-        const distance = 24 + Math.random() * 15;
+        const distance = 20 + Math.random() * 18;
         const x = Math.cos(angle) * distance;
         const z = Math.sin(angle) * distance;
 
