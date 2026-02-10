@@ -1343,6 +1343,114 @@ export class Decorations {
     return stone;
   }
 
+  private static createTextConstellation(): THREE.Group {
+    const constellation = new THREE.Group();
+    constellation.userData.isTextConstellation = true;
+
+    // Characters to use - letters, symbols, and writing-related glyphs
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ&§¶†‡※✦✧★☆∞αβγδεζηθλμπσφψω'.split('');
+
+    // Create glowing text sprites scattered across the sky
+    const charCount = 150;
+    const skyRadius = 120;
+    const minHeight = 50;
+    const maxHeight = 100;
+
+    // Shared canvas for creating character textures
+    const createCharTexture = (char: string, hue: number) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d')!;
+
+      // Glow effect
+      ctx.shadowColor = `hsl(${hue}, 80%, 70%)`;
+      ctx.shadowBlur = 15;
+
+      // Draw character
+      ctx.fillStyle = `hsl(${hue}, 70%, 85%)`;
+      ctx.font = 'bold 48px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(char, 32, 32);
+
+      return new THREE.CanvasTexture(canvas);
+    };
+
+    for (let i = 0; i < charCount; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+
+      // Position in a dome above the scene
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 20 + Math.random() * skyRadius;
+      const x = Math.cos(angle) * distance;
+      const z = Math.sin(angle) * distance;
+      const y = minHeight + Math.random() * (maxHeight - minHeight);
+
+      // Color - ink blues and purples with some gold
+      const hueOptions = [220, 240, 260, 280, 45]; // Blues, purples, gold
+      const hue = hueOptions[Math.floor(Math.random() * hueOptions.length)];
+
+      const texture = createCharTexture(char, hue);
+      const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.4 + Math.random() * 0.3,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+
+      const sprite = new THREE.Sprite(material);
+      sprite.position.set(x, y, z);
+      const scale = 2 + Math.random() * 4;
+      sprite.scale.set(scale, scale, 1);
+
+      // Store animation data
+      sprite.userData.isConstellationChar = true;
+      sprite.userData.baseY = y;
+      sprite.userData.phaseOffset = Math.random() * Math.PI * 2;
+      sprite.userData.twinkleSpeed = 0.5 + Math.random() * 1.5;
+
+      constellation.add(sprite);
+    }
+
+    // Add some brighter "star" characters as focal points
+    const starChars = ['★', '✦', '✧', '☆', '∞'];
+    for (let i = 0; i < 20; i++) {
+      const char = starChars[Math.floor(Math.random() * starChars.length)];
+
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 30 + Math.random() * skyRadius;
+      const x = Math.cos(angle) * distance;
+      const z = Math.sin(angle) * distance;
+      const y = minHeight + 10 + Math.random() * (maxHeight - minHeight);
+
+      const texture = createCharTexture(char, 45); // Gold color
+      const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.7 + Math.random() * 0.3,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+
+      const sprite = new THREE.Sprite(material);
+      sprite.position.set(x, y, z);
+      const scale = 4 + Math.random() * 3;
+      sprite.scale.set(scale, scale, 1);
+
+      sprite.userData.isConstellationChar = true;
+      sprite.userData.baseY = y;
+      sprite.userData.phaseOffset = Math.random() * Math.PI * 2;
+      sprite.userData.twinkleSpeed = 0.3 + Math.random() * 0.7;
+      sprite.userData.isBrightStar = true;
+
+      constellation.add(sprite);
+    }
+
+    return constellation;
+  }
+
   private static createAurora(): THREE.Group {
     const aurora = new THREE.Group();
     aurora.userData.isAurora = true;
@@ -5058,6 +5166,10 @@ export class Decorations {
         rock.rotation.y = Math.random() * Math.PI * 2;
         objects.push(rock);
       }
+
+      // Text constellation in the sky
+      const textConstellation = this.createTextConstellation();
+      objects.push(textConstellation);
 
       return objects;
     }

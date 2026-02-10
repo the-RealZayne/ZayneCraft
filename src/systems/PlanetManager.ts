@@ -356,6 +356,22 @@ export class PlanetManager {
             }
             child.geometry.attributes.position.needsUpdate = true;
           }
+
+          // Text constellation animation (articles planet)
+          if (child.userData.isConstellationChar) {
+            const baseY = child.userData.baseY || 60;
+            const phase = child.userData.phaseOffset || 0;
+            const speed = child.userData.twinkleSpeed || 1;
+
+            // Gentle floating motion
+            child.position.y = baseY + Math.sin(time * 0.3 + phase) * 2;
+
+            // Twinkle effect - vary opacity
+            const sprite = child as THREE.Sprite;
+            const mat = sprite.material as THREE.SpriteMaterial;
+            const baseOpacity = child.userData.isBrightStar ? 0.7 : 0.4;
+            mat.opacity = baseOpacity + Math.sin(time * speed + phase) * 0.2;
+          }
         });
       });
     }
