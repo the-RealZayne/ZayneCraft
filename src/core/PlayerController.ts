@@ -34,18 +34,11 @@ export class PlayerController {
   // Interaction callback
   private onInteract: (() => void) | null = null;
 
-  // Mobile support
-  private isMobileMode = false;
-
   constructor(
     private readonly camera: THREE.PerspectiveCamera,
     private readonly controls: PointerLockControls
   ) {
     this.setupKeyboardControls();
-  }
-
-  public setMobileMode(enabled: boolean): void {
-    this.isMobileMode = enabled;
   }
 
   public setMovement(state: Partial<MovementState>): void {
@@ -133,8 +126,7 @@ export class PlayerController {
   }
 
   public update(delta: number, currentFlatRadius: number): void {
-    // In mobile mode, don't require pointer lock
-    if (!this.isMobileMode && !this.controls.isLocked) return;
+    if (!this.controls.isLocked) return;
 
     // Friction
     this.velocity.x -= this.velocity.x * 8.0 * delta;

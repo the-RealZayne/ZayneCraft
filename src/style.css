@@ -18,6 +18,83 @@ body {
   outline: none;
 }
 
+/* Mobile notice - hidden by default */
+#mobile-notice {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  #mobile-notice {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .notice-content {
+    text-align: center;
+    color: #fff;
+    padding: 40px;
+    max-width: 350px;
+  }
+
+  .notice-content h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .notice-content p {
+    font-size: 1rem;
+    color: #aaa;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .notice-link {
+    display: inline-block;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .notice-link:active {
+    transform: scale(0.98);
+  }
+
+  .notice-hint {
+    font-size: 0.85rem !important;
+    color: #666 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Hide game elements on mobile */
+  #instructions,
+  #hud,
+  #touch-controls,
+  #crosshair,
+  #canvas,
+  #mute-button,
+  #website-link {
+    display: none !important;
+  }
+}
+
 /* Website link button */
 #website-link {
   position: fixed;
@@ -42,6 +119,7 @@ body {
   background: rgba(0, 0, 0, 0.7);
   border-color: rgba(255, 255, 255, 0.5);
 }
+
 
 /* Instructions overlay */
 #instructions {
@@ -102,20 +180,6 @@ body {
   margin-right: 4px;
 }
 
-/* Show desktop controls by default, hide mobile */
-#instructions .mobile-controls {
-  display: none;
-}
-
-/* On touch devices, show mobile controls and hide desktop */
-@media (pointer: coarse) {
-  #instructions .desktop-controls {
-    display: none;
-  }
-  #instructions .mobile-controls {
-    display: block;
-  }
-}
 
 #instructions .hint {
   font-size: 0.85rem;
@@ -522,91 +586,6 @@ body {
   background: rgba(100, 150, 255, 0.2);
   padding: 2px 8px;
   border-radius: 4px;
-}
-
-/* Touch Controls (Mobile) */
-#touch-controls {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 50;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  display: none;
-}
-
-#touch-controls.visible {
-  opacity: 1;
-  pointer-events: auto;
-  display: block;
-}
-
-#joystick-container {
-  position: absolute;
-  bottom: 80px;
-  left: 40px;
-  width: 120px;
-  height: 120px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: auto;
-  touch-action: none;
-}
-
-#joystick-knob {
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  transition: transform 0.05s ease-out;
-}
-
-#touch-buttons {
-  position: absolute;
-  bottom: 80px;
-  right: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  pointer-events: auto;
-}
-
-#touch-buttons button {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-#touch-buttons button:active {
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(0.95);
-}
-
-#jump-button {
-  background: rgba(100, 200, 100, 0.3);
-  border-color: rgba(100, 200, 100, 0.5);
-}
-
-#interact-button {
-  background: rgba(100, 150, 255, 0.3);
-  border-color: rgba(100, 150, 255, 0.5);
 }
 
 /* Credits panel */
