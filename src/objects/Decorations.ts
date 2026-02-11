@@ -4751,23 +4751,22 @@ export class Decorations {
 
       // Categories with book counts
       const categories = [
-        { name: 'Tech & Code', count: 8, color: 0x4a90d9 },
-        { name: 'Career', count: 5, color: 0xd4af37 },
-        { name: 'Tutorials', count: 6, color: 0x50c878 },
-        { name: 'Thoughts', count: 4, color: 0x9966cc },
-        { name: 'Misc', count: 7, color: 0xcd853f },
+        { name: 'Projects', count: 12, color: 0x50c878 },
+        { name: 'Code/Tech', count: 11, color: 0x4a90d9 },
+        { name: 'Tutorials/Reviews', count: 9, color: 0xcd853f },
+        { name: 'Personal', count: 5, color: 0x9966cc },
       ];
 
       // Offset everything forward from the portal (portal is at z=-18)
       const centerZ = 8; // Push the whole library area forward
 
       // Arrange bookshelves in a circle surrounding the desk
-      // Portal is at (0, -18) in the -Z direction, leave a gap there
-      // 5 shelves equally spaced (72 degrees apart) but rotated to avoid portal
+      // Portal is at (0, -18) in the -Z direction, leave a clear path there
+      // 4 shelves at 90 degrees apart, offset by 45 degrees so none block the portal path
       const shelfRadius = 10;
       const numShelves = categories.length;
-      const angleStep = (Math.PI * 2) / numShelves; // 72 degrees each
-      const offsetAngle = Math.PI / 2; // Rotate whole arrangement so gap is at -Z (portal)
+      const angleStep = (Math.PI * 2) / numShelves; // 90 degrees each
+      const offsetAngle = Math.PI / 4; // 45 degree offset - shelves at diagonals, clear path down center
 
       categories.forEach((cat, index) => {
         const angle = offsetAngle + index * angleStep;
@@ -4929,7 +4928,7 @@ export class Decorations {
           color: 0xfff8dc,
           side: THREE.DoubleSide,
           emissive: 0xffa500,
-          emissiveIntensity: 0.8
+          emissiveIntensity: 1.5
         });
         const shade = new THREE.Mesh(shadeGeo, shadeMat);
         shade.position.y = 2;
@@ -4937,17 +4936,17 @@ export class Decorations {
         lamp.add(shade);
 
         // Glowing bulb inside
-        const bulbGeo = new THREE.SphereGeometry(0.08, 8, 8);
+        const bulbGeo = new THREE.SphereGeometry(0.1, 8, 8);
         const bulbMat = new THREE.MeshStandardMaterial({
           color: 0xffffaa,
           emissive: 0xffaa00,
-          emissiveIntensity: 2
+          emissiveIntensity: 4
         });
         const bulb = new THREE.Mesh(bulbGeo, bulbMat);
         bulb.position.y = 1.85;
         lamp.add(bulb);
 
-        const light = new THREE.PointLight(0xffa500, 1.5, 12);
+        const light = new THREE.PointLight(0xffa500, 4, 20);
         light.position.y = 1.9;
         lamp.add(light);
 
