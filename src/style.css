@@ -18,6 +18,31 @@ body {
   outline: none;
 }
 
+/* Website link button */
+#website-link {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+#website-link:hover {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
 /* Instructions overlay */
 #instructions {
   position: fixed;
@@ -75,6 +100,21 @@ body {
   padding: 3px 8px;
   border-radius: 4px;
   margin-right: 4px;
+}
+
+/* Show desktop controls by default, hide mobile */
+#instructions .mobile-controls {
+  display: none;
+}
+
+/* On touch devices, show mobile controls and hide desktop */
+@media (pointer: coarse) {
+  #instructions .desktop-controls {
+    display: none;
+  }
+  #instructions .mobile-controls {
+    display: block;
+  }
 }
 
 #instructions .hint {
@@ -482,6 +522,91 @@ body {
   background: rgba(100, 150, 255, 0.2);
   padding: 2px 8px;
   border-radius: 4px;
+}
+
+/* Touch Controls (Mobile) */
+#touch-controls {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: none;
+}
+
+#touch-controls.visible {
+  opacity: 1;
+  pointer-events: auto;
+  display: block;
+}
+
+#joystick-container {
+  position: absolute;
+  bottom: 80px;
+  left: 40px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+#joystick-knob {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  transition: transform 0.05s ease-out;
+}
+
+#touch-buttons {
+  position: absolute;
+  bottom: 80px;
+  right: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  pointer-events: auto;
+}
+
+#touch-buttons button {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#touch-buttons button:active {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0.95);
+}
+
+#jump-button {
+  background: rgba(100, 200, 100, 0.3);
+  border-color: rgba(100, 200, 100, 0.5);
+}
+
+#interact-button {
+  background: rgba(100, 150, 255, 0.3);
+  border-color: rgba(100, 150, 255, 0.5);
 }
 
 /* Credits panel */
