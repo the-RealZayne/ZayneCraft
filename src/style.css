@@ -451,6 +451,39 @@ body {
   border-radius: 4px;
 }
 
+/* Bookshelf prompt */
+#bookshelf-prompt {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#bookshelf-prompt.visible {
+  opacity: 1;
+}
+
+#bookshelf-prompt p {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  color: #fff;
+  border: 1px solid rgba(100, 150, 255, 0.4);
+}
+
+#bookshelf-prompt strong {
+  color: #6699ff;
+  background: rgba(100, 150, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
 /* Credits panel */
 #credits-panel {
   position: fixed;

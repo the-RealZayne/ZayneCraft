@@ -201,6 +201,47 @@ export class PlanetManager {
     }
   }
 
+  private nearestBookshelf: THREE.Object3D | null = null;
+
+  public checkBookshelfProximity(): { near: boolean; categoryName?: string; url?: string } {
+    if (this.currentPlanet !== 'articles') {
+      this.nearestBookshelf = null;
+      return { near: false };
+    }
+
+    const playerPosition = this.camera.position.clone();
+    let closestDistance = Infinity;
+    let closestBookshelf: THREE.Object3D | null = null;
+
+    for (const decoration of this.decorations) {
+      if (decoration.userData.isBookshelf) {
+        const distance = playerPosition.distanceTo(decoration.position);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestBookshelf = decoration;
+        }
+      }
+    }
+
+    if (closestBookshelf && closestDistance < 5) {
+      this.nearestBookshelf = closestBookshelf;
+      return {
+        near: true,
+        categoryName: closestBookshelf.userData.categoryName,
+        url: closestBookshelf.userData.url,
+      };
+    }
+
+    this.nearestBookshelf = null;
+    return { near: false };
+  }
+
+  public interactWithBookshelf(): void {
+    if (this.nearestBookshelf && this.nearestBookshelf.userData.url) {
+      window.open(this.nearestBookshelf.userData.url, '_blank');
+    }
+  }
+
   public animatePortals(delta: number, time: number): void {
     this.portals.forEach((portal, index) => {
       Portal.animate(portal, delta, time, index);

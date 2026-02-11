@@ -13,6 +13,7 @@ export class UIManager {
   public readonly creditsPrompt: HTMLElement;
   public readonly creditsPanel: HTMLElement;
   public readonly screenFade: HTMLElement;
+  public readonly bookshelfPrompt: HTMLElement;
 
   private isTransitioning = false;
 
@@ -28,6 +29,7 @@ export class UIManager {
     this.creditsPrompt = document.getElementById('credits-prompt')!;
     this.creditsPanel = document.getElementById('credits-panel')!;
     this.screenFade = document.getElementById('screen-fade')!;
+    this.bookshelfPrompt = document.getElementById('bookshelf-prompt')!;
 
     // Set profile image
     const avatarImg = this.hologramPanel.querySelector('.hologram-avatar img') as HTMLImageElement;
@@ -96,6 +98,18 @@ export class UIManager {
 
   public hideCreditsPanel(): void {
     this.creditsPanel.classList.remove('visible');
+  }
+
+  public showBookshelfPrompt(categoryName: string): void {
+    const p = this.bookshelfPrompt.querySelector('p');
+    if (p) {
+      p.innerHTML = `Press <strong>E</strong> to browse ${categoryName}`;
+    }
+    this.bookshelfPrompt.classList.add('visible');
+  }
+
+  public hideBookshelfPrompt(): void {
+    this.bookshelfPrompt.classList.remove('visible');
   }
 
   public isInTransition(): boolean {

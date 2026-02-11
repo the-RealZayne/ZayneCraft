@@ -4749,12 +4749,12 @@ export class Decorations {
         return shelf;
       };
 
-      // Categories with book counts
+      // Categories with book counts and URLs
       const categories = [
-        { name: 'Projects', count: 12, color: 0x50c878 },
-        { name: 'Code/Tech', count: 11, color: 0x4a90d9 },
-        { name: 'Tutorials/Reviews', count: 9, color: 0xcd853f },
-        { name: 'Personal', count: 5, color: 0x9966cc },
+        { name: 'Projects', count: 12, color: 0x50c878, url: 'https://pot.rexchoppers.com/articles.html#projects' },
+        { name: 'Code/Tech', count: 11, color: 0x4a90d9, url: 'https://pot.rexchoppers.com/articles.html#codetech' },
+        { name: 'Tutorials/Reviews', count: 9, color: 0xcd853f, url: 'https://pot.rexchoppers.com/articles.html#tutorialsreviews' },
+        { name: 'Personal', count: 5, color: 0x9966cc, url: 'https://pot.rexchoppers.com/articles.html#personal' },
       ];
 
       // Offset everything forward from the portal (portal is at z=-18)
@@ -4777,7 +4777,15 @@ export class Decorations {
         bookshelf.position.set(x, Terrain.getTerrainHeight(x, z), z);
         // Face inward toward the desk (add PI to flip)
         bookshelf.rotation.y = Math.atan2(x, z - centerZ) + Math.PI;
+        // Store URL for interaction
+        bookshelf.userData.isBookshelf = true;
+        bookshelf.userData.categoryName = cat.name;
+        bookshelf.userData.url = cat.url;
         objects.push(bookshelf);
+
+        // Add fireflies around each bookshelf
+        const fireflyCluster = this.createFireflyCluster(x, z, 15);
+        objects.push(fireflyCluster);
       });
 
       // Central desk with inkwell

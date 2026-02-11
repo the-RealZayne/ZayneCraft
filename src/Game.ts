@@ -266,6 +266,12 @@ export class Game {
         this.showCredits();
         return;
       }
+      // Bookshelf interaction (articles planet)
+      const bookshelfProximity = this.planetManager.checkBookshelfProximity();
+      if (bookshelfProximity.near && bookshelfProximity.url) {
+        this.planetManager.interactWithBookshelf();
+        return;
+      }
       // Dog interaction
       if (this.isNearDog) {
         this.petDog();
@@ -496,6 +502,14 @@ export class Game {
 
     // Check terminal proximity
     this.planetManager.checkTerminalProximity();
+
+    // Check bookshelf proximity
+    const bookshelfProximity = this.planetManager.checkBookshelfProximity();
+    if (bookshelfProximity.near && bookshelfProximity.categoryName) {
+      this.uiManager.showBookshelfPrompt(bookshelfProximity.categoryName);
+    } else {
+      this.uiManager.hideBookshelfPrompt();
+    }
 
     // Update player movement
     if (this.sceneManager.controls.isLocked) {
