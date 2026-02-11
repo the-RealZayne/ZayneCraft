@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio - Explore My Universe</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="instructions">
+      <div class="content">
+        <h1>Welcome</h1>
+        <p>Click to explore</p>
+        <div class="controls">
+          <p><strong>WASD</strong> Move</p>
+          <p><strong>Mouse</strong> Look</p>
+          <p><strong>Space</strong> Jump</p>
+          <p><strong>Shift</strong> Sprint</p>
+          <p><strong>E</strong> Interact</p>
+          <p><strong>ESC</strong> Pause</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="hud">
+      <div class="planet-info">
+        <h2 id="planet-name">Hearth</h2>
+        <p id="section-name">Welcome</p>
+      </div>
+      <p id="planet-description">Your starting point. Explore the portals to learn more about me.</p>
+    </div>
+
+    <div id="hologram-panel">
+      <div class="hologram-content">
+        <div class="hologram-header">
+          <div class="hologram-avatar">
+            <img src="/assets/profile.jpeg" alt="Profile" />
+          </div>
+          <div class="hologram-title">
+            <h2>Connor Brady</h2>
+            <p>Senior Software Engineer</p>
+          </div>
+        </div>
+        <div class="hologram-body">
+          <p>Welcome</p>
+          <ul>
+            <li><strong>Chronicle</strong> – Story</li>
+            <li><strong>Grove</strong> – Skills</li>
+            <li><strong>Haven</strong> – Education</li>
+            <li><strong>Inkwell</strong> – Articles</li>
+            <li><strong>Workshop</strong> – Projects</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="dog-quote">
+      <div class="quote-content">
+        <p class="quote-text">"The gift which I am sending you is called a dog, and is, in fact, the most precious and valuable possession of mankind."</p>
+        <p class="quote-author">– Theodorus Gaza</p>
+      </div>
+    </div>
+
+    <div id="dog-prompt">
+      <p>Press <strong>E</strong> to pet Ivy</p>
+    </div>
+
+    <div id="slide-prompt">
+      <p>Click projector to change slide</p>
+    </div>
+
+    <div id="credits-prompt">
+      <p>Press <strong>E</strong> to view credits</p>
+    </div>
+
+    <div id="bookshelf-prompt">
+      <p>Press <strong>E</strong> to browse</p>
+    </div>
+
+    <div id="credits-panel">
+      <div class="credits-content">
+        <h2>Credits</h2>
+        <div class="credits-body">
+          <p><strong>Music</strong></p>
+          <p>"Night in the Forest" by Lesiakower</p>
+          <p class="credits-source">Pixabay</p>
+          <p><strong>Dog Model</strong></p>
+          <p>Quaternius</p>
+          <p class="credits-source">poly.pizza</p>
+        </div>
+        <p class="credits-hint">Press E to close</p>
+      </div>
+    </div>
+
+    <div id="crosshair"></div>
+    <div id="screen-fade"></div>
+    <canvas id="canvas"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
