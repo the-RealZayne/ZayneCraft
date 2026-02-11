@@ -20,7 +20,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffffff,
     lightIntensity: 1,
     fogDensity: 0.008,
-    description: 'Explore the portals.',
+    description: 'My stuff.',
   },
   story: {
     name: 'Chronicle',
@@ -31,7 +31,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffccaa,
     lightIntensity: 0.8,
     fogDensity: 0.01,
-    description: 'My journey.',
+    description: 'How I got here.',
   },
   skills: {
     name: 'Grove',
@@ -42,7 +42,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0x80dfff,
     lightIntensity: 1.2,
     fogDensity: 0.006,
-    description: 'Technologies in my toolkit.',
+    description: 'Stuff I use.',
   },
   education: {
     name: 'Haven',
@@ -53,7 +53,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffffee,
     lightIntensity: 1,
     fogDensity: 0.007,
-    description: 'My qualifications.',
+    description: 'Stuff I learnt.',
   },
   articles: {
     name: 'Inkwell',
@@ -64,7 +64,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xaaaaff,
     lightIntensity: 0.9,
     fogDensity: 0.012,
-    description: 'What I write.',
+    description: 'Stuff I wrote.',
   },
   projects: {
     name: 'Workshop',
@@ -75,7 +75,7 @@ export const planets: Record<string, PlanetConfig> = {
     lightColor: 0xffaa66,
     lightIntensity: 1.1,
     fogDensity: 0.009,
-    description: 'What I build.',
+    description: 'Stuff I made.',
   },
 };
 

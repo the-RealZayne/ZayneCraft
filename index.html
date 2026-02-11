@@ -10,14 +10,20 @@
     <div id="instructions">
       <div class="content">
         <h1>Welcome</h1>
-        <p>Click to explore</p>
-        <div class="controls">
+        <p class="start-prompt">Tap to explore</p>
+        <div class="controls desktop-controls">
           <p><strong>WASD</strong> Move</p>
           <p><strong>Mouse</strong> Look</p>
           <p><strong>Space</strong> Jump</p>
           <p><strong>Shift</strong> Sprint</p>
           <p><strong>E</strong> Interact</p>
           <p><strong>ESC</strong> Pause</p>
+        </div>
+        <div class="controls mobile-controls">
+          <p><strong>Left joystick</strong> Move</p>
+          <p><strong>Drag right side</strong> Look</p>
+          <p><strong>Jump button</strong> Jump</p>
+          <p><strong>E button</strong> Interact</p>
         </div>
       </div>
     </div>
@@ -77,6 +83,17 @@
       <p>Press <strong>E</strong> to browse</p>
     </div>
 
+    <!-- Touch Controls (Mobile) -->
+    <div id="touch-controls">
+      <div id="joystick-container">
+        <div id="joystick-knob"></div>
+      </div>
+      <div id="touch-buttons">
+        <button id="jump-button">Jump</button>
+        <button id="interact-button">E</button>
+      </div>
+    </div>
+
     <div id="credits-panel">
       <div class="credits-content">
         <h2>Credits</h2>
@@ -91,6 +108,15 @@
         <p class="credits-hint">Press E to close</p>
       </div>
     </div>
+
+    <!-- Quick link to website -->
+    <a id="website-link" href="https://pot.rexchoppers.com" target="_blank" title="Visit Website">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+    </a>
 
     <div id="crosshair"></div>
     <div id="screen-fade"></div>

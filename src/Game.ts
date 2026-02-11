@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { SceneManager } from './core/SceneManager';
 import { PlayerController } from './core/PlayerController';
+import { TouchControls } from './core/TouchControls';
 import { SkyEnvironment } from './environment/SkyEnvironment';
 import { Skybox } from './environment/Skybox';
 import { ShootingStars } from './environment/ShootingStars';
@@ -24,6 +25,8 @@ import image2025 from './assets/2025.jpeg';
 export class Game {
   private sceneManager: SceneManager;
   private playerController: PlayerController;
+  private touchControls: TouchControls | null = null;
+  private isMobile: boolean = false;
   private skyEnvironment: SkyEnvironment;
   private skybox: Skybox;
   private shootingStars: ShootingStars;
@@ -202,6 +205,13 @@ export class Game {
       this.sceneManager.controls
     );
 
+    // Initialize touch controls for mobile
+    this.isMobile = TouchControls.isTouchDevice();
+    if (this.isMobile) {
+      this.touchControls = new TouchControls(this.sceneManager.camera);
+      this.playerController.setMobileMode(true);
+    }
+
     // Initialize Ivy the dog
     this.dog = new Dog('Ivy');
     this.dog.setPosition(3, 0, 3);
@@ -234,10 +244,18 @@ export class Game {
   }
 
   private setupEventListeners(): void {
-    // Click to start
+    // Click/tap to start
     this.uiManager.instructions.addEventListener('click', () => {
-      this.sceneManager.controls.lock();
-      this.musicSystem.start();
+      if (this.isMobile && this.touchControls) {
+        // Mobile: enable touch controls instead of pointer lock
+        this.touchControls.enable();
+        this.uiManager.hideInstructions();
+        this.musicSystem.start();
+      } else {
+        // Desktop: use pointer lock
+        this.sceneManager.controls.lock();
+        this.musicSystem.start();
+      }
     });
 
     this.sceneManager.controls.addEventListener('lock', () => {
@@ -245,12 +263,14 @@ export class Game {
     });
 
     this.sceneManager.controls.addEventListener('unlock', () => {
-      this.uiManager.showInstructions();
+      if (!this.isMobile) {
+        this.uiManager.showInstructions();
+      }
     });
   }
 
   private setupDogInteraction(): void {
-    this.playerController.setInteractCallback(() => {
+    const interactHandler = () => {
       // Credits panel takes priority if showing
       if (this.isShowingCredits) {
         this.hideCredits();
@@ -276,7 +296,14 @@ export class Game {
       if (this.isNearDog) {
         this.petDog();
       }
-    });
+    };
+
+    this.playerController.setInteractCallback(interactHandler);
+
+    // Also set up touch controls interact callback
+    if (this.touchControls) {
+      this.touchControls.setInteractCallback(interactHandler);
+    }
   }
 
   private petDog(): void {
@@ -512,7 +539,19 @@ export class Game {
     }
 
     // Update player movement
-    if (this.sceneManager.controls.isLocked) {
+    const isActive = this.isMobile || this.sceneManager.controls.isLocked;
+
+    if (isActive) {
+      // Process touch input on mobile
+      if (this.isMobile && this.touchControls) {
+        const touchMovement = this.touchControls.getMovementInput();
+        this.playerController.setMovement(touchMovement);
+
+        if (this.touchControls.consumeJump()) {
+          this.playerController.jump();
+        }
+      }
+
       this.playerController.update(delta, this.planetManager.getCurrentFlatRadius());
 
       // Check portal collision
