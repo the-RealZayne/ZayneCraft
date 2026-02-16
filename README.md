@@ -108,6 +108,10 @@ Visit [rexchoppers.com](https://rexchoppers.com)
 
 A lot of AI was used in order to build the assets, lighting etc.. Helped me learn Three.js fast. 3D games are not my strongest skill and the machines haven't replaced me (yet)
 
+## Credits
+
+See [CREDITS.md](CREDITS.md) for full attribution of third-party assets, logos, and libraries used in this project.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
