@@ -295,8 +295,7 @@ export class Game {
 
   private showCredits(): void {
     this.uiManager.hideCreditsPrompt();
-    this.uiManager.showCreditsPanel();
-    this.isShowingCredits = true;
+    window.open('https://github.com/rexchoppers/platform-of-things/blob/master/CREDITS.md', '_blank');
   }
 
   private hideCredits(): void {
