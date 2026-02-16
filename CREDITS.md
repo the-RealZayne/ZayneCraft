@@ -2,6 +2,12 @@
 
 This is a personal, non-commercial portfolio website. All third-party logos and trademarks are the property of their respective owners and are used here solely to represent technologies and tools used in my professional experience. No sponsorship or endorsement is implied.
 
+## Libraries
+
+| Library | Author | License | Source |
+|---------|--------|---------|--------|
+| Three.js | Mr.doob (Ricardo Cabello) and contributors | MIT | [threejs.org](https://threejs.org/) |
+
 ## Technology Logos
 
 The following logos appear in this portfolio to indicate professional experience with each technology. They are used under their respective licenses as documented on Wikimedia Commons / Wikipedia.
@@ -20,6 +26,7 @@ These logos are in the public domain (PD-textlogo or equivalent). All remain reg
 | TypeScript | Microsoft |
 | Next.js | Vercel |
 | React | Meta Platforms |
+| React Native | Meta Platforms |
 | Flutter | Google |
 | Go | The Go Authors |
 | .NET | Microsoft |
