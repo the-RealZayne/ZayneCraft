@@ -1,33 +1,121 @@
-https://en.wikipedia.org/wiki/File:MongoDB_Fores-Green.svg
-https://commons.wikimedia.org/wiki/File:Redis_logo.svg
-https://commons.wikimedia.org/wiki/File:Kubernetes_logo_without_workmark.svg
-https://commons.wikimedia.org/wiki/File:Docker_Logo.svg
-https://commons.wikimedia.org/wiki/File:GitHub_Invertocat_Logo.svg
-https://commons.wikimedia.org/wiki/File:GitLab_logo_(2).svg
-https://commons.wikimedia.org/wiki/File:Nginx_logo.svg
-https://commons.wikimedia.org/wiki/File:Terraform_Logo.svg
-https://commons.wikimedia.org/wiki/File:Amazon_Web_Services_Logo.svg
-https://commons.wikimedia.org/wiki/File:Google_Cloud_logo.svg
-https://commons.wikimedia.org/wiki/File:DigitalOcean_logo.svg
-https://en.wikipedia.org/wiki/File:MySQL_logo.svg
-https://commons.wikimedia.org/wiki/File:PHP-logo.svg
-https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_the_Open_University.svg
-https://commons.wikimedia.org/wiki/File:Node.js_logo.svg
-https://commons.wikimedia.org/wiki/File:Python-logo-notext.svg
-https://en.wikipedia.org/wiki/File:Java_programming_language_logo.svg
-https://commons.wikimedia.org/wiki/File:Go_Logo_Blue.svg
-https://commons.wikimedia.org/wiki/File:C_Sharp_Logo_2023.svg
-https://commons.wikimedia.org/wiki/File:Typescript.svg
-https://commons.wikimedia.org/wiki/File:Dart_programming_language_logo.svg
-https://commons.wikimedia.org/wiki/File:Next.js_wordmark.svg
-https://commons.wikimedia.org/wiki/File:Angular_logo_(2023).svg
-https://commons.wikimedia.org/wiki/File:React_Logo_SVG.svg
-https://commons.wikimedia.org/wiki/File:React-icon.svg
-https://commons.wikimedia.org/wiki/File:Google-flutter-logo.svg
-https://commons.wikimedia.org/wiki/File:Ionic-logo-landscape.svg
-https://commons.wikimedia.org/wiki/File:Laravel.svg
-https://commons.wikimedia.org/wiki/File:NestJS-logo-wordmark.svg
-https://commons.wikimedia.org/wiki/File:Flask_logo.svg
-https://commons.wikimedia.org/wiki/File:Microsoft_.NET_logo.svg
-https://commons.wikimedia.org/wiki/File:Postgresql_elephant.svg
+CREDITS & ATTRIBUTIONS
+======================
 
+This is a personal, non-commercial portfolio website. All third-party logos
+and trademarks are the property of their respective owners and are used here
+solely to represent technologies and tools used in my professional experience.
+No sponsorship or endorsement is implied.
+
+
+TECHNOLOGY LOGOS
+================
+
+The following logos appear in this portfolio to indicate professional
+experience with each technology. They are used under their respective
+licenses as documented on Wikimedia Commons / Wikipedia.
+
+
+Public Domain Logos
+-------------------
+These logos are in the public domain (PD-textlogo or equivalent). All
+remain registered trademarks of their respective owners.
+
+- Redis logo — Redis Ltd
+- Kubernetes logo — Google, Inc.
+- Google Cloud logo — Google
+- DigitalOcean logo — DigitalOcean
+- C# logo — Microsoft
+- TypeScript logo — Microsoft
+- Next.js wordmark — Vercel
+- React logo — Meta Platforms
+- Flutter logo — Google
+- Go logo — The Go Authors
+- .NET logo — Microsoft
+- Nginx logo — nginx.net
+- Laravel logo — Laravel
+
+
+Creative Commons Attribution 4.0 (CC BY 4.0)
+----------------------------------------------
+- Angular logo — Emma Twersky / Google Inc
+  Source: https://angular.dev/press-kit
+
+- Dart logo — Google
+  Source: https://www.dartlang.org/
+
+- GitHub Invertocat logo — GitHub
+  Source: https://github.com/logos
+
+
+Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
+-----------------------------------------------------------
+- PHP logo — Colin Viebrock
+  Source: http://php.net/logos
+
+- Ionic logo — Maxlynch
+  Source: Wikimedia Commons
+
+- Open University Coat of Arms — Wikimedia Commons contributor
+  Source: https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_the_Open_University.svg
+
+
+MIT License
+-----------
+- GitLab logo — GitLab B.V.
+  Source: https://about.gitlab.com
+
+- NestJS logo — Kamil Mysliwiec
+  Source: https://github.com/nestjs/nestjs.com
+
+- Node.js logo — Ryan Dahl
+  Source: https://nodejs.org/en/about/branding/
+
+
+Apache License 2.0
+-------------------
+- AWS logo — Amazon.com Inc.
+  Source: https://aws.amazon.com
+
+
+Mozilla Public License 2.0
+---------------------------
+- Terraform logo — HashiCorp
+  Source: https://www.hashicorp.com
+
+
+BSD License
+-----------
+- PostgreSQL elephant logo — Daniel Lundin
+  Source: https://www.postgresql.org/
+
+
+GNU General Public License (GPL)
+---------------------------------
+- Docker logo — Docker, Inc.
+  Source: https://www.docker.com/company/newsroom/media-resources/
+
+- Python logo — Python Software Foundation
+  Source: https://www.python.org
+
+
+Copyrighted Free Use
+--------------------
+- Flask logo — Armin Ronacher
+  Source: http://flask.pocoo.org/
+
+
+Fair Use
+--------
+The following copyrighted logos are used under fair use for the purpose of
+identifying technologies in a personal, non-commercial portfolio. No
+modification has been made to the logos. They are the property of their
+respective owners.
+
+- MongoDB logo — MongoDB, Inc.
+  Source: https://www.mongodb.com/brand-resources
+
+- MySQL logo — Oracle Corporation
+  Source: https://labs.mysql.com
+
+- Java logo — Oracle Corporation
+  Source: https://www.oracle.com
