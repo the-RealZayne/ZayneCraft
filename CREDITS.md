@@ -8,6 +8,12 @@ This is a personal, non-commercial portfolio website. All third-party logos and 
 |---------|--------|---------|--------|
 | Three.js | Mr.doob (Ricardo Cabello) and contributors | MIT | [threejs.org](https://threejs.org/) |
 
+## Music
+
+| Track | Artist | License | Source |
+|-------|--------|---------|--------|
+| Space | Happiness In Music | [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/) | [Free Music Archive](https://freemusicarchive.org/music/happiness-in-music/ambient-2/space-11/) |
+
 ## Technology Logos
 
 The following logos appear in this portfolio to indicate professional experience with each technology. They are used under their respective licenses as documented on Wikimedia Commons / Wikipedia.
