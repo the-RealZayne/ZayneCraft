@@ -12,11 +12,11 @@ import { SlideRenderer, SlideContent } from './systems/SlideRenderer';
 
 // Slide images - add your images to src/assets/ and import them here
 import childhoodImage from './assets/childhood.png';
-import javaImage from './assets/java.svg';
-import image2014 from './assets/2014.jpg';
+import image2024 from './assets/2024.svg';
+import image2018 from './assets/2018.jpg';
 import image2016 from './assets/2016.png';
 import image2017 from './assets/2017.jpeg';
-import image2019 from './assets/2019.jpg';
+import image2023 from './assets/2023.jpg';
 import image2020 from './assets/2020.svg';
 import image2022 from './assets/2022.jpg';
 import image2025 from './assets/2025.jpeg';
