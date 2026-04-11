@@ -60,72 +60,71 @@ export class Game {
   private slideRenderer: SlideRenderer;
   private screenMesh: THREE.Mesh | null = null;
   private raycaster: THREE.Raycaster;
-  private slides: SlideContent[] = [
-    {
-      title: 'My Journey',
-      text: 'Click the projector to start.',
-      layout: 'text-only',
-      isIntro: true
-    },
-    {
-      title: '1999',
-      text: 'This is where it all started.',
-      image: childhoodImage,
-      layout: 'image-top'
-    },
-    {
-      title: '2012',
-      text: 'Wrote my first lines of code. Java for game mods, plus learning sysadmin along the way.',
-      image: javaImage,
-      layout: 'image-top'
-    },
-    {
-      title: '2014',
-      text: 'Discovered web development. Started building side projects and taking on small client work.',
-      image: image2014,
-      layout: 'image-top'
-    },
-    {
-      title: '2016',
-      text: 'Moved into mobile app development. First internship building a prototype mental health app.',
-      image: image2016,
-      layout: 'image-top'
-    },
-    {
-      title: '2017',
-      text: 'Started a Software Development Apprenticeship at 3PL.',
-      image: image2017,
-      layout: 'image-top'
-    },
-    {
-      title: '2019',
-      text: 'Completed my apprenticeship. Joined Orka Technology Group, later promoted to Senior Software Engineer.',
-      image: image2019,
-      layout: 'image-top'
-    },
-    {
-      title: '2020',
-      text: 'Started a part-time BSc Computing + IT degree at The Open University.',
-      image: image2020,
-      layout: 'image-top'
-    },
-    {
-      title: '2022',
-      text: 'Joined Papertrail as Technical Lead.',
-      image: image2022,
-      layout: 'image-top'
-    },
-    {
-      title: '2025',
-      text: 'Joined LocalStack as Senior Full-Stack Engineer.',
-      image: image2025,
-      layout: 'image-top'
-    },
-    {
-      title: '2026',
-      text: '14 years of programming. 9 years in the industry. To be continued...',
-      layout: 'text-only'
-    },
+  private slides: SlideContent[] = [{
+  title: 'My Journey',
+  text: 'Click the projector to start.',
+  layout: 'text-only',
+  isIntro: true
+},
+{
+  title: '2013',
+  text: 'Born in New York. From the very beginning, I’ve always been a go-getter and naturally drawn to being at the center of everything.',
+  image: childhoodImage,
+  layout: 'image-top'
+},
+{
+  title: '2016',
+  text: 'Started exploring the outdoors early—hiking and fishing became a huge part of my life. I also picked up skiing this year, quickly falling in love with it.',
+  image: image2016,
+  layout: 'image-top'
+},
+{
+  title: '2017',
+  text: 'Began taking on bigger adventures, hiking over 50 miles across Maine, New Hampshire, and New York.',
+  image: image2017,
+  layout: 'image-top'
+},
+{
+  title: '2018',
+  text: 'A big year. Completed my first 3-day overnight hike on the Appalachian Trail to Speck Pond. Also started beatboxing and rapping, discovering a passion for music and rhythm.',
+  image: image2018,
+  layout: 'image-top'
+},
+{
+  title: '2020',
+  text: 'Pushed my limits further—hiked over 100 miles across Maine, including another 3-day Appalachian Trail trip. That winter, I skied six different mountains.',
+  image: image2020,
+  layout: 'image-top'
+},
+{
+  title: '2022',
+  text: 'Got my first loop station, opening the door to creating and layering my own music.',
+  image: image2022,
+  layout: 'image-top'
+},
+{
+  title: '2023',
+  text: 'Featured in a song with my friend MADDOX. Also started cliff jumping—if there’s a good spot, I’m taking the jump.',
+  image: image2023,
+  layout: 'image-top'
+},
+{
+  title: '2024',
+  text: 'Built my own mini recording studio and started experimenting with Raspberry Pi projects, stepping into the world of tech and hardware.',
+  image: image2024,
+  layout: 'image-top'
+},
+{
+  title: '2025',
+  text: 'A huge year. Built my first AI-powered Raspberry Pi robot car, started learning HTML, CSS, and JavaScript, and began gaming on PC alongside PS4. Also brought home Clyde, my purebred American Staffordshire Pit Bull Terrier.',
+  image: image2025,
+  layout: 'image-top'
+},
+{
+  title: '2026',
+  text: 'Still growing. I’ve hiked nearly 80% of the Appalachian Trail in Maine, continue creating music, coding, and pushing limits. Next goals: track & field and learning to snowboard after years of skiing.',
+  layout: 'text-only'
+},
   ];
 
   constructor() {
