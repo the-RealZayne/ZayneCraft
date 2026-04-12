@@ -2124,134 +2124,110 @@ export class Decorations {
       ctx.fillRect(0, 0, 1024, 512);
 
       // Title
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 48px "Segoe UI", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Qualifications', 512, 50);
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 44px "Segoe UI", sans-serif';
+ctx.textAlign = 'center';
+ctx.fillText('Experience', 512, 45);
 
-      // Divider line
-      ctx.strokeStyle = '#4a4a6a';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(50, 75);
-      ctx.lineTo(974, 75);
-      ctx.stroke();
+// Subtitle
+ctx.font = '18px "Segoe UI", sans-serif';
+ctx.fillStyle = '#cccccc';
+ctx.fillText('Gamer • Creator • Producer • Outdoor Enthusiast', 512, 70);
 
-      // === Bachelors Section (Top) ===
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#6b4c9a';
-      ctx.font = 'bold 28px "Segoe UI", sans-serif';
-      ctx.fillText('Bachelors', 50, 115);
+// Divider
+ctx.strokeStyle = '#4a4a6a';
+ctx.beginPath();
+ctx.moveTo(50, 85);
+ctx.lineTo(974, 85);
+ctx.stroke();
 
-      // Bachelors card
-      ctx.fillStyle = '#2d1f4e';
-      ctx.fillRect(50, 130, 924, 80);
-      ctx.fillStyle = '#6b4c9a';
-      ctx.fillRect(50, 130, 6, 80);
 
-      // University logo area
-      ctx.fillStyle = '#3d2f5e';
-      ctx.fillRect(70, 140, 60, 60);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 22px "Segoe UI", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('OU', 100, 178);
+// === HELPER: PROGRESS BAR FUNCTION ===
+function drawProgressBar(x, y, width, height, percent, color) {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(x, y, width, height);
 
-      // Degree details
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 24px "Segoe UI", sans-serif';
-      ctx.fillText('BSc Computing + IT', 150, 165);
-      ctx.font = '18px "Segoe UI", sans-serif';
-      ctx.fillStyle = '#cccccc';
-      ctx.fillText('The Open University (Expected 2027)', 150, 190);
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, width * (percent / 100), height);
 
-      // Status badge
-      ctx.fillStyle = '#ffa500';
-      ctx.font = 'bold 18px "Segoe UI", sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillText('IN PROGRESS', 959, 160);
+  ctx.strokeStyle = color;
+  ctx.strokeRect(x, y, width, height);
 
-      // Progress bar
-      ctx.fillStyle = '#1a1a2e';
-      ctx.fillRect(700, 175, 260, 16);
-      ctx.fillStyle = '#9966cc';
-      ctx.fillRect(700, 175, 156, 16); // 60% progress
-      ctx.strokeStyle = '#6b4c9a';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(700, 175, 260, 16);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 12px "Segoe UI"';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${percent}%`, x + width / 2, y + height - 3);
+}
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px "Segoe UI", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('60%', 830, 188);
 
-      // === AWS Certifications (Left side) ===
-      ctx.fillStyle = '#ff9900';
-      ctx.font = 'bold 28px "Segoe UI", sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('AWS Certifications', 50, 260);
+// === OUTDOORS (LEFT) ===
+ctx.textAlign = 'left';
+ctx.fillStyle = '#2ecc71';
+ctx.font = 'bold 24px "Segoe UI"';
+ctx.fillText('Outdoors', 50, 120);
 
-      // AWS Cert 1 - Developer Associate
-      ctx.fillStyle = '#232f3e';
-      ctx.fillRect(50, 275, 450, 55);
-      ctx.fillStyle = '#ff9900';
-      ctx.fillRect(50, 275, 6, 55);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Segoe UI", sans-serif';
-      ctx.fillText('Certified Developer - Associate', 70, 300);
-      ctx.font = '14px "Segoe UI", sans-serif';
-      ctx.fillStyle = '#aaaaaa';
-      ctx.fillText('Issued Aug 2025 · Expires Aug 2028', 70, 320);
+// Maine AT
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 16px "Segoe UI"';
+ctx.fillText('Appalachian Trail (Maine)', 50, 145);
+drawProgressBar(50, 150, 400, 12, 80, '#2ecc71');
 
-      // AWS Cert 2 - AI Practitioner
-      ctx.fillStyle = '#232f3e';
-      ctx.fillRect(50, 340, 450, 55);
-      ctx.fillStyle = '#ff9900';
-      ctx.fillRect(50, 340, 6, 55);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Segoe UI", sans-serif';
-      ctx.fillText('Certified AI Practitioner', 70, 365);
-      ctx.font = '14px "Segoe UI", sans-serif';
-      ctx.fillStyle = '#aaaaaa';
-      ctx.fillText('Issued Apr 2025 · Expires Apr 2028', 70, 385);
+// Full AT
+ctx.fillText('Full Appalachian Trail Goal', 50, 175);
+drawProgressBar(50, 180, 400, 12, 10, '#27ae60');
 
-      // AWS Cert 3 - Cloud Practitioner
-      ctx.fillStyle = '#232f3e';
-      ctx.fillRect(50, 405, 450, 55);
-      ctx.fillStyle = '#ff9900';
-      ctx.fillRect(50, 405, 6, 55);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Segoe UI", sans-serif';
-      ctx.fillText('Certified Cloud Practitioner', 70, 430);
-      ctx.font = '14px "Segoe UI", sans-serif';
-      ctx.fillStyle = '#aaaaaa';
-      ctx.fillText('Issued Jun 2024 · Expires Aug 2028', 70, 450);
+// Skiing Maine
+ctx.fillText('Maine Ski Mountains', 50, 205);
+drawProgressBar(50, 210, 400, 12, 30, '#2ecc71');
 
-      // === BCS Certifications (Right side) ===
-      ctx.fillStyle = '#1e4d8c';
-      ctx.font = 'bold 28px "Segoe UI", sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('BCS Certifications', 524, 260);
+// NH Hiking
+ctx.fillText('New Hampshire Mountains', 50, 235);
+drawProgressBar(50, 240, 400, 12, 0, '#2ecc71');
 
-      // BCS Cert 1 - Software Development
-      ctx.fillStyle = '#0a2351';
-      ctx.fillRect(524, 275, 450, 55);
-      ctx.fillStyle = '#1e4d8c';
-      ctx.fillRect(524, 275, 6, 55);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px "Segoe UI", sans-serif';
-      ctx.fillText('Level 3 Certificate in Software', 544, 297);
-      ctx.fillText('Development Context & Methodologies', 544, 317);
 
-      // BCS Cert 2 - Programming
-      ctx.fillStyle = '#0a2351';
-      ctx.fillRect(524, 340, 450, 55);
-      ctx.fillStyle = '#1e4d8c';
-      ctx.fillRect(524, 340, 6, 55);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Segoe UI", sans-serif';
-      ctx.fillText('Level 3 Certificate in Programming', 544, 375);
+// === TECH & CREATIVE (RIGHT TOP) ===
+ctx.fillStyle = '#3498db';
+ctx.font = 'bold 24px "Segoe UI"';
+ctx.fillText('Tech & Creative', 524, 120);
+
+// Coding
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 16px "Segoe UI"';
+ctx.fillText('Programming / Development', 524, 145);
+drawProgressBar(524, 150, 400, 12, 2, '#3498db');
+
+// Music
+ctx.fillText('Music Production / Loopstation', 524, 175);
+drawProgressBar(524, 180, 400, 12, 35, '#9b59b6'); // estimated creative progress
+
+
+// === GAMING (BOTTOM FULL WIDTH) ===
+ctx.fillStyle = '#f39c12';
+ctx.font = 'bold 24px "Segoe UI"';
+ctx.fillText('Gaming Progress', 50, 300);
+
+// Row 1
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 14px "Segoe UI"';
+
+ctx.fillText('GTA V', 50, 325);
+drawProgressBar(50, 330, 200, 10, 12, '#f39c12');
+
+ctx.fillText('Red Dead Redemption 2', 270, 325);
+drawProgressBar(270, 330, 200, 10, 2, '#e67e22');
+
+ctx.fillText('Minecraft', 490, 325);
+drawProgressBar(490, 330, 200, 10, 17, '#f1c40f');
+
+ctx.fillText('Apex Legends', 710, 325);
+drawProgressBar(710, 330, 200, 10, 100, '#e74c3c');
+
+// Row 2
+ctx.fillText('Destiny 2', 50, 360);
+drawProgressBar(50, 365, 200, 10, 48, '#9b59b6');
+
+ctx.fillText('Ghost Recon Breakpoint', 270, 360);
+drawProgressBar(270, 365, 200, 10, 53, '#16a085');
 
       const screenTexture = new THREE.CanvasTexture(screenCanvas);
       const screenMat = new THREE.MeshBasicMaterial({ map: screenTexture });
