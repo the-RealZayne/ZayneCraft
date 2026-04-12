@@ -2116,6 +2116,16 @@ export class Decorations {
       screenCanvas.height = 512;
       const ctx = screenCanvas.getContext('2d')!;
 
+      // === LAYOUT CONFIG ===
+      const leftX = 112;
+      const rightX = 512;
+      
+      const barWidth = 380;
+      const labelOffsetY = 0;
+      const barOffsetY = 6;
+      const rowGap = 26;
+      const sectionGap = 40;
+
       // Background gradient
       const gradient = ctx.createLinearGradient(0, 0, 0, 512);
       gradient.addColorStop(0, '#1a1a2e');
@@ -2168,50 +2178,120 @@ function drawProgressBar(
 
 
 // === OUTDOORS (LEFT) ===
-const leftX = 112;
-const rightX = 512;
-const barWidth = 400;
+let y = 120;
 
-// Section title
 ctx.textAlign = 'left';
 ctx.fillStyle = '#2ecc71';
 ctx.font = 'bold 24px "Segoe UI"';
-ctx.fillText('Outdoors', leftX, 120);
+ctx.fillText('Outdoors', leftX, y);
 
-// Maine AT
+y += sectionGap;
+
+// Appalachian Trail (MAIN)
 ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 16px "Segoe UI"';
-ctx.fillText('Appalachian Trail (Maine)', leftX, 145);
-drawProgressBar(leftX, 150, barWidth, 12, 80, '#2ecc71');
+ctx.fillText('Appalachian Trail', leftX, y);
+drawProgressBar(leftX, y + barOffsetY, barWidth, 12, 10, '#27ae60');
 
-// Full AT
-ctx.fillText('Full Appalachian Trail Goal', leftX, 175);
-drawProgressBar(leftX, 180, barWidth, 12, 10, '#27ae60');
+y += rowGap;
 
-// Skiing Maine
-ctx.fillText('Maine Ski Mountains', leftX, 205);
-drawProgressBar(leftX, 210, barWidth, 12, 30, '#2ecc71');
+// Sub categories (slightly indented text ONLY)
+ctx.font = '14px "Segoe UI"';
 
-// NH Hiking
-ctx.fillText('New Hampshire Mountains', leftX, 235);
-drawProgressBar(leftX, 240, barWidth, 12, 0, '#2ecc71');
+// Maine
+ctx.fillText('  Maine', leftX, y);
+drawProgressBar(leftX, y + barOffsetY, barWidth, 12, 80, '#2ecc71');
+
+y += rowGap;
+
+// New Hampshire
+ctx.fillText('  New Hampshire (1%)', leftX, y);
+drawProgressBar(leftX, y + barOffsetY, barWidth, 12, 1, '#2ecc71');
+
+y += rowGap;
+
+// New York
+ctx.fillText('  New York', leftX, y);
+drawProgressBar(leftX, y + barOffsetY, barWidth, 12, 0, '#2ecc71');
+
+y += rowGap;
+
+// NH Mountains
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 16px "Segoe UI"';
+ctx.fillText('NH Mountains (0 / 48)', leftX, y);
+drawProgressBar(leftX, y + barOffsetY, barWidth, 12, 0, '#2ecc71');
+
+y += rowGap;
+
+// Skiing
+ctx.fillText('Maine Ski Mountains (~30%)', leftX, y);
+drawProgressBar(leftX, y + barOffsetY, barWidth, 12, 30, '#2ecc71');
 
       
 // === TECH & CREATIVE (RIGHT TOP) ===
+y = 120;
+
 ctx.fillStyle = '#3498db';
 ctx.font = 'bold 24px "Segoe UI"';
-ctx.fillText('Tech & Creative', rightX, 120);
+ctx.fillText('Programming', rightX, y);
+
+y += sectionGap;
 
 ctx.fillStyle = '#ffffff';
-ctx.font = 'bold 16px "Segoe UI"';
+ctx.font = '14px "Segoe UI"';
 
-// Coding
-ctx.fillText('Programming / Development', rightX, 145);
-drawProgressBar(rightX, 150, barWidth, 12, 2, '#3498db');
+const skills = [
+  ['JavaScript', 2],
+  ['CSS', 2],
+  ['HTML', 5],
+  ['Discord.js', 3],
+  ['Expo', 2],
+  ['Next.js', 1],
+  ['TypeScript', 3],
+];
 
-// Music
-ctx.fillText('Music Production / Loopstation', rightX, 175);
-drawProgressBar(rightX, 180, barWidth, 12, 35, '#9b59b6');
+skills.forEach(([name, val]) => {
+  ctx.fillText(name as string, rightX, y);
+  drawProgressBar(rightX, y + barOffsetY, barWidth, 10, val as number, '#3498db');
+  y += rowGap;
+});
+
+// === MUSIC ===
+y += 10;
+
+ctx.fillStyle = '#9b59b6';
+ctx.font = 'bold 20px "Segoe UI"';
+ctx.fillText('Music', rightX, y);
+
+y += 20;
+
+ctx.fillStyle = '#ffffff';
+ctx.font = '14px "Segoe UI"';
+ctx.fillText('Production / Loopstation', rightX, y);
+drawProgressBar(rightX, y + barOffsetY, barWidth, 10, 22, '#9b59b6');
+
+// === CONTENT ===
+y += sectionGap;
+
+ctx.fillStyle = '#e74c3c';
+ctx.font = 'bold 20px "Segoe UI"';
+ctx.fillText('Content', rightX, y);
+
+y += 20;
+
+ctx.fillStyle = '#ffffff';
+ctx.font = '14px "Segoe UI"';
+
+// Twitch
+ctx.fillText('Twitch (2 followers)', rightX, y);
+drawProgressBar(rightX, y + barOffsetY, barWidth, 10, 2, '#9146FF');
+
+y += rowGap;
+
+// YouTube
+ctx.fillText('YouTube (1 subscriber)', rightX, y);
+drawProgressBar(rightX, y + barOffsetY, barWidth, 10, 1, '#FF0000');      
 
 
 // === GAMING (BOTTOM FULL WIDTH) ===
@@ -2220,7 +2300,6 @@ ctx.fillStyle = '#f39c12';
 ctx.font = 'bold 24px "Segoe UI"';
 ctx.fillText('Gaming Progress', 512, 285);
 
-// Reset alignment for labels
 ctx.textAlign = 'left';
 
 // Row positions
