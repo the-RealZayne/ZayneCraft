@@ -2117,40 +2117,44 @@ export class Decorations {
       const ctx = screenCanvas.getContext('2d')!;
 
       // === LAYOUT CONFIG ===
-const leftX = 112;
-const rightX = 512;
-const centerX = 512;
+const leftCenter = 256;      // Center of left half
+const rightCenter = 768;     // Center of right half
 
-const barWidth = 380;
-const barOffsetY = 6;
-const rowGap = 26;
-const sectionGap = 40;
+const leftX = 80;            // Left edge for text + bars (left side)
+const rightX = 580;          // Left edge for text + bars (right side)
 
-// Background gradient (unchanged)
+const barWidth = 360;
+const barHeight = 12;
+const barOffsetY = 7;
+const rowGap = 27;
+const sectionGap = 42;
+
+// Background gradient
 const gradient = ctx.createLinearGradient(0, 0, 0, 512);
 gradient.addColorStop(0, '#1a1a2e');
 gradient.addColorStop(1, '#16213e');
 ctx.fillStyle = gradient;
 ctx.fillRect(0, 0, 1024, 512);
 
-// Title + Subtitle (unchanged)
+// Title
 ctx.fillStyle = '#ffffff';
-ctx.font = 'bold 44px "Segoe UI", sans-serif';
+ctx.font = 'bold 48px "Segoe UI", sans-serif';
 ctx.textAlign = 'center';
-ctx.fillText('Experience', 512, 45);
+ctx.fillText('Experience', 512, 48);
 
-ctx.font = '18px "Segoe UI", sans-serif';
+ctx.font = '19px "Segoe UI", sans-serif';
 ctx.fillStyle = '#cccccc';
-ctx.fillText('Gamer • Creator • Producer • Outdoor Enthusiast', 512, 70);
+ctx.fillText('Gamer • Creator • Producer • Outdoor Enthusiast', 512, 78);
 
 // Divider
 ctx.strokeStyle = '#4a4a6a';
+ctx.lineWidth = 2;
 ctx.beginPath();
-ctx.moveTo(50, 85);
-ctx.lineTo(974, 85);
+ctx.moveTo(50, 95);
+ctx.lineTo(974, 95);
 ctx.stroke();
 
-// === HELPER: PROGRESS BAR FUNCTION ===
+// Helper: Progress Bar
 function drawProgressBar(
   x: number,
   y: number,
@@ -2159,43 +2163,42 @@ function drawProgressBar(
   percent: number,
   color: string
 ): void {
-  ctx.fillStyle = '#1a1a2e';
+  ctx.fillStyle = '#0f1629';
   ctx.fillRect(x, y, width, height);
+  
   ctx.fillStyle = color;
-  ctx.fillRect(x, y, width * (percent / 100), height);
-  ctx.strokeStyle = color;
+  ctx.fillRect(x, y, Math.max(0, width * (percent / 100)), height);
+  
+  ctx.strokeStyle = '#ffffff33';
+  ctx.lineWidth = 1;
   ctx.strokeRect(x, y, width, height);
 
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 12px "Segoe UI"';
+  ctx.font = 'bold 13px "Segoe UI"';
   ctx.textAlign = 'center';
-  ctx.fillText(`${percent}%`, x + width / 2, y + height - 3);
+  ctx.fillText(`${percent}%`, x + width / 2, y + height - 2);
 }
 
+// ====================== OUTDOORS (Left Top)
 // ======================
-// OUTDOORS (LEFT SIDE)
-// ======================
-let y = 120;
+let y = 130;
 
 ctx.textAlign = 'center';
 ctx.fillStyle = '#2ecc71';
-ctx.font = 'bold 28px "Segoe UI"';
-ctx.fillText('Outdoors', centerX / 2 + 20, y);   // Centered on left half
+ctx.font = 'bold 30px "Segoe UI"';
+ctx.fillText('Outdoors', leftCenter, y);
 
 y += sectionGap;
 
-// Main: Appalachian Trail
 ctx.textAlign = 'left';
 ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 17px "Segoe UI"';
 ctx.fillText('Appalachian Trail', leftX, y);
-drawProgressBar(leftX, y + barOffsetY, barWidth, 12, 10, '#27ae60');
+drawProgressBar(leftX, y + barOffsetY, barWidth, barHeight, 10, '#27ae60');
 y += rowGap;
 
-// Subcategories (left-aligned, indented slightly)
+// Sub items
 ctx.font = '15px "Segoe UI"';
-ctx.fillStyle = '#ffffff';
-
 const outdoorsSubs = [
   { name: 'Maine', percent: 80, color: '#2ecc71' },
   { name: 'New Hampshire', percent: 1, color: '#2ecc71' },
@@ -2205,21 +2208,19 @@ const outdoorsSubs = [
 ];
 
 outdoorsSubs.forEach(item => {
-  ctx.fillText('   ' + item.name, leftX, y);           // slight indent
-  drawProgressBar(leftX, y + barOffsetY, barWidth, 12, item.percent, item.color);
+  ctx.fillText(item.name, leftX, y);
+  drawProgressBar(leftX, y + barOffsetY, barWidth, barHeight, item.percent, item.color);
   y += rowGap;
 });
 
+// ====================== PROGRAMMING (Right Top)
 // ======================
-// RIGHT SIDE: PROGRAMMING + MUSIC + CONTENT
-// ======================
-y = 120;
+y = 130;
 
-// Programming (centered on right side)
 ctx.textAlign = 'center';
 ctx.fillStyle = '#3498db';
-ctx.font = 'bold 28px "Segoe UI"';
-ctx.fillText('Programming', rightX + (1024 - rightX) / 2 - 30, y);
+ctx.font = 'bold 30px "Segoe UI"';
+ctx.fillText('Programming', rightCenter, y);
 
 y += sectionGap;
 
@@ -2237,84 +2238,90 @@ const skills = [
   ['TypeScript', 3],
 ];
 
-skills.forEach(([name, val]) => {
+skills.forEach(([name, percent]) => {
   ctx.fillText(name as string, rightX, y);
-  drawProgressBar(rightX, y + barOffsetY, barWidth, 12, val as number, '#3498db');
+  drawProgressBar(rightX, y + barOffsetY, barWidth, barHeight, percent as number, '#3498db');
   y += rowGap;
 });
 
-// Music
-y += 15;
+// ====================== MUSIC (Lower Left)
+// ======================
+let musicY = 295;
+
 ctx.textAlign = 'center';
 ctx.fillStyle = '#9b59b6';
-ctx.font = 'bold 24px "Segoe UI"';
-ctx.fillText('Music', rightX + (1024 - rightX) / 2 - 30, y);
-y += 28;
+ctx.font = 'bold 26px "Segoe UI"';
+ctx.fillText('Music', leftCenter, musicY);
+musicY += 32;
 
 ctx.textAlign = 'left';
 ctx.fillStyle = '#ffffff';
 ctx.font = '15px "Segoe UI"';
-ctx.fillText('Production / Loopstation', rightX, y);
-drawProgressBar(rightX, y + barOffsetY, barWidth, 12, 22, '#9b59b6');
-y += rowGap + 10;
+ctx.fillText('Production / Loopstation', leftX, musicY);
+drawProgressBar(leftX, musicY + barOffsetY, barWidth, barHeight, 22, '#9b59b6');
 
-// Content
+// ====================== CONTENT (Lower Right) - Twitch & YouTube stacked
+// ======================
+let contentY = 295;
+
 ctx.textAlign = 'center';
 ctx.fillStyle = '#e74c3c';
-ctx.font = 'bold 24px "Segoe UI"';
-ctx.fillText('Content', rightX + (1024 - rightX) / 2 - 30, y);
-y += 28;
+ctx.font = 'bold 26px "Segoe UI"';
+ctx.fillText('Content', rightCenter, contentY);
+contentY += 32;
 
 ctx.textAlign = 'left';
 ctx.fillStyle = '#ffffff';
 ctx.font = '15px "Segoe UI"';
 
-ctx.fillText('Twitch (2 followers)', rightX, y);
-drawProgressBar(rightX, y + barOffsetY, barWidth, 12, 2, '#9146FF');
-y += rowGap;
+// YouTube first
+ctx.fillText('YouTube (1 subscriber)', rightX, contentY);
+drawProgressBar(rightX, contentY + barOffsetY, barWidth, barHeight, 1, '#FF0000');
+contentY += rowGap;
 
-ctx.fillText('YouTube (1 subscriber)', rightX, y);
-drawProgressBar(rightX, y + barOffsetY, barWidth, 12, 1, '#FF0000');
+// Twitch below it
+ctx.fillText('Twitch (2 followers)', rightX, contentY);
+drawProgressBar(rightX, contentY + barOffsetY, barWidth, barHeight, 2, '#9146FF');
 
+// ====================== GAMING PROGRESS (Bottom Center)
 // ======================
-// GAMING PROGRESS (BOTTOM - FULL WIDTH, CENTERED HEADER)
-// ======================
+const gameY1 = 395;
+const gameY2 = 435;
+const gameBarW = 165;
+
 ctx.textAlign = 'center';
 ctx.fillStyle = '#f39c12';
-ctx.font = 'bold 28px "Segoe UI"';
-ctx.fillText('Gaming Progress', 512, 285);
-
-const row1Y = 315;
-const row2Y = 355;
-const colWidth = 200;
-const col1 = 80;
-const col2 = col1 + colWidth;
-const col3 = col2 + colWidth;
-const col4 = col3 + colWidth;
+ctx.font = 'bold 29px "Segoe UI"';
+ctx.fillText('Gaming Progress', 512, 355);
 
 ctx.textAlign = 'left';
 ctx.fillStyle = '#ffffff';
-ctx.font = 'bold 14px "Segoe UI"';
+ctx.font = 'bold 14.5px "Segoe UI"';
+
+const col1 = 85;
+const col2 = 285;
+const col3 = 485;
+const col4 = 685;
 
 // Row 1
-ctx.fillText('GTA V', col1, row1Y);
-drawProgressBar(col1, row1Y + 5, 170, 10, 12, '#f39c12');
+ctx.fillText('GTA V', col1, gameY1);
+drawProgressBar(col1, gameY1 + 6, gameBarW, 11, 12, '#f39c12');
 
-ctx.fillText('Red Dead Redemption 2', col2, row1Y);
-drawProgressBar(col2, row1Y + 5, 170, 10, 2, '#e67e22');
+ctx.fillText('Red Dead Redemption 2', col2, gameY1);
+drawProgressBar(col2, gameY1 + 6, gameBarW, 11, 2, '#e67e22');
 
-ctx.fillText('Minecraft', col3, row1Y);
-drawProgressBar(col3, row1Y + 5, 170, 10, 17, '#f1c40f');
+ctx.fillText('Minecraft', col3, gameY1);
+drawProgressBar(col3, gameY1 + 6, gameBarW, 11, 17, '#f1c40f');
 
-ctx.fillText('Apex Legends', col4, row1Y);
-drawProgressBar(col4, row1Y + 5, 170, 10, 100, '#e74c3c');
+ctx.fillText('Apex Legends', col4, gameY1);
+drawProgressBar(col4, gameY1 + 6, gameBarW, 11, 100, '#e74c3c');
 
 // Row 2
-ctx.fillText('Destiny 2', col1, row2Y);
-drawProgressBar(col1, row2Y + 5, 170, 10, 48, '#9b59b6');
+ctx.fillText('Destiny 2', col1, gameY2);
+drawProgressBar(col1, gameY2 + 6, gameBarW, 11, 48, '#9b59b6');
 
-ctx.fillText('Ghost Recon Breakpoint', col2, row2Y);
-drawProgressBar(col2, row2Y + 5, 170, 10, 53, '#16a085');
+ctx.fillText('Ghost Recon Breakpoint', col2, gameY2);
+drawProgressBar(col2, gameY2 + 6, gameBarW, 11, 53, '#16a085');
 
       const screenTexture = new THREE.CanvasTexture(screenCanvas);
       const screenMat = new THREE.MeshBasicMaterial({ map: screenTexture });
