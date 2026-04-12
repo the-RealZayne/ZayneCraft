@@ -2143,7 +2143,14 @@ ctx.stroke();
 
 
 // === HELPER: PROGRESS BAR FUNCTION ===
-function drawProgressBar(x, y, width, height, percent, color) {
+function drawProgressBar(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  percent: number,
+  color: string
+): void {
   ctx.fillStyle = '#1a1a2e';
   ctx.fillRect(x, y, width, height);
 
