@@ -2168,73 +2168,93 @@ function drawProgressBar(
 
 
 // === OUTDOORS (LEFT) ===
+const leftX = 112;
+const rightX = 512;
+const barWidth = 400;
+
+// Section title
 ctx.textAlign = 'left';
 ctx.fillStyle = '#2ecc71';
 ctx.font = 'bold 24px "Segoe UI"';
-ctx.fillText('Outdoors', 50, 120);
+ctx.fillText('Outdoors', leftX, 120);
 
 // Maine AT
 ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 16px "Segoe UI"';
-ctx.fillText('Appalachian Trail (Maine)', 50, 145);
-drawProgressBar(50, 150, 400, 12, 80, '#2ecc71');
+ctx.fillText('Appalachian Trail (Maine)', leftX, 145);
+drawProgressBar(leftX, 150, barWidth, 12, 80, '#2ecc71');
 
 // Full AT
-ctx.fillText('Full Appalachian Trail Goal', 50, 175);
-drawProgressBar(50, 180, 400, 12, 10, '#27ae60');
+ctx.fillText('Full Appalachian Trail Goal', leftX, 175);
+drawProgressBar(leftX, 180, barWidth, 12, 10, '#27ae60');
 
 // Skiing Maine
-ctx.fillText('Maine Ski Mountains', 50, 205);
-drawProgressBar(50, 210, 400, 12, 30, '#2ecc71');
+ctx.fillText('Maine Ski Mountains', leftX, 205);
+drawProgressBar(leftX, 210, barWidth, 12, 30, '#2ecc71');
 
 // NH Hiking
-ctx.fillText('New Hampshire Mountains', 50, 235);
-drawProgressBar(50, 240, 400, 12, 0, '#2ecc71');
+ctx.fillText('New Hampshire Mountains', leftX, 235);
+drawProgressBar(leftX, 240, barWidth, 12, 0, '#2ecc71');
 
-
+      
 // === TECH & CREATIVE (RIGHT TOP) ===
 ctx.fillStyle = '#3498db';
 ctx.font = 'bold 24px "Segoe UI"';
-ctx.fillText('Tech & Creative', 524, 120);
+ctx.fillText('Tech & Creative', rightX, 120);
 
-// Coding
 ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 16px "Segoe UI"';
-ctx.fillText('Programming / Development', 524, 145);
-drawProgressBar(524, 150, 400, 12, 2, '#3498db');
+
+// Coding
+ctx.fillText('Programming / Development', rightX, 145);
+drawProgressBar(rightX, 150, barWidth, 12, 2, '#3498db');
 
 // Music
-ctx.fillText('Music Production / Loopstation', 524, 175);
-drawProgressBar(524, 180, 400, 12, 35, '#9b59b6'); // estimated creative progress
+ctx.fillText('Music Production / Loopstation', rightX, 175);
+drawProgressBar(rightX, 180, barWidth, 12, 35, '#9b59b6');
 
 
 // === GAMING (BOTTOM FULL WIDTH) ===
+ctx.textAlign = 'center';
 ctx.fillStyle = '#f39c12';
 ctx.font = 'bold 24px "Segoe UI"';
-ctx.fillText('Gaming Progress', 50, 300);
+ctx.fillText('Gaming Progress', 512, 285);
+
+// Reset alignment for labels
+ctx.textAlign = 'left';
+
+// Row positions
+const row1Y = 310;
+const row2Y = 345;
+
+// Column X positions (centered grid)
+const col1 = 112;
+const col2 = 312;
+const col3 = 512;
+const col4 = 712;
 
 // Row 1
 ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 14px "Segoe UI"';
 
-ctx.fillText('GTA V', 50, 325);
-drawProgressBar(50, 330, 200, 10, 12, '#f39c12');
+ctx.fillText('GTA V', col1, row1Y);
+drawProgressBar(col1, row1Y + 5, 180, 10, 12, '#f39c12');
 
-ctx.fillText('Red Dead Redemption 2', 270, 325);
-drawProgressBar(270, 330, 200, 10, 2, '#e67e22');
+ctx.fillText('Red Dead Redemption 2', col2, row1Y);
+drawProgressBar(col2, row1Y + 5, 180, 10, 2, '#e67e22');
 
-ctx.fillText('Minecraft', 490, 325);
-drawProgressBar(490, 330, 200, 10, 17, '#f1c40f');
+ctx.fillText('Minecraft', col3, row1Y);
+drawProgressBar(col3, row1Y + 5, 180, 10, 17, '#f1c40f');
 
-ctx.fillText('Apex Legends', 710, 325);
-drawProgressBar(710, 330, 200, 10, 100, '#e74c3c');
+ctx.fillText('Apex Legends', col4, row1Y);
+drawProgressBar(col4, row1Y + 5, 180, 10, 100, '#e74c3c');
 
 // Row 2
-ctx.fillText('Destiny 2', 50, 360);
-drawProgressBar(50, 365, 200, 10, 48, '#9b59b6');
+ctx.fillText('Destiny 2', col1, row2Y);
+drawProgressBar(col1, row2Y + 5, 180, 10, 48, '#9b59b6');
 
-ctx.fillText('Ghost Recon Breakpoint', 270, 360);
-drawProgressBar(270, 365, 200, 10, 53, '#16a085');
+ctx.fillText('Ghost Recon Breakpoint', col2, row2Y);
+drawProgressBar(col2, row2Y + 5, 180, 10, 53, '#16a085');
 
       const screenTexture = new THREE.CanvasTexture(screenCanvas);
       const screenMat = new THREE.MeshBasicMaterial({ map: screenTexture });
