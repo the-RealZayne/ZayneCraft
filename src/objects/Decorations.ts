@@ -2121,7 +2121,6 @@ export class Decorations {
       const rightX = 512;
       
       const barWidth = 380;
-      const labelOffsetY = 0;
       const barOffsetY = 6;
       const rowGap = 26;
       const sectionGap = 40;
